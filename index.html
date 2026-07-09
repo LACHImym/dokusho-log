@@ -22,6 +22,12 @@ main{ max-width:560px; margin:0 auto; padding:20px 20px 60px; }
 header.app{ display:flex; align-items:baseline; justify-content:space-between; padding:8px 2px 18px; }
 h1{ font-family:var(--sans); font-size:22px; font-weight:600; margin:0; letter-spacing:.06em; }
 #whoami{ font-size:13px; color:var(--sub); background:none; border:none; font-family:var(--sans); cursor:pointer; padding:4px; }
+#net{ display:none; font-size:12.5px; color:var(--shu); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:12px; }
+#net.on{ display:block; }
+#toast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:13.5px; padding:10px 18px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:20; max-width:86vw; }
+#toast.on{ opacity:1; }
+.banner{ font-size:13px; color:var(--sub); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:12px; line-height:1.8; }
+.banner button{ background:none; border:1px solid var(--line); color:var(--shu); border-radius:8px; padding:4px 10px; font-size:12.5px; font-family:var(--sans); cursor:pointer; margin-right:6px; }
 .entry{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
 .entry input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-size:16px; outline:none; }
 .entry input[type="text"]:focus{ border-bottom-color:var(--shu); }
@@ -30,13 +36,21 @@ h1{ font-family:var(--sans); font-size:22px; font-weight:600; margin:0; letter-s
 #fin{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:7px 8px; font-size:14px; font-family:var(--sans); color-scheme:light dark; }
 #add{ background:var(--shu); color:var(--shu-ink); border:none; border-radius:10px; padding:10px 20px; font-size:15px; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
 #add:active{ transform:scale(.97); }
-.month{ margin-top:30px; }
+#add:disabled{ opacity:.5; }
+.isbnrow{ display:flex; align-items:center; gap:10px; }
+.isbnrow input[type="text"]{ width:190px; flex:none; font-size:13px; }
+#isbnst{ font-size:12px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#filter{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+.chip{ background:none; border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:6px 14px; font-size:13px; font-family:var(--sans); cursor:pointer; }
+.chip.on{ border-color:var(--shu); color:var(--shu); font-weight:600; }
+.month{ margin-top:26px; }
 .month>.head{ display:flex; align-items:baseline; justify-content:space-between; padding:0 2px 6px; }
 .month h2{ font-family:var(--sans); font-size:17px; font-weight:600; margin:0; }
 .month h2 b{ color:var(--shu); font-size:20px; margin-left:6px; }
 .mkimg{ background:none; border:1px solid var(--line); color:var(--sub); border-radius:8px; padding:6px 12px; font-size:13px; font-family:var(--sans); cursor:pointer; }
 .mkimg:hover{ border-color:var(--shu); color:var(--shu); }
-.book{ border-top:1px solid var(--line); padding:12px 2px; cursor:pointer; }
+.book{ border-top:1px solid var(--line); padding:12px 2px; }
+.book.mine{ cursor:pointer; }
 .book:last-child{ border-bottom:1px solid var(--line); }
 .book .t{ font-family:var(--sans); font-weight:600; font-size:15.5px; line-height:1.5; }
 .book .wrap{ display:flex; gap:12px; align-items:flex-start; }
@@ -44,11 +58,9 @@ h1{ font-family:var(--sans); font-size:22px; font-weight:600; margin:0; letter-s
 .book img.cv{ width:42px; border-radius:3px; border:1px solid var(--line); flex:none; display:block; }
 .mkcard{ flex:none; align-self:center; background:none; border:1px solid var(--line); color:var(--faint); border-radius:8px; padding:5px 10px; font-size:12px; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
 .mkcard:hover{ border-color:var(--shu); color:var(--shu); }
-.isbnrow{ display:flex; align-items:center; gap:10px; }
-.isbnrow input[type="text"]{ width:190px; flex:none; font-size:13px; }
-#isbnst{ font-size:12px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .book .m{ font-size:12.5px; color:var(--sub); margin-top:3px; }
 .book .m .d{ color:var(--faint); margin-right:8px; }
+.book .m .who{ color:var(--shu); margin-right:8px; }
 .edit input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:15px; outline:none; }
 .edit .row{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
 .edit .row input[type="date"]{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:6px 8px; font-size:13px; color-scheme:light dark; }
@@ -59,20 +71,30 @@ h1{ font-family:var(--sans); font-size:22px; font-weight:600; margin:0; letter-s
 .empty .big{ font-family:var(--sans); font-size:17px; color:var(--ink); }
 footer.app{ margin-top:44px; text-align:center; font-size:12.5px; color:var(--faint); }
 footer.app button{ background:none; border:none; color:var(--faint); font-size:12.5px; font-family:var(--sans); cursor:pointer; padding:4px 6px; text-decoration:underline; text-underline-offset:3px; }
-#overlay{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:9; }
-#overlay.on{ display:flex; }
-#sheet{ background:var(--card); border-radius:14px; padding:14px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#overlay, #pick{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:9; }
+#overlay.on, #pick.on{ display:flex; }
+#sheet, #picksheet{ background:var(--card); border-radius:14px; padding:14px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
 #shot{ width:100%; border-radius:8px; display:block; }
 #sheet .hint{ font-size:12.5px; color:var(--sub); margin:10px 2px; line-height:1.7; }
 #sheet .row{ display:flex; gap:8px; justify-content:flex-end; }
+#picksheet h2{ font-family:var(--sans); font-size:17px; font-weight:600; margin:6px 4px 4px; }
+#picksheet .lead{ font-size:12.5px; color:var(--sub); margin:0 4px 14px; }
+#members{ display:flex; flex-direction:column; gap:8px; }
+.mem{ background:none; border:1px solid var(--line); color:var(--ink); border-radius:10px; padding:12px; font-size:15px; font-family:var(--sans); cursor:pointer; text-align:left; }
+.mem:hover{ border-color:var(--shu); }
+#picksheet .newrow{ display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+#newname{ flex:1; min-width:0; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; outline:none; }
+#picksheet .foot{ display:flex; justify-content:flex-end; margin-top:12px; }
 </style>
 </head>
 <body>
 <main>
 <header class="app">
   <h1>読書ログ</h1>
-  <button id="whoami" title="名前を変更"></button>
+  <button id="whoami" title="部員を切り替え"></button>
 </header>
+
+<div id="net"></div>
 
 <section class="entry">
   <input type="text" id="title" placeholder="本のタイトル" autocomplete="off">
@@ -87,10 +109,14 @@ footer.app button{ background:none; border:none; color:var(--faint); font-size:1
   </div>
 </section>
 
+<div id="migrate"></div>
+
+<div id="filter"></div>
+
 <section id="shelf"></section>
 
 <footer class="app">
-  <button id="exp">データを書き出す</button>・
+  <button id="exp">自分の記録を書き出す</button>・
   <button id="imp">読み込む</button>・
   <button id="theme">テーマ切替</button>
 </footer>
@@ -98,7 +124,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-size:1
 
 <div id="overlay">
   <div id="sheet">
-    <img id="shot" alt="月まとめ画像">
+    <img id="shot" alt="まとめ画像">
     <p class="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
     <div class="row">
       <button class="btn" id="share" hidden>共有…</button>
@@ -107,27 +133,46 @@ footer.app button{ background:none; border:none; color:var(--faint); font-size:1
     </div>
   </div>
 </div>
+
+<div id="pick">
+  <div id="picksheet">
+    <h2>あなたはだれ？</h2>
+    <p class="lead">名前を選ぶとその人の本棚として記録されます。</p>
+    <div id="members"></div>
+    <div class="newrow">
+      <input type="text" id="newname" placeholder="新しい部員の名前" autocomplete="off">
+      <button class="btn save" id="addmem">追加</button>
+    </div>
+    <div class="foot"><button class="btn" id="pickclose" hidden>閉じる</button></div>
+  </div>
+</div>
 <input type="file" id="file" accept=".json,application/json" hidden>
+<div id="toast"></div>
 
 <script>
 (function(){
 'use strict';
-var LS='yonda-log-v1';
+var DB_URL='https://lkctqbrpifyyofkcippj.supabase.co';
+var DB_KEY='sb_publishable_YLr0hTxmAOmE6ebF6-rS7A_LUKzdr7z';
 var TAG='#wa読書部';
+var CLUB='あえる読書部';
 var DISP='-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
 var SANS='-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
 
-var state={name:'', books:[], editing:null};
-try{
-  var raw=localStorage.getItem(LS);
-  if(raw){ var d=JSON.parse(raw); state.name=d.name||''; state.books=Array.isArray(d.books)?d.books:[]; }
-}catch(e){}
+var state={me:'', members:[], books:[], editing:null, filter:'*'};
 
-function save(){
-  try{ localStorage.setItem(LS, JSON.stringify({name:state.name, books:state.books})); }catch(e){}
-}
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+var toastTimer=null;
+function toast(msg){
+  var t=$('toast');
+  t.textContent=msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove('on'); }, 2600);
+}
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function today(){
   var n=new Date();
   return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
@@ -135,19 +180,59 @@ function today(){
 function md(iso){ var p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
 function ymLabel(ym){ var p=ym.split('-'); return (+p[0])+'年'+(+p[1])+'月'; }
 
+function api(path, opts){
+  opts=opts||{};
+  opts.headers=Object.assign({
+    'apikey':DB_KEY,
+    'Authorization':'Bearer '+DB_KEY,
+    'Content-Type':'application/json',
+    'Prefer':'return=representation'
+  }, opts.headers||{});
+  return fetch(DB_URL+'/rest/v1/'+path, opts).then(function(r){
+    if(r.status===204) return null;
+    if(!r.ok) return r.json().catch(function(){ return {}; }).then(function(e){ var err=new Error('api '+r.status); err.status=r.status; err.body=e; throw err; });
+    return r.json();
+  });
+}
+function normBook(b){ b.desc=b.description||''; return b; }
+function loadAll(){
+  return Promise.all([
+    api('members?select=name&order=name.asc'),
+    api('books?select=*&order=date.desc,created_at.desc&limit=2000')
+  ]).then(function(rs){
+    state.members=rs[0].map(function(m){ return m.name; });
+    state.books=rs[1].map(normBook);
+    lsSet('yonda-cache-v1', JSON.stringify({members:state.members, books:state.books}));
+    $('net').classList.remove('on');
+  });
+}
+function netFail(){
+  $('net').textContent='ネットにつながりませんでした。表示は前回の内容です。電波の良いところで開き直してください。';
+  $('net').classList.add('on');
+}
+
 function render(){
-  $('whoami').textContent=(state.name||'名前を設定')+' ▾';
+  $('whoami').textContent=(state.me||'名前を選ぶ')+' ▾';
+  var f=$('filter');
+  if(state.members.length){
+    var chips='<button class="chip'+(state.filter==='*'?' on':'')+'" data-f="*">みんな</button>';
+    state.members.forEach(function(m){
+      chips+='<button class="chip'+(state.filter===m?' on':'')+'" data-f="'+esc(m)+'">'+esc(m)+'</button>';
+    });
+    f.innerHTML=chips;
+  }else{ f.innerHTML=''; }
   var shelf=$('shelf');
-  if(!state.books.length){
+  var books=state.books.filter(function(b){ return state.filter==='*'||b.member===state.filter; });
+  if(!books.length){
     shelf.innerHTML='<div class="empty"><div class="big">まだ記録がありません</div>読み終わった本のタイトルを入れて、最初の1冊をどうぞ。</div>';
     return;
   }
   var groups={};
-  state.books.forEach(function(b){ var ym=b.date.slice(0,7); (groups[ym]=groups[ym]||[]).push(b); });
+  books.forEach(function(b){ var ym=b.date.slice(0,7); (groups[ym]=groups[ym]||[]).push(b); });
   var yms=Object.keys(groups).sort().reverse();
   var html='';
   yms.forEach(function(ym){
-    var arr=groups[ym].slice().sort(function(a,b){ return a.date<b.date?1:-1; });
+    var arr=groups[ym];
     html+='<section class="month"><div class="head"><h2>'+ymLabel(ym)+'<b>'+arr.length+'冊</b></h2>'+
       '<button class="mkimg" data-ym="'+ym+'">この月を1枚に</button></div>';
     arr.forEach(function(b){
@@ -161,10 +246,12 @@ function render(){
           '<button class="btn" data-act="cancel">やめる</button>'+
           '<button class="btn del" data-act="del">削除</button></div></div>';
       }else{
-        html+='<div class="book" data-id="'+b.id+'"><div class="wrap">'+
+        var mine=b.member===state.me;
+        html+='<div class="book'+(mine?' mine':'')+'" data-id="'+b.id+'"><div class="wrap">'+
           (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'')+
           '<div class="bd"><div class="t">『'+esc(b.title)+'』</div>'+
-          '<div class="m"><span class="d">'+md(b.date)+'</span>'+esc(b.note||'')+'</div></div>'+
+          '<div class="m">'+(state.filter==='*'?'<span class="who">'+esc(b.member)+'</span>':'')+
+          '<span class="d">'+md(b.date)+'</span>'+esc(b.note||'')+'</div></div>'+
           '<button class="mkcard">1枚に</button></div></div>';
       }
     });
@@ -173,16 +260,81 @@ function render(){
   shelf.innerHTML=html;
 }
 
+function renderPick(){
+  var box=$('members');
+  box.innerHTML=state.members.map(function(m){
+    return '<button class="mem" data-m="'+esc(m)+'">'+esc(m)+(m===state.me?'　✓':'')+'</button>';
+  }).join('')||'<div style="font-size:13px;color:var(--sub);">まだ部員がいません。下で最初の部員を追加してください。</div>';
+  $('pickclose').hidden=!state.me;
+}
+function openPick(){ renderPick(); $('pick').classList.add('on'); }
+$('pick').addEventListener('click', function(e){
+  var mb=e.target.closest('.mem');
+  if(mb){
+    state.me=mb.getAttribute('data-m');
+    lsSet('yonda-me', state.me);
+    $('pick').classList.remove('on');
+    render(); checkMigrate();
+    return;
+  }
+  if(e.target===$('pick')&&state.me){ $('pick').classList.remove('on'); }
+});
+$('pickclose').addEventListener('click', function(){ $('pick').classList.remove('on'); });
+$('addmem').addEventListener('click', function(){
+  var n=$('newname').value.trim();
+  if(!n) return;
+  if(state.members.indexOf(n)>=0){
+    state.me=n; lsSet('yonda-me', n);
+    $('pick').classList.remove('on'); render(); checkMigrate(); return;
+  }
+  api('members', {method:'POST', body:JSON.stringify({name:n})})
+    .then(function(){
+      state.members.push(n); state.members.sort();
+      state.me=n; lsSet('yonda-me', n);
+      $('newname').value='';
+      $('pick').classList.remove('on');
+      render(); checkMigrate();
+    })
+    .catch(function(e){
+      if(e.status===409){
+        state.me=n; lsSet('yonda-me', n);
+        $('pick').classList.remove('on'); render();
+      }else{
+        toast('追加できませんでした。電波を確認してもう一度お試しください。');
+      }
+    });
+});
+$('whoami').addEventListener('click', openPick);
+$('filter').addEventListener('click', function(e){
+  var c=e.target.closest('.chip');
+  if(!c) return;
+  state.filter=c.getAttribute('data-f');
+  render();
+});
+
 $('fin').value=today();
 
 $('add').addEventListener('click', function(){
   var t=$('title').value.trim();
   if(!t){ $('title').focus(); return; }
-  state.books.push({ id:Date.now()+''+Math.floor(Math.random()*1000), title:t, note:$('note').value.trim(), date:$('fin').value||today(),
-    isbn:pending?pending.isbn:'', author:pending?pending.author:'', cover:pending?pending.cover:'', desc:pending?pending.desc:'' });
-  $('title').value=''; $('note').value=''; $('fin').value=today();
-  $('isbn').value=''; $('isbnst').textContent=''; pending=null;
-  save(); render();
+  if(!state.me){ openPick(); return; }
+  var btn=$('add');
+  btn.disabled=true;
+  var row={
+    member:state.me, title:t, note:$('note').value.trim(), date:$('fin').value||today(),
+    isbn:pending?pending.isbn:'', author:pending?pending.author:'',
+    cover:pending?pending.cover:'', description:pending?pending.desc:''
+  };
+  api('books', {method:'POST', body:JSON.stringify(row)})
+    .then(function(rs){
+      state.books.unshift(normBook(rs[0]));
+      state.books.sort(function(a,b){ return a.date<b.date?1:-1; });
+      $('title').value=''; $('note').value=''; $('fin').value=today();
+      $('isbn').value=''; $('isbnst').textContent=''; pending=null;
+      render();
+    })
+    .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
+    .then(function(){ btn.disabled=false; });
 });
 $('title').addEventListener('keydown', function(e){ if(e.key==='Enter'){ $('add').click(); } });
 $('note').addEventListener('keydown', function(e){ if(e.key==='Enter'){ $('add').click(); } });
@@ -222,11 +374,6 @@ function lookupIsbn(v){
     .catch(function(){ $('isbnst').textContent='通信できませんでした（手入力でOK）'; pending=null; });
 }
 
-$('whoami').addEventListener('click', function(){
-  var n=prompt('お名前（まとめ画像に載ります）', state.name||'');
-  if(n!==null){ state.name=n.trim(); save(); render(); }
-});
-
 $('shelf').addEventListener('click', function(e){
   var mk=e.target.closest('.mkimg');
   if(mk){ makeImage(mk.getAttribute('data-ym')); return; }
@@ -235,36 +382,55 @@ $('shelf').addEventListener('click', function(e){
   var card=e.target.closest('.book');
   if(!card) return;
   var id=card.getAttribute('data-id');
+  var b=state.books.find(function(x){ return String(x.id)===String(id); });
+  if(!b) return;
   var act=e.target.getAttribute('data-act');
   if(card.classList.contains('edit')){
     if(!act) return;
-    var b=state.books.find(function(x){ return x.id===id; });
-    if(act==='save'&&b){
+    if(act==='cancel'){ state.editing=null; render(); return; }
+    if(act==='del'){
+      if(!confirm('『'+b.title+'』を削除しますか？')) return;
+      api('books?id=eq.'+b.id, {method:'DELETE'})
+        .then(function(){
+          state.books=state.books.filter(function(x){ return x.id!==b.id; });
+          state.editing=null; render();
+        })
+        .catch(function(){ toast('削除できませんでした。電波を確認してもう一度お試しください。'); });
+      return;
+    }
+    if(act==='save'){
+      var patch={};
       var nt=card.querySelector('.et').value.trim();
-      if(nt){ b.title=nt; b.note=card.querySelector('.en').value.trim(); b.date=card.querySelector('.ed').value||b.date; }
+      if(nt){ patch.title=nt; patch.note=card.querySelector('.en').value.trim(); patch.date=card.querySelector('.ed').value||b.date; }
       var ni=card.querySelector('.ei').value.replace(/[^0-9Xx]/g,'');
+      var doSave=function(){
+        api('books?id=eq.'+b.id, {method:'PATCH', body:JSON.stringify(patch)})
+          .then(function(rs){
+            Object.assign(b, normBook(rs[0]));
+            state.books.sort(function(a,x){ return a.date<x.date?1:-1; });
+            state.editing=null; render();
+          })
+          .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); });
+      };
       if(ni!==(b.isbn||'')){
-        b.isbn=ni;
-        if(!ni){ b.cover=''; b.desc=''; b.author=''; }
+        patch.isbn=ni;
+        if(!ni){ patch.cover=''; patch.description=''; patch.author=''; doSave(); }
         else if(ni.length===10||ni.length===13){
           fetchBook(ni).then(function(info){
             if(info){
-              if(info.author) b.author=info.author;
-              if(info.cover) b.cover=info.cover;
-              if(info.desc) b.desc=info.desc;
-              save(); render();
+              if(info.author) patch.author=info.author;
+              if(info.cover) patch.cover=info.cover;
+              if(info.desc) patch.description=info.desc;
             }
-          }).catch(function(){});
-        }
-      }
+            doSave();
+          }).catch(doSave);
+        }else{ doSave(); }
+      }else{ doSave(); }
+      return;
     }
-    if(act==='del'&&b){
-      if(!confirm('『'+b.title+'』を削除しますか？')) return;
-      state.books=state.books.filter(function(x){ return x.id!==id; });
-    }
-    state.editing=null; save(); render();
   }else{
-    state.editing=id; render();
+    if(b.member!==state.me) return;
+    state.editing=b.id; render();
   }
 });
 
@@ -274,15 +440,13 @@ $('theme').addEventListener('click', function(){
   if(!cur){ cur=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
   var next=cur==='dark'?'light':'dark';
   root.setAttribute('data-theme', next);
-  try{ localStorage.setItem(LS+'-theme', next); }catch(e){}
+  lsSet('yonda-theme', next);
 });
-try{
-  var th=localStorage.getItem(LS+'-theme');
-  if(th) document.documentElement.setAttribute('data-theme', th);
-}catch(e){}
+(function(){ var th=lsGet('yonda-theme'); if(th) document.documentElement.setAttribute('data-theme', th); })();
 
 $('exp').addEventListener('click', function(){
-  var blob=new Blob([JSON.stringify({name:state.name, books:state.books}, null, 1)], {type:'application/json'});
+  var mine=state.books.filter(function(b){ return b.member===state.me; });
+  var blob=new Blob([JSON.stringify({name:state.me, books:mine}, null, 1)], {type:'application/json'});
   var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='dokusho-log-'+today()+'.json';
@@ -293,31 +457,58 @@ $('imp').addEventListener('click', function(){ $('file').click(); });
 $('file').addEventListener('change', function(){
   var f=this.files[0]; this.value='';
   if(!f) return;
+  if(!state.me){ openPick(); return; }
   var r=new FileReader();
   r.onload=function(){
     try{
       var d=JSON.parse(r.result);
       var inc=Array.isArray(d.books)?d.books:[];
-      var seen={};
-      state.books.forEach(function(b){ seen[b.title+'|'+b.date]=1; });
-      var added=0;
-      inc.forEach(function(b){
-        if(b&&b.title&&b.date&&!seen[b.title+'|'+b.date]){
-          state.books.push({id:Date.now()+''+Math.floor(Math.random()*100000), title:b.title, note:b.note||'', date:b.date,
-            isbn:b.isbn||'', author:b.author||'', cover:b.cover||'', desc:b.desc||''});
-          seen[b.title+'|'+b.date]=1; added++;
-        }
-      });
-      if(!state.name&&d.name) state.name=d.name;
-      save(); render();
-      alert(added+'冊を取り込みました。');
-    }catch(e){ alert('読み込めませんでした。書き出したJSONファイルを選んでください。'); }
+      uploadBooks(inc).then(function(n){ toast(n+'冊を取り込みました。'); });
+    }catch(e){ toast('読み込めませんでした。書き出したJSONファイルを選んでください。'); }
   };
   r.readAsText(f);
 });
+function uploadBooks(inc){
+  var seen={};
+  state.books.forEach(function(b){ if(b.member===state.me) seen[b.title+'|'+b.date]=1; });
+  var rows=[];
+  inc.forEach(function(b){
+    if(b&&b.title&&b.date&&!seen[b.title+'|'+b.date]){
+      rows.push({ member:state.me, title:b.title, note:b.note||'', date:b.date,
+        isbn:b.isbn||'', author:b.author||'', cover:b.cover||'', description:b.desc||b.description||'' });
+      seen[b.title+'|'+b.date]=1;
+    }
+  });
+  if(!rows.length) return Promise.resolve(0);
+  return api('books', {method:'POST', body:JSON.stringify(rows)})
+    .then(function(rs){
+      rs.forEach(function(x){ state.books.push(normBook(x)); });
+      state.books.sort(function(a,b){ return a.date<b.date?1:-1; });
+      render();
+      return rows.length;
+    })
+    .catch(function(){ toast('取り込みに失敗しました。電波を確認してもう一度お試しください。'); return 0; });
+}
+function checkMigrate(){
+  if(lsGet('yonda-migrated')||!state.me) return;
+  var legacy=null;
+  try{ legacy=JSON.parse(lsGet('yonda-log-v1')); }catch(e){}
+  if(!legacy||!Array.isArray(legacy.books)||!legacy.books.length){ lsSet('yonda-migrated','1'); return; }
+  var box=$('migrate');
+  box.innerHTML='<div class="banner">この端末に以前の記録が'+legacy.books.length+'冊あります。共有の本棚へ移しますか？<br>'+
+    '<button id="mig-yes">移す</button><button id="mig-no">移さない（案内を消す）</button></div>';
+  $('mig-yes').onclick=function(){
+    uploadBooks(legacy.books).then(function(n){
+      lsSet('yonda-migrated','1');
+      box.innerHTML='';
+      toast(n+'冊を移しました。');
+    });
+  };
+  $('mig-no').onclick=function(){ lsSet('yonda-migrated','1'); box.innerHTML=''; };
+}
 
 var STOP={};
-['の','に','は','を','た','が','で','て','と','し','れ','さ','も','な','だ','です','ます','ました','でした','する','した','いる','ある','なる','なった','ない','こと','もの','ものの','よう','それ','これ','あれ','ので','から','けど','でも','また','とても','すごく','すごい','ちょっと','やっぱり','たい','たく','ため','ところ','とき','そう','いう','よく','まだ','もう','ずっと','とか','けれど','ほど','くらい','なんか','やはり','ほんと','ほんとに','本当','本当に','本','一冊','読む','読んだ','読み','読める','面白い','面白かった','おもしろい','おもしろかった','良い','良かった','よい','よかった','いい','著者','本書','作品','紹介','解説','出版','刊行','文庫','新書','単行本','シリーズ','など','たち','日本','世界一'].forEach(function(w){ STOP[w]=1; });
+['の','に','は','を','た','が','で','て','と','し','れ','さ','も','な','だ','です','ます','ました','でした','する','した','いる','ある','なる','なった','ない','こと','もの','ものの','よう','それ','これ','あれ','ので','から','けど','でも','また','とても','すごく','すごい','ちょっと','やっぱり','たい','たく','ため','ところ','とき','そう','いう','という','といった','よく','まだ','もう','ずっと','とか','けれど','ほど','くらい','なんか','やはり','ほんと','ほんとに','本当','本当に','本','一冊','読む','読んだ','読み','読める','面白い','面白かった','おもしろい','おもしろかった','良い','良かった','よい','よかった','いい','著者','本書','作品','紹介','解説','出版','刊行','文庫','新書','単行本','シリーズ','など','たち','日本','世界一'].forEach(function(w){ STOP[w]=1; });
 
 function topWords(texts, max){
   var freq={};
@@ -382,14 +573,18 @@ function loadCovers(urls){
     });
   })).then(function(a){ return a.filter(Boolean); });
 }
+
 function makeImage(ym){
-  var arr=state.books.filter(function(b){ return b.date.slice(0,7)===ym; })
-    .sort(function(a,b){ return a.date<b.date?-1:1; });
+  var arr=state.books.filter(function(b){
+    return b.date.slice(0,7)===ym&&(state.filter==='*'||b.member===state.filter);
+  }).sort(function(a,b){ return a.date<b.date?-1:1; });
   if(!arr.length) return;
+  var who=state.filter==='*'?CLUB:state.filter;
+  var mixed=state.filter==='*';
   loadCovers(arr.map(function(b){ return b.cover; }).filter(Boolean).slice(0,8))
-    .then(function(imgs){ renderImage(ym, arr, imgs); });
+    .then(function(imgs){ renderImage(ym, arr, imgs, who, mixed); });
 }
-function renderImage(ym, arr, imgs){
+function renderImage(ym, arr, imgs, who, mixed){
   var PAPER='#FBFBF9', INK='#1A1C20', SUB='#8A857B', SHU='#C8451F';
   var W=1080, H=1350, M=90;
   var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
@@ -406,11 +601,10 @@ function renderImage(ym, arr, imgs){
   ctx.fillText(ymLabel(ym)+'の読書', M, 226);
   ctx.fillStyle=SUB;
   ctx.font='32px '+SANS;
-  ctx.fillText(state.name||'', M, 280);
+  ctx.fillText(who||'', M, 280);
   ctx.textAlign='right';
   ctx.fillStyle=INK;
   ctx.font='bold 150px '+DISP;
-  var numW=ctx.measureText(String(arr.length)).width;
   ctx.fillText(String(arr.length), W-M-78, 258);
   ctx.fillStyle=SHU;
   ctx.font='bold 46px '+DISP;
@@ -422,16 +616,22 @@ function renderImage(ym, arr, imgs){
   var maxLines=9;
   var lineH=58, ly=386;
   var shown=arr.slice(0, arr.length>maxLines?maxLines-1:maxLines);
+  var rightW=mixed?310:130;
   ctx.font='34px '+DISP;
   shown.forEach(function(b){
+    var maxTW=W-2*M-rightW;
     var t='『'+b.title+'』';
-    while(ctx.measureText(t).width>W-2*M-130 && t.length>4){ t=t.slice(0,t.length-2)+'…』'; }
+    if(ctx.measureText(t).width>maxTW){
+      var base=b.title;
+      while(base.length>1 && ctx.measureText('『'+base+'…』').width>maxTW){ base=base.slice(0,-1); }
+      t='『'+base+'…』';
+    }
     ctx.fillStyle=INK;
     ctx.fillText(t, M, ly);
     ctx.fillStyle=SUB;
     ctx.font='27px '+SANS;
     ctx.textAlign='right';
-    ctx.fillText(md(b.date), W-M, ly-3);
+    ctx.fillText((mixed?b.member+'　':'')+md(b.date), W-M, ly-3);
     ctx.textAlign='left';
     ctx.font='34px '+DISP;
     ly+=lineH;
@@ -461,6 +661,7 @@ function renderImage(ym, arr, imgs){
   var notes=arr.map(function(b){ return b.note; });
   var words=topWords(notes.concat(notes, arr.map(function(b){ return b.desc||''; })), 6);
   drawKeywords(ctx, W, M, ly+40, 1230, words, INK, SUB);
+  ctx.textAlign='left';
   ctx.textBaseline='alphabetic';
   ctx.fillStyle=SHU;
   ctx.font='32px '+SANS;
@@ -472,7 +673,7 @@ function renderImage(ym, arr, imgs){
   ctx.textAlign='left';
   var url;
   try{ url=cv.toDataURL('image/png'); }
-  catch(e){ if(imgs.length){ renderImage(ym, arr, []); } return; }
+  catch(e){ if(imgs.length){ renderImage(ym, arr, [], who, mixed); } return; }
   presentImage(url, 'dokusho-'+ym+'.png');
 }
 function presentImage(url, fname){
@@ -505,7 +706,7 @@ function wrapLines(ctx, text, maxW){
   return lines;
 }
 function makeBookImage(id){
-  var b=state.books.find(function(x){ return x.id===id; });
+  var b=state.books.find(function(x){ return String(x.id)===String(id); });
   if(!b) return;
   loadCovers(b.cover?[b.cover]:[]).then(function(imgs){ renderBookImage(b, imgs[0]||null); });
 }
@@ -578,7 +779,7 @@ function renderBookImage(b, cover){
   ctx.fillStyle=SUB;
   ctx.font='28px '+SANS;
   ctx.textAlign='right';
-  ctx.fillText(state.name||'読書ログ', W-M, 1010);
+  ctx.fillText(b.member||'読書ログ', W-M, 1010);
   ctx.textAlign='left';
   var url;
   try{ url=cv.toDataURL('image/png'); }
@@ -588,7 +789,20 @@ function renderBookImage(b, cover){
 $('close').addEventListener('click', function(){ $('overlay').classList.remove('on'); });
 $('overlay').addEventListener('click', function(e){ if(e.target===$('overlay')) $('overlay').classList.remove('on'); });
 
+state.me=lsGet('yonda-me')||'';
+try{
+  var cache=JSON.parse(lsGet('yonda-cache-v1'));
+  if(cache){ state.members=cache.members||[]; state.books=(cache.books||[]).map(normBook); }
+}catch(e){}
 render();
+loadAll()
+  .then(function(){
+    render();
+    if(!state.me){ openPick(); }
+    else if(state.members.indexOf(state.me)<0){ state.me=''; lsSet('yonda-me',''); openPick(); }
+    else{ checkMigrate(); }
+  })
+  .catch(function(){ netFail(); });
 })();
 </script>
 </body>
