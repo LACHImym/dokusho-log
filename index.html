@@ -246,12 +246,12 @@ function netFail(){
 function render(){
   var mc=memCol(state.me);
   $('whoami').innerHTML=(state.me?'<span class="dot" style="background:'+mc[0]+'"></span>':'')+esc(state.me||'名前を選ぶ')+'<span style="color:var(--faint)">▾</span>';
-  var nowYm=today().slice(0,7);
-  var mineN=state.books.filter(function(b){ return b.member===state.me&&b.date.slice(0,7)===nowYm; }).length;
-  var clubN=state.books.filter(function(b){ return b.date.slice(0,7)===nowYm; }).length;
+  var nowYm=today().slice(0,7), nowY=today().slice(0,4);
+  var clubM=state.books.filter(function(b){ return b.date.slice(0,7)===nowYm; }).length;
+  var clubY=state.books.filter(function(b){ return b.date.slice(0,4)===nowY; }).length;
   $('bento').innerHTML=
-    '<div class="bcard dark"><div class="blabel">MY MONTH</div><div class="bbig">'+mineN+'</div><div class="bsub">じぶんの今月・冊</div></div>'+
-    '<div class="bcard hot"><div class="blabel">CLUB TOTAL</div><div class="bbig">'+clubN+'</div><div class="bsub">みんなの今月・冊</div></div>';
+    '<div class="bcard dark"><div class="blabel">CLUB · THIS MONTH</div><div class="bbig">'+clubM+'</div><div class="bsub">みんなで今月・冊</div></div>'+
+    '<div class="bcard hot"><div class="blabel">CLUB · THIS YEAR</div><div class="bbig">'+clubY+'</div><div class="bsub">みんなで今年・冊</div></div>';
   var f=$('filter');
   if(state.members.length){
     var chips='<button class="chip'+(state.filter==='*'?' on':'')+'" data-f="*">みんな</button>';
@@ -274,7 +274,7 @@ function render(){
   yms.forEach(function(ym){
     var arr=groups[ym];
     html+='<section class="month"><div class="head"><h2>● '+ymLabel(ym)+'</h2>'+
-      '<span class="gcount"><b>'+arr.length+'</b>冊</span>'+
+      (state.filter==='*'?'<span class="gcount"><b>'+arr.length+'</b>冊</span>':'')+
       '<button class="mkimg" data-ym="'+ym+'">この月を1枚に</button></div>';
     arr.forEach(function(b){
       if(state.editing===b.id){
@@ -655,23 +655,25 @@ function renderImage(ym, arr, imgs, who, mixed){
   ctx.fillStyle=ISUB;
   ctx.font='26px '+MONO;
   ctx.fillText(who||'', M, 274);
-  var bw=250, bh=182, bx=W-M-bw, by=104;
-  ctx.fillStyle=IINK;
-  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,24); ctx.fill(); }
-  else{ ctx.fillRect(bx,by,bw,bh); }
-  ctx.fillStyle=IPAPER;
-  ctx.globalAlpha=.55;
-  ctx.font='19px '+MONO;
-  try{ ctx.letterSpacing='4px'; }catch(e){}
-  ctx.fillText('BOOKS', bx+26, by+48);
-  try{ ctx.letterSpacing='0px'; }catch(e){}
-  ctx.globalAlpha=1;
-  ctx.font='600 96px '+DISP;
-  ctx.fillText(String(arr.length), bx+22, by+150);
-  var numW=ctx.measureText(String(arr.length)).width;
-  ctx.fillStyle=IACC;
-  ctx.font='600 32px '+DISP;
-  ctx.fillText('冊', bx+22+numW+12, by+148);
+  if(mixed){
+    var bw=250, bh=182, bx=W-M-bw, by=104;
+    ctx.fillStyle=IINK;
+    if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,24); ctx.fill(); }
+    else{ ctx.fillRect(bx,by,bw,bh); }
+    ctx.fillStyle=IPAPER;
+    ctx.globalAlpha=.55;
+    ctx.font='19px '+MONO;
+    try{ ctx.letterSpacing='4px'; }catch(e){}
+    ctx.fillText('BOOKS', bx+26, by+48);
+    try{ ctx.letterSpacing='0px'; }catch(e){}
+    ctx.globalAlpha=1;
+    ctx.font='600 96px '+DISP;
+    ctx.fillText(String(arr.length), bx+22, by+150);
+    var numW=ctx.measureText(String(arr.length)).width;
+    ctx.fillStyle=IACC;
+    ctx.font='600 32px '+DISP;
+    ctx.fillText('冊', bx+22+numW+12, by+148);
+  }
   ctx.strokeStyle=ILINE;
   ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(M,330); ctx.lineTo(W-M,330); ctx.stroke();
@@ -701,7 +703,7 @@ function renderImage(ym, arr, imgs, who, mixed){
   if(arr.length>shown.length){
     ctx.fillStyle=ISUB;
     ctx.font='28px '+DISP;
-    ctx.fillText('ほか '+(arr.length-shown.length)+'冊', M, ly);
+    ctx.fillText(mixed?('ほか '+(arr.length-shown.length)+'冊'):'ほかにも数冊', M, ly);
   }
   if(imgs.length){
     var ch=110, gap=18;
