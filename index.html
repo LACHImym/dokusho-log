@@ -393,36 +393,43 @@ $('add').addEventListener('click', function(){
     .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
     .then(function(){ btn.disabled=false; });
 });
-$('title').addEventListener('keydown', function(e){ if(e.key==='Enter'){ $('add').click(); } });
-$('note').addEventListener('keydown', function(e){ if(e.key==='Enter'){ $('add').click(); } });
+$('title').addEventListener('keydown', function(e){
+  if(e.key!=='Enter') return;
+  if(e.isComposing||e.keyCode===229) return;
+  e.preventDefault();
+  hideSugg();
+  $('note').focus();
+});
+$('note').addEventListener('keydown', function(e){
+  if(e.key!=='Enter') return;
+  if(e.isComposing||e.keyCode===229) return;
+  $('add').click();
+});
 
 var pending=null, settingTitle=false, isbnTimer=null;
-var RAKUTEN_APP_ID='';
+var RKT_APP='';
+var RKT_KEY='';
 var sugTimer=null, sugItems=[], sugSeq=0;
 function hideSugg(){ $('sugg').classList.remove('on'); $('sugg').innerHTML=''; sugItems=[]; }
 function titleSuggest(q){
-  if(!RAKUTEN_APP_ID) return;
+  if(!RKT_APP||!RKT_KEY) return;
   var seq=++sugSeq;
-  var cb='__rktcb'+seq;
-  window[cb]=function(d){
-    delete window[cb];
-    if(seq!==sugSeq) return;
-    var items=(d&&d.Items)||[];
-    sugItems=items.slice(0,5).map(function(it){
-      var v=it.Item||it;
-      return { title:v.title||'', author:v.author||'', isbn:v.isbn||'', cover:v.largeImageUrl||v.mediumImageUrl||'', desc:String(v.itemCaption||'').slice(0,400) };
-    }).filter(function(x){ return x.title; });
-    if(!sugItems.length){ hideSugg(); return; }
-    $('sugg').innerHTML=sugItems.map(function(x,i){
-      return '<button class="sg" data-i="'+i+'"><span class="st">'+esc(x.title)+'</span><span class="sa" style="display:block">'+esc(x.author||'')+'</span></button>';
-    }).join('');
-    $('sugg').classList.add('on');
-  };
-  var s=document.createElement('script');
-  s.src='https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&callback='+cb+'&applicationId='+RAKUTEN_APP_ID+'&hits=5&title='+encodeURIComponent(q);
-  s.onerror=function(){ delete window[cb]; };
-  s.onload=function(){ setTimeout(function(){ s.remove(); }, 0); };
-  document.body.appendChild(s);
+  fetch('https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&applicationId='+RKT_APP+'&accessKey='+encodeURIComponent(RKT_KEY)+'&hits=5&title='+encodeURIComponent(q))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(seq!==sugSeq) return;
+      var items=(d&&d.Items)||[];
+      sugItems=items.slice(0,5).map(function(it){
+        var v=(it&&it.Item)||it||{};
+        return { title:v.title||'', author:v.author||'', isbn:v.isbn||'', cover:v.largeImageUrl||v.mediumImageUrl||'', desc:String(v.itemCaption||'').slice(0,400) };
+      }).filter(function(x){ return x.title; });
+      if(!sugItems.length){ hideSugg(); return; }
+      $('sugg').innerHTML=sugItems.map(function(x,i){
+        return '<button class="sg" data-i="'+i+'"><span class="st">'+esc(x.title)+'</span><span class="sa" style="display:block">'+esc(x.author||'')+'</span></button>';
+      }).join('');
+      $('sugg').classList.add('on');
+    })
+    .catch(function(){});
 }
 $('sugg').addEventListener('pointerdown', function(e){
   var btn=e.target.closest('.sg');
@@ -450,8 +457,8 @@ $('title').addEventListener('input', function(){
   if(!settingTitle){ pending=null; $('isbnst').textContent=''; }
   clearTimeout(sugTimer);
   var v=this.value.trim();
-  if(settingTitle||!RAKUTEN_APP_ID||v.length<2){ hideSugg(); return; }
-  sugTimer=setTimeout(function(){ titleSuggest(v); }, 600);
+  if(settingTitle||!RKT_KEY||v.length<2){ hideSugg(); return; }
+  sugTimer=setTimeout(function(){ titleSuggest(v); }, 700);
 });
 $('isbn').addEventListener('input', function(){
   var v=this.value.replace(/[^0-9Xx]/g,'');
