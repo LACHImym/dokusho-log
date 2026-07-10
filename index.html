@@ -5,96 +5,120 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>読書ログ</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#FBFBF9; --card:#FFFFFF; --ink:#1A1C20; --sub:#6E6961; --faint:#A9A399;
-  --line:#E4E1D9; --shu:#C8451F; --shu-ink:#FBFBF9;
-  --sans:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  --paper:#f4f3ef; --card:#fbfaf6; --muted:#ebe9e2; --ink:#131311; --sub:#6b6b66; --faint:#9a988f;
+  --line:rgba(19,19,17,.08); --line-soft:rgba(19,19,17,.06);
+  --accent:#ff5a36; --on-accent:#ffffff;
+  --sans:'Inter',-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  --mono:'IBM Plex Mono',"Hiragino Kaku Gothic ProN",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --paper:#0F1113; --card:#16191C; --ink:#EDEBE5; --sub:#9B968D; --faint:#666159; --line:#2A2E33; --shu:#E0592E; --shu-ink:#0F1113; }
+  :root{ --paper:#141412; --card:#1d1c19; --muted:#282722; --ink:#f4f3ef; --sub:#a5a299; --faint:#6e6c64;
+    --line:rgba(244,243,239,.1); --line-soft:rgba(244,243,239,.07); }
 }
-:root[data-theme="light"]{ --paper:#FBFBF9; --card:#FFFFFF; --ink:#1A1C20; --sub:#6E6961; --faint:#A9A399; --line:#E4E1D9; --shu:#C8451F; --shu-ink:#FBFBF9; }
-:root[data-theme="dark"]{ --paper:#0F1113; --card:#16191C; --ink:#EDEBE5; --sub:#9B968D; --faint:#666159; --line:#2A2E33; --shu:#E0592E; --shu-ink:#0F1113; }
+:root[data-theme="light"]{ --paper:#f4f3ef; --card:#fbfaf6; --muted:#ebe9e2; --ink:#131311; --sub:#6b6b66; --faint:#9a988f;
+  --line:rgba(19,19,17,.08); --line-soft:rgba(19,19,17,.06); }
+:root[data-theme="dark"]{ --paper:#141412; --card:#1d1c19; --muted:#282722; --ink:#f4f3ef; --sub:#a5a299; --faint:#6e6c64;
+  --line:rgba(244,243,239,.1); --line-soft:rgba(244,243,239,.07); }
 *{ box-sizing:border-box; }
 body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
-main{ max-width:560px; margin:0 auto; padding:20px 20px 60px; }
-header.app{ display:flex; align-items:baseline; justify-content:space-between; padding:8px 2px 18px; }
-h1{ font-family:var(--sans); font-size:22px; font-weight:600; margin:0; letter-spacing:.06em; }
-#whoami{ font-size:13px; color:var(--sub); background:none; border:none; font-family:var(--sans); cursor:pointer; padding:4px; }
-#net{ display:none; font-size:12.5px; color:var(--shu); border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:12px; }
+main{ max-width:560px; margin:0 auto; padding:20px 16px 60px; }
+header.app{ display:flex; align-items:center; justify-content:space-between; padding:8px 2px 16px; }
+h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
+#hdate{ font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--sub); margin-top:3px; }
+#whoami{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:500; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 13px; font-family:var(--sans); cursor:pointer; }
+#whoami:active{ transform:scale(.98); }
+.dot{ display:inline-block; width:8px; height:8px; border-radius:50%; flex:none; }
+#net{ display:none; font-size:12px; color:var(--accent); border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px 14px; margin-bottom:10px; }
 #net.on{ display:block; }
-#toast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:13.5px; padding:10px 18px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:20; max-width:86vw; }
+#toast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:13px; padding:10px 18px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:20; max-width:86vw; }
 #toast.on{ opacity:1; }
-.banner{ font-size:13px; color:var(--sub); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:12px; line-height:1.8; }
-.banner button{ background:none; border:1px solid var(--line); color:var(--shu); border-radius:8px; padding:4px 10px; font-size:12.5px; font-family:var(--sans); cursor:pointer; margin-right:6px; }
-.entry{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
-.entry input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-size:16px; outline:none; }
-.entry input[type="text"]:focus{ border-bottom-color:var(--shu); }
-#title{ font-family:var(--sans); font-size:17px; }
+.banner{ font-size:13px; color:var(--sub); background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:10px; line-height:1.8; }
+.banner button{ background:var(--muted); border:none; color:var(--ink); border-radius:6px; padding:5px 12px; font-size:12px; font-family:var(--sans); font-weight:500; cursor:pointer; margin-right:6px; }
+#bento{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.bcard{ border-radius:16px; padding:14px; min-height:88px; display:flex; flex-direction:column; }
+.bcard.dark{ background:var(--ink); color:var(--paper); }
+.bcard.hot{ background:var(--accent); color:var(--on-accent); }
+.blabel{ font-family:var(--mono); font-size:9px; letter-spacing:.15em; text-transform:uppercase; opacity:.6; }
+.bbig{ font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.15; margin-top:auto; }
+.bsub{ font-size:10px; opacity:.6; }
+.entry{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px 16px; }
+.entry input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-size:15px; font-family:var(--sans); outline:none; border-radius:0; }
+.entry input[type="text"]:focus{ border-bottom-color:var(--accent); }
+#title{ font-size:16px; font-weight:500; }
 .entry .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; }
-#fin{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:7px 8px; font-size:14px; font-family:var(--sans); color-scheme:light dark; }
-#add{ background:var(--shu); color:var(--shu-ink); border:none; border-radius:10px; padding:10px 20px; font-size:15px; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
-#add:active{ transform:scale(.97); }
+#fin{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:7px 8px; font-size:13px; font-family:var(--mono); color-scheme:light dark; }
+#add{ background:var(--ink); color:var(--paper); border:none; border-radius:10px; padding:11px 20px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
+#add:active{ transform:scale(.98); }
 #add:disabled{ opacity:.5; }
 .isbnrow{ display:flex; align-items:center; gap:10px; }
-.isbnrow input[type="text"]{ width:190px; flex:none; font-size:13px; }
-#isbnst{ font-size:12px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#filter{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
-.chip{ background:none; border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:6px 14px; font-size:13px; font-family:var(--sans); cursor:pointer; }
-.chip.on{ border-color:var(--shu); color:var(--shu); font-weight:600; }
-.month{ margin-top:26px; }
-.month>.head{ display:flex; align-items:baseline; justify-content:space-between; padding:0 2px 6px; }
-.month h2{ font-family:var(--sans); font-size:17px; font-weight:600; margin:0; }
-.month h2 b{ color:var(--shu); font-size:20px; margin-left:6px; }
-.mkimg{ background:none; border:1px solid var(--line); color:var(--sub); border-radius:8px; padding:6px 12px; font-size:13px; font-family:var(--sans); cursor:pointer; }
-.mkimg:hover{ border-color:var(--shu); color:var(--shu); }
-.book{ border-top:1px solid var(--line); padding:12px 2px; }
+.isbnrow input[type="text"]{ width:190px; flex:none; font-size:12px; font-family:var(--mono); }
+#isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#filter{ display:flex; flex-wrap:wrap; gap:6px; margin-top:16px; }
+.chip{ display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:500; font-family:var(--sans); cursor:pointer; }
+.chip.on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.month{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:6px 14px 4px; margin-top:12px; }
+.month>.head{ display:flex; align-items:center; gap:8px; padding:10px 2px 8px; }
+.month h2{ font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.15em; text-transform:uppercase; color:var(--sub); margin:0; }
+.month .gcount{ font-family:var(--mono); font-size:11px; color:var(--ink); }
+.month .gcount b{ color:var(--accent); font-weight:600; }
+.mkimg{ margin-left:auto; background:none; border:1px solid var(--line); color:var(--sub); border-radius:6px; padding:4px 10px; font-family:var(--mono); font-size:10px; letter-spacing:.05em; cursor:pointer; }
+.mkimg:active{ transform:scale(.98); }
+.book{ border-top:1px solid var(--line-soft); padding:11px 2px; }
 .book.mine{ cursor:pointer; }
-.book:last-child{ border-bottom:1px solid var(--line); }
-.book .t{ font-family:var(--sans); font-weight:600; font-size:15.5px; line-height:1.5; }
+.book .t{ font-size:14px; font-weight:600; line-height:1.5; letter-spacing:-0.01em; }
 .book .wrap{ display:flex; gap:12px; align-items:flex-start; }
 .book .bd{ flex:1; min-width:0; }
-.book img.cv{ width:42px; border-radius:3px; border:1px solid var(--line); flex:none; display:block; }
-.mkcard{ flex:none; align-self:center; background:none; border:1px solid var(--line); color:var(--faint); border-radius:8px; padding:5px 10px; font-size:12px; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
-.mkcard:hover{ border-color:var(--shu); color:var(--shu); }
-.book .m{ font-size:12.5px; color:var(--sub); margin-top:3px; }
-.book .m .d{ color:var(--faint); margin-right:8px; }
-.book .m .who{ color:var(--shu); margin-right:8px; }
-.edit input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:15px; outline:none; }
+.book img.cv{ width:38px; border-radius:5px; border:1px solid var(--line); flex:none; display:block; }
+.mkcard{ flex:none; align-self:center; background:none; border:1px solid var(--line); color:var(--faint); border-radius:6px; padding:4px 9px; font-family:var(--mono); font-size:10px; cursor:pointer; white-space:nowrap; }
+.mkcard:active{ transform:scale(.98); }
+.book .m{ display:flex; align-items:center; flex-wrap:wrap; gap:7px; font-size:12px; color:var(--sub); margin-top:5px; }
+.book .m .d{ font-family:var(--mono); font-size:10px; color:var(--faint); }
+.pill{ font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:2px 8px; border-radius:4px; font-weight:500; }
+.edit input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
 .edit .row{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
-.edit .row input[type="date"]{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:6px 8px; font-size:13px; color-scheme:light dark; }
-.btn{ background:none; border:1px solid var(--line); color:var(--sub); border-radius:8px; padding:7px 14px; font-size:13px; font-family:var(--sans); cursor:pointer; }
-.btn.save{ border-color:var(--shu); color:var(--shu); }
-.btn.del{ margin-left:auto; color:var(--faint); border:none; }
-.empty{ text-align:center; color:var(--sub); font-size:14px; padding:48px 10px; line-height:2; }
-.empty .big{ font-family:var(--sans); font-size:17px; color:var(--ink); }
-footer.app{ margin-top:44px; text-align:center; font-size:12.5px; color:var(--faint); }
-footer.app button{ background:none; border:none; color:var(--faint); font-size:12.5px; font-family:var(--sans); cursor:pointer; padding:4px 6px; text-decoration:underline; text-underline-offset:3px; }
-#overlay, #pick{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:9; }
+.edit .row input[type="date"]{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:6px 8px; font-size:12px; font-family:var(--mono); color-scheme:light dark; }
+.btn{ background:var(--muted); border:none; color:var(--ink); border-radius:8px; padding:8px 14px; font-size:12.5px; font-weight:500; font-family:var(--sans); cursor:pointer; }
+.btn:active{ transform:scale(.98); }
+.btn.save{ background:var(--ink); color:var(--paper); }
+.btn.del{ margin-left:auto; background:none; color:var(--faint); }
+.empty{ text-align:center; color:var(--sub); font-size:13px; padding:44px 10px; line-height:2; }
+.empty .big{ font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-0.02em; }
+footer.app{ margin-top:40px; text-align:center; }
+footer.app button{ background:none; border:none; color:var(--faint); font-family:var(--mono); font-size:10px; letter-spacing:.12em; cursor:pointer; padding:4px 6px; }
+#overlay, #pick{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; align-items:center; justify-content:center; padding:20px; z-index:9; }
 #overlay.on, #pick.on{ display:flex; }
-#sheet, #picksheet{ background:var(--card); border-radius:14px; padding:14px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
-#shot{ width:100%; border-radius:8px; display:block; }
-#sheet .hint{ font-size:12.5px; color:var(--sub); margin:10px 2px; line-height:1.7; }
+#sheet, #picksheet{ background:var(--card); border-radius:18px; padding:14px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#shot{ width:100%; border-radius:10px; display:block; }
+#sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
 #sheet .row{ display:flex; gap:8px; justify-content:flex-end; }
-#picksheet h2{ font-family:var(--sans); font-size:17px; font-weight:600; margin:6px 4px 4px; }
-#picksheet .lead{ font-size:12.5px; color:var(--sub); margin:0 4px 14px; }
+#picksheet h2{ font-size:17px; font-weight:600; letter-spacing:-0.02em; margin:6px 4px 4px; }
+#picksheet .lead{ font-size:12px; color:var(--sub); margin:0 4px 14px; }
 #members{ display:flex; flex-direction:column; gap:8px; }
-.mem{ background:none; border:1px solid var(--line); color:var(--ink); border-radius:10px; padding:12px; font-size:15px; font-family:var(--sans); cursor:pointer; text-align:left; }
-.mem:hover{ border-color:var(--shu); }
+.mem{ display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line); color:var(--ink); border-radius:12px; padding:12px 14px; font-size:14px; font-weight:500; font-family:var(--sans); cursor:pointer; text-align:left; }
+.mem:active{ transform:scale(.99); }
 #picksheet .newrow{ display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
-#newname{ flex:1; min-width:0; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; outline:none; }
+#newname{ flex:1; min-width:0; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
 #picksheet .foot{ display:flex; justify-content:flex-end; margin-top:12px; }
 </style>
 </head>
 <body>
 <main>
 <header class="app">
-  <h1>読書ログ</h1>
+  <div>
+    <h1>読書ログ</h1>
+    <div id="hdate"></div>
+  </div>
   <button id="whoami" title="部員を切り替え"></button>
 </header>
 
 <div id="net"></div>
+
+<div id="bento"></div>
 
 <section class="entry">
   <input type="text" id="title" placeholder="本のタイトル" autocomplete="off">
@@ -104,7 +128,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-size:1
     <span id="isbnst"></span>
   </div>
   <div class="row">
-    <label style="font-size:13px;color:var(--sub);">読了日 <input type="date" id="fin"></label>
+    <label style="font-size:12px;color:var(--sub);">読了日 <input type="date" id="fin"></label>
     <button id="add">読み終わった</button>
   </div>
 </section>
@@ -116,9 +140,9 @@ footer.app button{ background:none; border:none; color:var(--faint); font-size:1
 <section id="shelf"></section>
 
 <footer class="app">
-  <button id="exp">自分の記録を書き出す</button>・
-  <button id="imp">読み込む</button>・
-  <button id="theme">テーマ切替</button>
+  <button id="exp">EXPORT</button>·
+  <button id="imp">IMPORT</button>·
+  <button id="theme">THEME</button>
 </footer>
 </main>
 
@@ -156,8 +180,9 @@ var DB_URL='https://lkctqbrpifyyofkcippj.supabase.co';
 var DB_KEY='sb_publishable_YLr0hTxmAOmE6ebF6-rS7A_LUKzdr7z';
 var TAG='#wa読書部';
 var CLUB='あえる読書部';
-var DISP='-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
-var SANS='-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+var DISP="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
+var SANS="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
+var MONO="'IBM Plex Mono','Hiragino Kaku Gothic ProN',monospace";
 
 var state={me:'', members:[], books:[], editing:null, filter:'*'};
 
@@ -179,6 +204,13 @@ function today(){
 }
 function md(iso){ var p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
 function ymLabel(ym){ var p=ym.split('-'); return (+p[0])+'年'+(+p[1])+'月'; }
+
+var MEMCOL=[['#ff5a36','#ffffff'],['#8e6cff','#ffffff'],['#2456f0','#ffffff'],['#d4ff52','#131311']];
+function memCol(name){
+  var i=state.members.indexOf(name);
+  if(i<0) i=0;
+  return MEMCOL[i%MEMCOL.length];
+}
 
 function api(path, opts){
   opts=opts||{};
@@ -212,12 +244,20 @@ function netFail(){
 }
 
 function render(){
-  $('whoami').textContent=(state.me||'名前を選ぶ')+' ▾';
+  var mc=memCol(state.me);
+  $('whoami').innerHTML=(state.me?'<span class="dot" style="background:'+mc[0]+'"></span>':'')+esc(state.me||'名前を選ぶ')+'<span style="color:var(--faint)">▾</span>';
+  var nowYm=today().slice(0,7);
+  var mineN=state.books.filter(function(b){ return b.member===state.me&&b.date.slice(0,7)===nowYm; }).length;
+  var clubN=state.books.filter(function(b){ return b.date.slice(0,7)===nowYm; }).length;
+  $('bento').innerHTML=
+    '<div class="bcard dark"><div class="blabel">MY MONTH</div><div class="bbig">'+mineN+'</div><div class="bsub">じぶんの今月・冊</div></div>'+
+    '<div class="bcard hot"><div class="blabel">CLUB TOTAL</div><div class="bbig">'+clubN+'</div><div class="bsub">みんなの今月・冊</div></div>';
   var f=$('filter');
   if(state.members.length){
     var chips='<button class="chip'+(state.filter==='*'?' on':'')+'" data-f="*">みんな</button>';
     state.members.forEach(function(m){
-      chips+='<button class="chip'+(state.filter===m?' on':'')+'" data-f="'+esc(m)+'">'+esc(m)+'</button>';
+      var c=memCol(m);
+      chips+='<button class="chip'+(state.filter===m?' on':'')+'" data-f="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+'</button>';
     });
     f.innerHTML=chips;
   }else{ f.innerHTML=''; }
@@ -233,7 +273,8 @@ function render(){
   var html='';
   yms.forEach(function(ym){
     var arr=groups[ym];
-    html+='<section class="month"><div class="head"><h2>'+ymLabel(ym)+'<b>'+arr.length+'冊</b></h2>'+
+    html+='<section class="month"><div class="head"><h2>● '+ymLabel(ym)+'</h2>'+
+      '<span class="gcount"><b>'+arr.length+'</b>冊</span>'+
       '<button class="mkimg" data-ym="'+ym+'">この月を1枚に</button></div>';
     arr.forEach(function(b){
       if(state.editing===b.id){
@@ -247,10 +288,11 @@ function render(){
           '<button class="btn del" data-act="del">削除</button></div></div>';
       }else{
         var mine=b.member===state.me;
+        var c=memCol(b.member);
         html+='<div class="book'+(mine?' mine':'')+'" data-id="'+b.id+'"><div class="wrap">'+
           (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'')+
-          '<div class="bd"><div class="t">『'+esc(b.title)+'』</div>'+
-          '<div class="m">'+(state.filter==='*'?'<span class="who">'+esc(b.member)+'</span>':'')+
+          '<div class="bd"><div class="t">'+esc(b.title)+'</div>'+
+          '<div class="m"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
           '<span class="d">'+md(b.date)+'</span>'+esc(b.note||'')+'</div></div>'+
           '<button class="mkcard">1枚に</button></div></div>';
       }
@@ -263,7 +305,8 @@ function render(){
 function renderPick(){
   var box=$('members');
   box.innerHTML=state.members.map(function(m){
-    return '<button class="mem" data-m="'+esc(m)+'">'+esc(m)+(m===state.me?'　✓':'')+'</button>';
+    var c=memCol(m);
+    return '<button class="mem" data-m="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+(m===state.me?'　✓':'')+'</button>';
   }).join('')||'<div style="font-size:13px;color:var(--sub);">まだ部員がいません。下で最初の部員を追加してください。</div>';
   $('pickclose').hidden=!state.me;
 }
@@ -313,6 +356,12 @@ $('filter').addEventListener('click', function(e){
 });
 
 $('fin').value=today();
+(function(){
+  var n=new Date();
+  var w=['SUN','MON','TUE','WED','THU','FRI','SAT'][n.getDay()];
+  var mo=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][n.getMonth()];
+  $('hdate').textContent=w+' · '+mo+' '+n.getDate();
+})();
 
 $('add').addEventListener('click', function(){
   var t=$('title').value.trim();
@@ -534,7 +583,9 @@ function topWords(texts, max){
     .sort(function(a,b){ return b.f-a.f; }).slice(0,max);
 }
 
-function drawKeywords(ctx, W, M, topY, bottomY, words, INK, SUB){
+var IPAPER='#f4f3ef', ICARD='#fbfaf6', IINK='#131311', ISUB='#6b6b66', IACC='#ff5a36', ILINE='#e0ded5';
+
+function drawKeywords(ctx, W, M, topY, bottomY, words){
   if(!words.length) return;
   ctx.font='40px '+DISP;
   function joinLine(ws){ return ws.map(function(x){ return x.w; }).join('　　'); }
@@ -546,12 +597,12 @@ function drawKeywords(ctx, W, M, topY, bottomY, words, INK, SUB){
   var blockH=34+18+lines.length*64;
   var y=topY+Math.max(0,(bottomY-topY-blockH)/2);
   ctx.textAlign='center';
-  ctx.fillStyle=SUB;
-  ctx.font='24px '+SANS;
+  ctx.fillStyle=ISUB;
+  ctx.font='22px '+MONO;
   try{ ctx.letterSpacing='8px'; }catch(e){}
   ctx.fillText('KEYWORD', W/2, y+24);
   try{ ctx.letterSpacing='0px'; }catch(e){}
-  ctx.fillStyle=INK;
+  ctx.fillStyle=IINK;
   ctx.font='40px '+DISP;
   var wy=y+24+18+52;
   lines.forEach(function(l){
@@ -573,6 +624,9 @@ function loadCovers(urls){
     });
   })).then(function(a){ return a.filter(Boolean); });
 }
+function fontsReady(){
+  return (document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+}
 
 function makeImage(ym){
   var arr=state.books.filter(function(b){
@@ -581,43 +635,51 @@ function makeImage(ym){
   if(!arr.length) return;
   var who=state.filter==='*'?CLUB:state.filter;
   var mixed=state.filter==='*';
-  loadCovers(arr.map(function(b){ return b.cover; }).filter(Boolean).slice(0,8))
-    .then(function(imgs){ renderImage(ym, arr, imgs, who, mixed); });
+  Promise.all([loadCovers(arr.map(function(b){ return b.cover; }).filter(Boolean).slice(0,8)), fontsReady()])
+    .then(function(rs){ renderImage(ym, arr, rs[0], who, mixed); });
 }
 function renderImage(ym, arr, imgs, who, mixed){
-  var PAPER='#FBFBF9', INK='#1A1C20', SUB='#8A857B', SHU='#C8451F';
   var W=1080, H=1350, M=90;
   var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   var ctx=cv.getContext('2d');
-  ctx.fillStyle=PAPER; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=IPAPER; ctx.fillRect(0,0,W,H);
   ctx.textBaseline='alphabetic';
-  ctx.fillStyle=SUB;
-  ctx.font='26px '+SANS;
+  ctx.fillStyle=ISUB;
+  ctx.font='24px '+MONO;
   try{ ctx.letterSpacing='10px'; }catch(e){}
-  ctx.fillText('DOKUSHO LOG', M, 140);
+  ctx.fillText('DOKUSHO LOG', M, 138);
   try{ ctx.letterSpacing='0px'; }catch(e){}
-  ctx.fillStyle=INK;
-  ctx.font='bold 60px '+DISP;
-  ctx.fillText(ymLabel(ym)+'の読書', M, 226);
-  ctx.fillStyle=SUB;
-  ctx.font='32px '+SANS;
-  ctx.fillText(who||'', M, 280);
-  ctx.textAlign='right';
-  ctx.fillStyle=INK;
-  ctx.font='bold 150px '+DISP;
-  ctx.fillText(String(arr.length), W-M-78, 258);
-  ctx.fillStyle=SHU;
-  ctx.font='bold 46px '+DISP;
-  ctx.textAlign='left';
-  ctx.fillText('冊', W-M-64, 256);
-  ctx.strokeStyle='#DDD9CF';
+  ctx.fillStyle=IINK;
+  ctx.font='600 56px '+DISP;
+  ctx.fillText(ymLabel(ym)+'の読書', M, 224);
+  ctx.fillStyle=ISUB;
+  ctx.font='26px '+MONO;
+  ctx.fillText(who||'', M, 274);
+  var bw=250, bh=182, bx=W-M-bw, by=104;
+  ctx.fillStyle=IINK;
+  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,24); ctx.fill(); }
+  else{ ctx.fillRect(bx,by,bw,bh); }
+  ctx.fillStyle=IPAPER;
+  ctx.globalAlpha=.55;
+  ctx.font='19px '+MONO;
+  try{ ctx.letterSpacing='4px'; }catch(e){}
+  ctx.fillText('BOOKS', bx+26, by+48);
+  try{ ctx.letterSpacing='0px'; }catch(e){}
+  ctx.globalAlpha=1;
+  ctx.font='600 96px '+DISP;
+  ctx.fillText(String(arr.length), bx+22, by+150);
+  var numW=ctx.measureText(String(arr.length)).width;
+  ctx.fillStyle=IACC;
+  ctx.font='600 32px '+DISP;
+  ctx.fillText('冊', bx+22+numW+12, by+148);
+  ctx.strokeStyle=ILINE;
   ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(M,318); ctx.lineTo(W-M,318); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(M,330); ctx.lineTo(W-M,330); ctx.stroke();
   var maxLines=9;
-  var lineH=58, ly=386;
+  var lineH=58, ly=396;
   var shown=arr.slice(0, arr.length>maxLines?maxLines-1:maxLines);
-  var rightW=mixed?310:130;
-  ctx.font='34px '+DISP;
+  var rightW=mixed?320:140;
+  ctx.font='500 33px '+DISP;
   shown.forEach(function(b){
     var maxTW=W-2*M-rightW;
     var t='『'+b.title+'』';
@@ -626,19 +688,19 @@ function renderImage(ym, arr, imgs, who, mixed){
       while(base.length>1 && ctx.measureText('『'+base+'…』').width>maxTW){ base=base.slice(0,-1); }
       t='『'+base+'…』';
     }
-    ctx.fillStyle=INK;
+    ctx.fillStyle=IINK;
     ctx.fillText(t, M, ly);
-    ctx.fillStyle=SUB;
-    ctx.font='27px '+SANS;
+    ctx.fillStyle=ISUB;
+    ctx.font='24px '+MONO;
     ctx.textAlign='right';
     ctx.fillText((mixed?b.member+'　':'')+md(b.date), W-M, ly-3);
     ctx.textAlign='left';
-    ctx.font='34px '+DISP;
+    ctx.font='500 33px '+DISP;
     ly+=lineH;
   });
   if(arr.length>shown.length){
-    ctx.fillStyle=SUB;
-    ctx.font='30px '+DISP;
+    ctx.fillStyle=ISUB;
+    ctx.font='28px '+DISP;
     ctx.fillText('ほか '+(arr.length-shown.length)+'冊', M, ly);
   }
   if(imgs.length){
@@ -652,7 +714,7 @@ function renderImage(ym, arr, imgs, who, mixed){
     var cx=(W-total)/2, cy=ly+16;
     imgs.forEach(function(im,i){
       ctx.drawImage(im, cx, cy, cw[i], ch);
-      ctx.strokeStyle='#DDD9CF'; ctx.lineWidth=1;
+      ctx.strokeStyle=ILINE; ctx.lineWidth=1;
       ctx.strokeRect(cx+0.5, cy+0.5, cw[i]-1, ch-1);
       cx+=cw[i]+gap;
     });
@@ -660,14 +722,14 @@ function renderImage(ym, arr, imgs, who, mixed){
   }
   var notes=arr.map(function(b){ return b.note; });
   var words=topWords(notes.concat(notes, arr.map(function(b){ return b.desc||''; })), 6);
-  drawKeywords(ctx, W, M, ly+40, 1230, words, INK, SUB);
+  drawKeywords(ctx, W, M, ly+40, 1230, words);
   ctx.textAlign='left';
   ctx.textBaseline='alphabetic';
-  ctx.fillStyle=SHU;
-  ctx.font='32px '+SANS;
+  ctx.fillStyle=IACC;
+  ctx.font='500 28px '+MONO;
   ctx.fillText(TAG, M, 1290);
-  ctx.fillStyle=SUB;
-  ctx.font='28px '+DISP;
+  ctx.fillStyle=ISUB;
+  ctx.font='26px '+DISP;
   ctx.textAlign='right';
   ctx.fillText('読書ログ', W-M, 1290);
   ctx.textAlign='left';
@@ -708,24 +770,24 @@ function wrapLines(ctx, text, maxW){
 function makeBookImage(id){
   var b=state.books.find(function(x){ return String(x.id)===String(id); });
   if(!b) return;
-  loadCovers(b.cover?[b.cover]:[]).then(function(imgs){ renderBookImage(b, imgs[0]||null); });
+  Promise.all([loadCovers(b.cover?[b.cover]:[]), fontsReady()])
+    .then(function(rs){ renderBookImage(b, rs[0][0]||null); });
 }
 function renderBookImage(b, cover){
-  var PAPER='#FBFBF9', INK='#1A1C20', SUB='#8A857B', SHU='#C8451F';
   var W=1080, H=1080, M=90;
   var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   var ctx=cv.getContext('2d');
-  ctx.fillStyle=PAPER; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=IPAPER; ctx.fillRect(0,0,W,H);
   ctx.textBaseline='alphabetic';
-  ctx.fillStyle=SUB;
-  ctx.font='26px '+SANS;
+  ctx.fillStyle=ISUB;
+  ctx.font='24px '+MONO;
   try{ ctx.letterSpacing='10px'; }catch(e){}
-  ctx.fillText('DOKUSHO LOG', M, 118);
+  ctx.fillText('DOKUSHO LOG', M, 116);
   try{ ctx.letterSpacing='0px'; }catch(e){}
   ctx.textAlign='right';
-  ctx.font='30px '+SANS;
+  ctx.font='26px '+MONO;
   var dp=b.date.split('-');
-  ctx.fillText((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' 読了', W-M, 118);
+  ctx.fillText((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' 読了', W-M, 116);
   ctx.textAlign='center';
   var y;
   if(cover){
@@ -734,11 +796,11 @@ function renderBookImage(b, cover){
     if(cww>maxS){ cww=maxS; chh=Math.round(cww*cover.height/cover.width); }
     var cx=(W-cww)/2, cy=170+(maxS-chh)/2;
     ctx.drawImage(cover, cx, cy, cww, chh);
-    ctx.strokeStyle='#DDD9CF'; ctx.lineWidth=1;
+    ctx.strokeStyle=ILINE; ctx.lineWidth=1;
     ctx.strokeRect(cx+0.5, cy+0.5, cww-1, chh-1);
     y=710;
   }else{
-    ctx.font='bold 60px '+DISP;
+    ctx.font='600 60px '+DISP;
     var estT=wrapLines(ctx, '『'+b.title+'』', W-2*M).slice(0,3);
     var blockH=estT.length*88+(b.author?50:0);
     if(b.note){
@@ -748,20 +810,20 @@ function renderBookImage(b, cover){
     y=Math.max(280, 620-Math.round(blockH/2));
   }
   var tfs=cover?46:60, tlh=cover?68:88, tmax=cover?2:3;
-  ctx.fillStyle=INK;
-  ctx.font='bold '+tfs+'px '+DISP;
+  ctx.fillStyle=IINK;
+  ctx.font='600 '+tfs+'px '+DISP;
   var tl=wrapLines(ctx, '『'+b.title+'』', W-2*M);
   if(tl.length>tmax){ tl=tl.slice(0,tmax); tl[tmax-1]=tl[tmax-1].slice(0,-1)+'…』'; }
   tl.forEach(function(l){ ctx.fillText(l, W/2, y); y+=tlh; });
   if(b.author){
-    ctx.fillStyle=SUB;
-    ctx.font='30px '+SANS;
+    ctx.fillStyle=ISUB;
+    ctx.font='27px '+DISP;
     y+=6;
     ctx.fillText(b.author, W/2, y);
     y+=44;
   }
   if(b.note){
-    ctx.fillStyle=INK;
+    ctx.fillStyle=IINK;
     var nfs=cover?38:44, nlh=cover?60:70;
     ctx.font=nfs+'px '+DISP;
     var nl=wrapLines(ctx, '「'+b.note+'」', W-2*M);
@@ -773,11 +835,11 @@ function renderBookImage(b, cover){
     });
   }
   ctx.textAlign='left';
-  ctx.fillStyle=SHU;
-  ctx.font='32px '+SANS;
+  ctx.fillStyle=IACC;
+  ctx.font='500 28px '+MONO;
   ctx.fillText(TAG, M, 1010);
-  ctx.fillStyle=SUB;
-  ctx.font='28px '+SANS;
+  ctx.fillStyle=ISUB;
+  ctx.font='26px '+DISP;
   ctx.textAlign='right';
   ctx.fillText(b.member||'読書ログ', W-M, 1010);
   ctx.textAlign='left';
