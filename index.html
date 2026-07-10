@@ -55,6 +55,13 @@ h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
 #add{ background:var(--ink); color:var(--paper); border:none; border-radius:10px; padding:11px 20px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
 #add:active{ transform:scale(.98); }
 #add:disabled{ opacity:.5; }
+#sugg{ display:none; background:var(--paper); border:1px solid var(--line); border-radius:12px; margin-top:6px; overflow:hidden; }
+#sugg.on{ display:block; }
+.sg{ display:block; width:100%; text-align:left; background:none; border:none; border-top:1px solid var(--line-soft); padding:10px 12px; cursor:pointer; font-family:var(--sans); }
+.sg:first-child{ border-top:none; }
+.sg:active{ background:var(--muted); }
+.sg .st{ font-size:13px; font-weight:600; color:var(--ink); line-height:1.4; }
+.sg .sa{ font-size:11px; color:var(--sub); margin-top:2px; }
 .isbnrow{ display:flex; align-items:center; gap:10px; }
 .isbnrow input[type="text"]{ width:190px; flex:none; font-size:12px; font-family:var(--mono); }
 #isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -122,6 +129,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 
 <section class="entry">
   <input type="text" id="title" placeholder="本のタイトル" autocomplete="off">
+  <div id="sugg"></div>
   <input type="text" id="note" placeholder="ひとこと（なくてもOK）" autocomplete="off">
   <div class="isbnrow">
     <input type="text" id="isbn" placeholder="ISBNで自動入力（任意）" inputmode="numeric" autocomplete="off">
@@ -389,7 +397,62 @@ $('title').addEventListener('keydown', function(e){ if(e.key==='Enter'){ $('add'
 $('note').addEventListener('keydown', function(e){ if(e.key==='Enter'){ $('add').click(); } });
 
 var pending=null, settingTitle=false, isbnTimer=null;
-$('title').addEventListener('input', function(){ if(!settingTitle){ pending=null; $('isbnst').textContent=''; } });
+var RAKUTEN_APP_ID='';
+var sugTimer=null, sugItems=[], sugSeq=0;
+function hideSugg(){ $('sugg').classList.remove('on'); $('sugg').innerHTML=''; sugItems=[]; }
+function titleSuggest(q){
+  if(!RAKUTEN_APP_ID) return;
+  var seq=++sugSeq;
+  var cb='__rktcb'+seq;
+  window[cb]=function(d){
+    delete window[cb];
+    if(seq!==sugSeq) return;
+    var items=(d&&d.Items)||[];
+    sugItems=items.slice(0,5).map(function(it){
+      var v=it.Item||it;
+      return { title:v.title||'', author:v.author||'', isbn:v.isbn||'', cover:v.largeImageUrl||v.mediumImageUrl||'', desc:String(v.itemCaption||'').slice(0,400) };
+    }).filter(function(x){ return x.title; });
+    if(!sugItems.length){ hideSugg(); return; }
+    $('sugg').innerHTML=sugItems.map(function(x,i){
+      return '<button class="sg" data-i="'+i+'"><span class="st">'+esc(x.title)+'</span><span class="sa" style="display:block">'+esc(x.author||'')+'</span></button>';
+    }).join('');
+    $('sugg').classList.add('on');
+  };
+  var s=document.createElement('script');
+  s.src='https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&callback='+cb+'&applicationId='+RAKUTEN_APP_ID+'&hits=5&title='+encodeURIComponent(q);
+  s.onerror=function(){ delete window[cb]; };
+  s.onload=function(){ setTimeout(function(){ s.remove(); }, 0); };
+  document.body.appendChild(s);
+}
+$('sugg').addEventListener('pointerdown', function(e){
+  var btn=e.target.closest('.sg');
+  if(!btn) return;
+  e.preventDefault();
+  var x=sugItems[+btn.getAttribute('data-i')];
+  if(!x) return;
+  settingTitle=true; $('title').value=x.title; settingTitle=false;
+  hideSugg();
+  pending={ isbn:x.isbn, author:x.author, cover:x.cover, desc:x.desc };
+  $('isbn').value=x.isbn||'';
+  $('isbnst').textContent='✓ '+x.title+(x.author?'（'+x.author+'）':'');
+  if(x.isbn){
+    fetchBook(x.isbn).then(function(info){
+      if(info&&pending&&pending.isbn===x.isbn){
+        pending={ isbn:x.isbn, author:info.author||x.author, cover:info.cover||x.cover, desc:info.desc||x.desc };
+      }
+    }).catch(function(){});
+  }
+});
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#sugg')&&e.target!==$('title')) hideSugg();
+});
+$('title').addEventListener('input', function(){
+  if(!settingTitle){ pending=null; $('isbnst').textContent=''; }
+  clearTimeout(sugTimer);
+  var v=this.value.trim();
+  if(settingTitle||!RAKUTEN_APP_ID||v.length<2){ hideSugg(); return; }
+  sugTimer=setTimeout(function(){ titleSuggest(v); }, 600);
+});
 $('isbn').addEventListener('input', function(){
   var v=this.value.replace(/[^0-9Xx]/g,'');
   clearTimeout(isbnTimer);
