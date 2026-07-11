@@ -115,7 +115,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 .mem:active{ transform:scale(.99); }
 #picksheet .newrow{ display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
 #newname{ flex:1; min-width:0; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
-#picksheet .foot{ display:flex; justify-content:flex-end; margin-top:12px; }
+#picksheet .foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+#pickmsg{ font-size:12px; color:var(--accent); margin:0 4px 12px; }
 </style>
 </head>
 <body>
@@ -177,13 +178,14 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <div id="pick">
   <div id="picksheet">
     <h2>あなたはだれ？</h2>
-    <p class="lead">名前を選ぶとその人の本棚として記録されます。</p>
+    <p class="lead">名前を選ぶと、その人の本棚として記録されます。</p>
+    <p id="pickmsg" hidden></p>
     <div id="members"></div>
     <div class="newrow">
       <input type="text" id="newname" placeholder="新しい部員の名前" autocomplete="off">
       <button class="btn save" id="addmem">追加</button>
     </div>
-    <div class="foot"><button class="btn" id="pickclose" hidden>閉じる</button></div>
+    <div class="foot"><button class="btn" id="guest" hidden>ゲストのまま見る</button><button class="btn" id="pickclose" hidden>閉じる</button></div>
   </div>
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
@@ -261,7 +263,7 @@ function netFail(){
 
 function render(){
   var mc=memCol(state.me);
-  $('whoami').innerHTML=(state.me?'<span class="dot" style="background:'+mc[0]+'"></span>':'')+esc(state.me||'名前を選ぶ')+'<span style="color:var(--faint)">▾</span>';
+  $('whoami').innerHTML=(state.me?'<span class="dot" style="background:'+mc[0]+'"></span>':'')+esc(state.me||'ゲスト（見るだけ）')+'<span style="color:var(--faint)">▾</span>';
   var nowYm=today().slice(0,7), nowY=today().slice(0,4);
   var clubM=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===nowYm; }).length;
   var clubY=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,4)===nowY; }).length;
@@ -334,20 +336,33 @@ function renderPick(){
     return '<button class="mem" data-m="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+(m===state.me?'　✓':'')+'</button>';
   }).join('')||'<div style="font-size:13px;color:var(--sub);">まだ部員がいません。下で最初の部員を追加してください。</div>';
   $('pickclose').hidden=!state.me;
+  $('guest').hidden=!!state.me;
 }
-function openPick(){ renderPick(); $('pick').classList.add('on'); }
+function openPick(msg){
+  renderPick();
+  var pm=$('pickmsg');
+  if(msg){ pm.textContent=msg; pm.hidden=false; }
+  else{ pm.hidden=true; }
+  $('pick').classList.add('on');
+}
 $('pick').addEventListener('click', function(e){
   var mb=e.target.closest('.mem');
   if(mb){
     state.me=mb.getAttribute('data-m');
     lsSet('yonda-me', state.me);
+    lsSet('yonda-guest','');
     $('pick').classList.remove('on');
     render(); checkMigrate();
     return;
   }
-  if(e.target===$('pick')&&state.me){ $('pick').classList.remove('on'); }
+  if(e.target===$('pick')&&(state.me||lsGet('yonda-guest'))){ $('pick').classList.remove('on'); }
 });
 $('pickclose').addEventListener('click', function(){ $('pick').classList.remove('on'); });
+$('guest').addEventListener('click', function(){
+  lsSet('yonda-guest','1');
+  $('pick').classList.remove('on');
+  render();
+});
 $('addmem').addEventListener('click', function(){
   var n=$('newname').value.trim();
   if(!n) return;
@@ -359,6 +374,7 @@ $('addmem').addEventListener('click', function(){
     .then(function(){
       state.members.push(n); state.members.sort();
       state.me=n; lsSet('yonda-me', n);
+      lsSet('yonda-guest','');
       $('newname').value='';
       $('pick').classList.remove('on');
       render(); checkMigrate();
@@ -372,7 +388,7 @@ $('addmem').addEventListener('click', function(){
       }
     });
 });
-$('whoami').addEventListener('click', openPick);
+$('whoami').addEventListener('click', function(){ openPick(); });
 $('filter').addEventListener('click', function(e){
   var c=e.target.closest('.chip');
   if(!c) return;
@@ -391,7 +407,7 @@ $('fin').value=today();
 function submitBook(status){
   var t=$('title').value.trim();
   if(!t){ $('title').focus(); return; }
-  if(!state.me){ openPick(); return; }
+  if(!state.me){ openPick('記録するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
   $('add').disabled=true; $('want').disabled=true;
   var row={
     member:state.me, title:t, note:$('note').value.trim(),
@@ -612,7 +628,7 @@ $('imp').addEventListener('click', function(){ $('file').click(); });
 $('file').addEventListener('change', function(){
   var f=this.files[0]; this.value='';
   if(!f) return;
-  if(!state.me){ openPick(); return; }
+  if(!state.me){ openPick('取り込みには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
   var r=new FileReader();
   r.onload=function(){
     try{
@@ -974,7 +990,7 @@ render();
 loadAll()
   .then(function(){
     render();
-    if(!state.me){ openPick(); }
+    if(!state.me){ if(!lsGet('yonda-guest')) openPick(); }
     else if(state.members.indexOf(state.me)<0){ state.me=''; lsSet('yonda-me',''); openPick(); }
     else{ checkMigrate(); }
   })
