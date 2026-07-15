@@ -39,6 +39,8 @@ h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
 #toast.on{ opacity:1; }
 .banner{ font-size:13px; color:var(--sub); background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:10px; line-height:1.8; }
 .banner button{ background:var(--muted); border:none; color:var(--ink); border-radius:6px; padding:5px 12px; font-size:12px; font-family:var(--sans); font-weight:500; cursor:pointer; margin-right:6px; }
+.banner button.acc{ background:var(--ink); color:var(--paper); }
+.ptext{ font-size:12px; color:var(--sub); background:var(--paper); border:1px solid var(--line-soft); border-radius:8px; padding:8px 10px; margin:8px 0; white-space:pre-wrap; word-break:break-all; line-height:1.7; }
 #bento{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
 .bcard{ border-radius:16px; padding:14px; min-height:88px; display:flex; flex-direction:column; }
 .bcard.dark{ background:var(--ink); color:var(--paper); }
@@ -150,6 +152,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
   </div>
 </section>
 
+<div id="postbox"></div>
+
 <div id="migrate"></div>
 
 <div id="filter"></div>
@@ -168,6 +172,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <img id="shot" alt="まとめ画像">
     <p class="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
     <div class="row">
+      <button class="btn" id="txtcopy" hidden>テキストをコピー</button>
       <button class="btn" id="share" hidden>共有…</button>
       <button class="btn save" id="dl">画像を保存</button>
       <button class="btn" id="close">閉じる</button>
@@ -198,6 +203,7 @@ var DB_URL='https://lkctqbrpifyyofkcippj.supabase.co';
 var DB_KEY='sb_publishable_YLr0hTxmAOmE6ebF6-rS7A_LUKzdr7z';
 var TAG='#wa読書部';
 var CLUB='あえる読書部';
+var APP_URL='https://lachimym.github.io/dokusho-log/';
 var DISP="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
 var SANS="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
 var MONO="'IBM Plex Mono','Hiragino Kaku Gothic ProN',monospace";
@@ -404,6 +410,46 @@ $('fin').value=today();
   $('hdate').textContent=w+' · '+mo+' '+n.getDate();
 })();
 
+function makePostText(b){
+  var lines=[];
+  var who=b.author?'（'+b.author+'）':'';
+  if(b.status==='want'){
+    lines.push('読みたい本『'+b.title+'』'+who);
+  }else{
+    var dp=b.date.split('-');
+    lines.push((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' 読了『'+b.title+'』'+who);
+  }
+  if(b.note) lines.push('「'+b.note+'」');
+  lines.push(TAG+' '+APP_URL);
+  return lines.join('\n');
+}
+function fallbackCopy(txt){
+  var ta=document.createElement('textarea');
+  ta.value=txt;
+  ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); toast('投稿用テキストをコピーしました。'); }
+  catch(e){ toast('コピーできませんでした。長押しで選択してコピーしてください。'); }
+  ta.remove();
+}
+function copyText(txt){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(
+      function(){ toast('投稿用テキストをコピーしました。'); },
+      function(){ fallbackCopy(txt); }
+    );
+  }else{ fallbackCopy(txt); }
+}
+function showPostBanner(b){
+  var box=$('postbox');
+  box.innerHTML='<div class="banner">登録しました。Misskeyに貼る用のテキスト：'+
+    '<div class="ptext">'+esc(makePostText(b))+'</div>'+
+    '<button class="acc" id="pb-copy">テキストをコピー</button>'+
+    '<button id="pb-close">とじる</button></div>';
+  $('pb-copy').onclick=function(){ copyText(makePostText(b)); };
+  $('pb-close').onclick=function(){ box.innerHTML=''; };
+}
 function submitBook(status){
   var t=$('title').value.trim();
   if(!t){ $('title').focus(); return; }
@@ -422,6 +468,7 @@ function submitBook(status){
       $('title').value=''; $('note').value=''; $('fin').value=today();
       $('isbn').value=''; $('isbnst').textContent=''; pending=null;
       render();
+      showPostBanner(normBook(rs[0]));
       if(status==='want') toast('「読みたい」に置きました。');
     })
     .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
@@ -862,9 +909,12 @@ function renderImage(ym, arr, imgs, who, mixed){
   catch(e){ if(imgs.length){ renderImage(ym, arr, [], who, mixed); } return; }
   presentImage(url, 'dokusho-'+ym+'.png');
 }
-function presentImage(url, fname){
+function presentImage(url, fname, book){
   $('shot').src=url;
   $('overlay').classList.add('on');
+  var tc=$('txtcopy');
+  tc.hidden=!book;
+  if(book){ tc.onclick=function(){ copyText(makePostText(book)); }; }
   $('dl').onclick=function(){
     var a=document.createElement('a');
     a.href=url; a.download=fname; a.click();
@@ -976,7 +1026,7 @@ function renderBookImage(b, cover){
   var url;
   try{ url=cv.toDataURL('image/png'); }
   catch(e){ if(cover){ renderBookImage(b, null); } return; }
-  presentImage(url, 'dokusho-'+b.date+'.png');
+  presentImage(url, 'dokusho-'+b.date+'.png', b);
 }
 $('close').addEventListener('click', function(){ $('overlay').classList.remove('on'); });
 $('overlay').addEventListener('click', function(e){ if(e.target===$('overlay')) $('overlay').classList.remove('on'); });
