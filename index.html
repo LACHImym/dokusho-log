@@ -612,9 +612,38 @@ function fetchBook(v){
       return { title:s.title||'', isbn:v, author:s.author||'', cover:s.cover||'', desc:String(desc).slice(0,400) };
     });
 }
+function isbn13(v){
+  if(v.length!==10) return v;
+  var core='978'+v.slice(0,9);
+  var sum=0;
+  for(var i=0;i<12;i++){ sum+=(+core[i])*(i%2?3:1); }
+  return core+((10-sum%10)%10);
+}
+function rakutenByIsbn(v){
+  if(!RKT_APP||!RKT_KEY) return Promise.resolve(null);
+  return fetch('https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&applicationId='+RKT_APP+'&accessKey='+encodeURIComponent(RKT_KEY)+'&hits=1&isbn='+isbn13(v))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var it=(d&&d.Items&&d.Items[0])||null;
+      if(it&&it.Item) it=it.Item;
+      if(!it) return null;
+      return { title:it.title||'', isbn:v, author:it.author||'', cover:it.largeImageUrl||it.mediumImageUrl||'', desc:String(it.itemCaption||'').slice(0,400) };
+    })
+    .catch(function(){ return null; });
+}
+function fetchBookFull(v){
+  return fetchBook(v).then(function(info){
+    if(info&&info.desc&&info.cover) return info;
+    return rakutenByIsbn(v).then(function(rk){
+      if(!rk) return info;
+      if(!info) return rk;
+      return { title:info.title||rk.title, isbn:v, author:info.author||rk.author, cover:info.cover||rk.cover, desc:info.desc||rk.desc };
+    });
+  });
+}
 function lookupIsbn(v){
   $('isbnst').textContent='検索中…';
-  fetchBook(v)
+  fetchBookFull(v)
     .then(function(info){
       if(!info){ $('isbnst').textContent='見つかりませんでした（手入力でOK）'; pending=null; return; }
       pending=info;
@@ -695,7 +724,7 @@ $('shelf').addEventListener('click', function(e){
         patch.isbn=ni;
         if(!ni){ patch.cover=''; patch.description=''; patch.author=''; doSave(); }
         else if(ni.length===10||ni.length===13){
-          fetchBook(ni).then(function(info){
+          fetchBookFull(ni).then(function(info){
             if(info){
               if(info.author) patch.author=info.author;
               if(info.cover) patch.cover=info.cover;
@@ -788,11 +817,12 @@ function checkMigrate(){
 }
 
 var STOP={};
-['の','に','は','を','た','が','で','て','と','し','れ','さ','も','な','だ','です','ます','ました','でした','する','した','いる','ある','なる','なった','ない','こと','もの','ものの','よう','それ','これ','あれ','ので','から','けど','でも','また','とても','すごく','すごい','ちょっと','やっぱり','たい','たく','ため','ところ','とき','そう','いう','という','といった','よく','まだ','もう','ずっと','とか','けれど','ほど','くらい','なんか','やはり','ほんと','ほんとに','本当','本当に','本','一冊','読む','読んだ','読み','読める','面白い','面白かった','おもしろい','おもしろかった','良い','良かった','よい','よかった','いい','著者','本書','作品','紹介','解説','出版','刊行','文庫','新書','単行本','シリーズ','など','たち','日本','世界一','小説','物語','作家','描く','描いた','受賞','発売','収録','待望','傑作','名作','話題','デビュー','ページ','長編','短編','ベストセラー','られる','される','ちゃん','さん','くん'].forEach(function(w){ STOP[w]=1; });
+['の','に','は','を','た','が','で','て','と','し','れ','さ','も','な','だ','です','ます','ました','でした','する','した','いる','ある','なる','なった','ない','こと','もの','ものの','よう','それ','これ','あれ','ので','から','けど','でも','また','とても','すごく','すごい','ちょっと','やっぱり','たい','たく','ため','ところ','とき','そう','いう','という','といった','よく','まだ','もう','ずっと','とか','けれど','ほど','くらい','なんか','やはり','ほんと','ほんとに','本当','本当に','本','一冊','読む','読んだ','読み','読める','面白い','面白かった','おもしろい','おもしろかった','良い','良かった','よい','よかった','いい','著者','本書','作品','紹介','解説','出版','刊行','文庫','新書','単行本','シリーズ','など','たち','日本','世界一','小説','物語','作家','描く','描いた','受賞','発売','収録','待望','傑作','名作','話題','デビュー','ページ','長編','短編','ベストセラー','られる','される','ちゃん','さん','くん','大賞','ノミネート','候補','ミリオン','ミリオンセラー','本屋'].forEach(function(w){ STOP[w]=1; });
 
-function topWords(texts, max){
+function topWords(items, max){
   var freq={};
-  function feed(t){
+  function feed(item){
+    var t=item.t, ex=item.ex||'';
     if(!t) return;
     var words=[];
     if(window.Intl&&Intl.Segmenter){
@@ -806,6 +836,7 @@ function topWords(texts, max){
       w=w.trim();
       if(w.length<2) return;
       if(STOP[w]) return;
+      if(ex&&ex.indexOf(w)!==-1) return;
       if(/^[\d\p{P}\p{S}\s]+$/u.test(w)) return;
       if(/^[ー〜・…‥―—–~]+$/.test(w)) return;
       if(w.length<=3&&/^[぀-ゟー]+$/.test(w)) return;
@@ -814,7 +845,7 @@ function topWords(texts, max){
       freq[w]=(freq[w]||0)+1;
     });
   }
-  texts.forEach(feed);
+  items.forEach(feed);
   var list=Object.keys(freq).map(function(w){ return {w:w, f:freq[w]}; })
     .sort(function(a,b){ return b.f-a.f; });
   var strong=list.filter(function(x){ return x.f>=2; });
@@ -960,8 +991,13 @@ function renderImage(ym, arr, imgs, who, mixed){
     });
     ly=cy+ch+10;
   }
-  var notes=arr.map(function(b){ return b.note; });
-  var words=topWords(notes.concat(notes, arr.map(function(b){ return b.desc||''; })), 6);
+  var kwItems=[];
+  arr.forEach(function(b){
+    kwItems.push({t:b.note, ex:b.title});
+    kwItems.push({t:b.note, ex:b.title});
+    kwItems.push({t:b.desc||'', ex:b.title});
+  });
+  var words=topWords(kwItems, 6);
   drawKeywords(ctx, W, M, ly+40, 1230, words);
   ctx.textAlign='left';
   ctx.textBaseline='alphabetic';
