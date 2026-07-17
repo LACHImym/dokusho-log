@@ -62,6 +62,14 @@ h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
 #want:disabled{ opacity:.5; }
 .fin1{ flex:none; align-self:center; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:6px; padding:4px 9px; font-family:var(--mono); font-size:10px; cursor:pointer; white-space:nowrap; }
 .fin1:active{ transform:scale(.98); }
+.es{ display:flex; gap:2px; }
+.edit .es{ margin-top:6px; }
+.estar{ background:none; border:none; font-size:22px; line-height:1; color:var(--faint); cursor:pointer; padding:2px; }
+.estar.on{ color:var(--accent); }
+.rstars{ color:var(--accent); font-size:11px; letter-spacing:1px; }
+.blink{ color:var(--accent); font-size:11px; text-decoration:none; border-bottom:1px solid var(--accent); }
+.noimg{ width:38px; height:54px; border:1px solid var(--line); border-radius:5px; background:var(--muted); color:var(--faint); font-family:var(--mono); font-size:7px; letter-spacing:.08em; display:flex; align-items:center; justify-content:center; text-align:center; flex:none; line-height:1.6; }
+#link{ font-size:12px; }
 #sugg{ display:none; background:var(--paper); border:1px solid var(--line); border-radius:12px; margin-top:6px; overflow:hidden; }
 #sugg.on{ display:block; }
 .sg{ display:block; width:100%; text-align:left; background:none; border:none; border-top:1px solid var(--line-soft); padding:10px 12px; cursor:pointer; font-family:var(--sans); }
@@ -142,6 +150,11 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
   <div class="isbnrow">
     <input type="text" id="isbn" placeholder="ISBNで自動入力（任意）" inputmode="numeric" autocomplete="off">
     <span id="isbnst"></span>
+  </div>
+  <input type="text" id="link" placeholder="リンク（感想ブログ・書籍ページなど 任意）" autocomplete="off">
+  <div class="row" style="justify-content:flex-start; gap:10px;">
+    <span style="font-size:12px;color:var(--sub);">評価</span>
+    <div id="stars" class="es" data-v="0"></div>
   </div>
   <div class="row">
     <label style="font-size:12px;color:var(--sub);">読了日 <input type="date" id="fin"></label>
@@ -250,7 +263,7 @@ function api(path, opts){
     return r.json();
   });
 }
-function normBook(b){ b.desc=b.description||''; b.status=b.status||'read'; return b; }
+function normBook(b){ b.desc=b.description||''; b.status=b.status||'read'; b.rating=+(b.rating||0); b.link=b.link||''; return b; }
 function loadAll(){
   return Promise.all([
     api('members?select=name&order=name.asc'),
@@ -297,6 +310,8 @@ function render(){
         '<input type="text" class="et" value="'+esc(b.title)+'">'+
         '<input type="text" class="en" placeholder="ひとこと" value="'+esc(b.note||'')+'">'+
         '<input type="text" class="ei" placeholder="ISBN（入れると表紙・紹介文を取得）" value="'+esc(b.isbn||'')+'">'+
+        '<input type="text" class="el" placeholder="リンク（任意）" value="'+esc(b.link||'')+'">'+
+        '<div class="es" data-v="'+(b.rating||0)+'">'+starsHtml(b.rating||0)+'</div>'+
         '<div class="row"><input type="date" class="ed" value="'+b.date+'">'+
         '<button class="btn save" data-act="save">保存</button>'+
         '<button class="btn" data-act="cancel">やめる</button>'+
@@ -306,10 +321,13 @@ function render(){
     var c=memCol(b.member);
     var isWant=b.status==='want';
     return '<div class="book'+(mine?' mine':'')+'" data-id="'+b.id+'"><div class="wrap">'+
-      (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'')+
+      (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
       '<div class="bd"><div class="t">'+esc(b.title)+'</div>'+
       '<div class="m"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
-      (isWant?'':'<span class="d">'+md(b.date)+'</span>')+esc(b.note||'')+'</div></div>'+
+      (isWant?'':'<span class="d">'+md(b.date)+'</span>')+
+      (b.rating?'<span class="rstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'')+
+      esc(b.note||'')+
+      (b.link?' <a class="blink" href="'+esc(b.link)+'" target="_blank" rel="noopener">リンク↗</a>':'')+'</div></div>'+
       (isWant&&mine?'<button class="fin1">読了</button>':'')+
       '<button class="mkcard">1枚に</button></div></div>';
   }
@@ -403,6 +421,15 @@ $('filter').addEventListener('click', function(e){
 });
 
 $('fin').value=today();
+$('stars').innerHTML=starsHtml(0);
+$('stars').addEventListener('click', function(e){
+  var b=e.target.closest('.estar');
+  if(!b) return;
+  var cur=+(this.getAttribute('data-v')||0), n=+b.getAttribute('data-n');
+  var nv=(n===cur)?0:n;
+  this.setAttribute('data-v', nv);
+  this.innerHTML=starsHtml(nv);
+});
 (function(){
   var n=new Date();
   var w=['SUN','MON','TUE','WED','THU','FRI','SAT'][n.getDay()];
@@ -410,6 +437,11 @@ $('fin').value=today();
   $('hdate').textContent=w+' · '+mo+' '+n.getDate();
 })();
 
+function starsHtml(v){
+  var h='';
+  for(var i=1;i<=5;i++){ h+='<button type="button" class="estar'+(i<=v?' on':'')+'" data-n="'+i+'">★</button>'; }
+  return h;
+}
 function makePostText(b){
   var lines=[];
   var who=b.author?'（'+b.author+'）':'';
@@ -419,7 +451,9 @@ function makePostText(b){
     var dp=b.date.split('-');
     lines.push((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' 読了『'+b.title+'』'+who);
   }
+  if(b.rating) lines.push('★★★★★'.slice(0,b.rating)+'☆☆☆☆☆'.slice(0,5-b.rating));
   if(b.note) lines.push('「'+b.note+'」');
+  if(b.link) lines.push(b.link);
   lines.push(TAG+' '+APP_URL);
   return lines.join('\n');
 }
@@ -458,6 +492,8 @@ function submitBook(status){
   var row={
     member:state.me, title:t, note:$('note').value.trim(),
     date:(status==='want'?today():($('fin').value||today())), status:status,
+    rating:+($('stars').getAttribute('data-v')||0),
+    link:$('link').value.trim(),
     isbn:pending?pending.isbn:'', author:pending?pending.author:'',
     cover:pending?pending.cover:'', description:pending?pending.desc:''
   };
@@ -466,7 +502,19 @@ function submitBook(status){
       state.books.unshift(normBook(rs[0]));
       state.books.sort(function(a,b){ return a.date<b.date?1:-1; });
       $('title').value=''; $('note').value=''; $('fin').value=today();
+$('stars').innerHTML=starsHtml(0);
+$('stars').addEventListener('click', function(e){
+  var b=e.target.closest('.estar');
+  if(!b) return;
+  var cur=+(this.getAttribute('data-v')||0), n=+b.getAttribute('data-n');
+  var nv=(n===cur)?0:n;
+  this.setAttribute('data-v', nv);
+  this.innerHTML=starsHtml(nv);
+});
       $('isbn').value=''; $('isbnst').textContent=''; pending=null;
+      $('link').value='';
+      $('stars').setAttribute('data-v','0');
+      $('stars').innerHTML=starsHtml(0);
       render();
       showPostBanner(normBook(rs[0]));
       if(status==='want') toast('「読みたい」に置きました。');
@@ -581,6 +629,17 @@ $('shelf').addEventListener('click', function(e){
   if(mk){ makeImage(mk.getAttribute('data-ym')); return; }
   var mc=e.target.closest('.mkcard');
   if(mc){ makeBookImage(mc.closest('.book').getAttribute('data-id')); return; }
+  if(e.target.closest('a')) return;
+  var es=e.target.closest('.estar');
+  if(es){
+    var box=es.parentNode;
+    var cur=+(box.getAttribute('data-v')||0);
+    var n=+es.getAttribute('data-n');
+    var nv=(n===cur)?0:n;
+    box.setAttribute('data-v', nv);
+    box.innerHTML=starsHtml(nv);
+    return;
+  }
   var f1=e.target.closest('.fin1');
   if(f1){
     var wid=f1.closest('.book').getAttribute('data-id');
@@ -620,6 +679,8 @@ $('shelf').addEventListener('click', function(e){
       var patch={};
       var nt=card.querySelector('.et').value.trim();
       if(nt){ patch.title=nt; patch.note=card.querySelector('.en').value.trim(); patch.date=card.querySelector('.ed').value||b.date; }
+      patch.link=card.querySelector('.el').value.trim();
+      patch.rating=+(card.querySelector('.es').getAttribute('data-v')||0);
       var ni=card.querySelector('.ei').value.replace(/[^0-9Xx]/g,'');
       var doSave=function(){
         api('books?id=eq.'+b.id, {method:'PATCH', body:JSON.stringify(patch)})
@@ -693,6 +754,7 @@ function uploadBooks(inc){
   inc.forEach(function(b){
     if(b&&b.title&&b.date&&!seen[b.title+'|'+b.date]){
       rows.push({ member:state.me, title:b.title, note:b.note||'', date:b.date, status:b.status||'read',
+        rating:+(b.rating||0), link:b.link||'',
         isbn:b.isbn||'', author:b.author||'', cover:b.cover||'', description:b.desc||b.description||'' });
       seen[b.title+'|'+b.date]=1;
     }
@@ -982,7 +1044,7 @@ function renderBookImage(b, cover){
   }else{
     ctx.font='600 60px '+DISP;
     var estT=wrapLines(ctx, '『'+b.title+'』', W-2*M).slice(0,3);
-    var blockH=estT.length*88+(b.author?50:0);
+    var blockH=estT.length*88+(b.author?50:0)+(b.rating?52:0);
     if(b.note){
       ctx.font='44px '+DISP;
       blockH+=70+Math.min(3, wrapLines(ctx, '「'+b.note+'」', W-2*M).length)*70;
@@ -1001,6 +1063,19 @@ function renderBookImage(b, cover){
     y+=6;
     ctx.fillText(b.author, W/2, y);
     y+=44;
+  }
+  if(b.rating){
+    var sf='★★★★★'.slice(0,b.rating), se='☆☆☆☆☆'.slice(0,5-b.rating);
+    ctx.font='34px '+SANS;
+    var w1=ctx.measureText(sf).width, w2=ctx.measureText(se).width;
+    var sx0=(W-(w1+w2))/2;
+    ctx.textAlign='left';
+    ctx.fillStyle=IACC;
+    ctx.fillText(sf, sx0, y+6);
+    ctx.fillStyle='#d8d5cb';
+    ctx.fillText(se, sx0+w1, y+6);
+    ctx.textAlign='center';
+    y+=52;
   }
   if(b.note){
     ctx.fillStyle=IINK;
