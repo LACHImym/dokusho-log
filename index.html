@@ -519,8 +519,10 @@ $('stars').addEventListener('click', function(e){
       $('link').value='';
       $('stars').setAttribute('data-v','0');
       $('stars').innerHTML=starsHtml(0);
+      var saved=normBook(rs[0]);
       render();
-      showPostBanner(normBook(rs[0]));
+      showPostBanner(saved);
+      if(!saved.genre&&saved.title) autoGenre(saved);
       if(status==='want') toast('「読みたい」に置きました。');
     })
     .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
@@ -639,6 +641,30 @@ function genreFromId(gid){
     }
   }
   return content||fmt||'';
+}
+function rakutenGenreByTitle(title){
+  if(!RKT_APP||!RKT_KEY||!title) return Promise.resolve('');
+  return fetch('https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&applicationId='+RKT_APP+'&accessKey='+encodeURIComponent(RKT_KEY)+'&hits=1&title='+encodeURIComponent(title))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var it=(d&&d.Items&&d.Items[0])||null;
+      if(it&&it.Item) it=it.Item;
+      return it?genreFromId(it.booksGenreId):'';
+    })
+    .catch(function(){ return ''; });
+}
+function autoGenre(b){
+  var p=b.isbn?rakutenByIsbn(b.isbn).then(function(info){ return info?info.genre:''; })
+              :rakutenGenreByTitle(b.title);
+  p.then(function(g){
+    if(!g) return;
+    api('books?id=eq.'+b.id, {method:'PATCH', body:JSON.stringify({genre:g})})
+      .then(function(rs){
+        var row=state.books.find(function(x){ return x.id===b.id; });
+        if(row){ row.genre=g; render(); }
+      })
+      .catch(function(){});
+  });
 }
 function rakutenByIsbn(v){
   if(!RKT_APP||!RKT_KEY) return Promise.resolve(null);
