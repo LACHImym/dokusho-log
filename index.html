@@ -556,7 +556,7 @@ function titleSuggest(q){
       var items=(d&&d.Items)||[];
       sugItems=items.slice(0,5).map(function(it){
         var v=(it&&it.Item)||it||{};
-        return { title:v.title||'', author:v.author||'', isbn:v.isbn||'', cover:v.largeImageUrl||v.mediumImageUrl||'', desc:String(v.itemCaption||'').slice(0,400) };
+        return { title:v.title||'', author:v.author||'', isbn:v.isbn||'', cover:v.largeImageUrl||v.mediumImageUrl||'', desc:String(v.itemCaption||'').slice(0,400), genre:genreFromId(v.booksGenreId) };
       }).filter(function(x){ return x.title; });
       if(!sugItems.length){ hideSugg(); return; }
       $('sugg').innerHTML=sugItems.map(function(x,i){
@@ -574,13 +574,13 @@ $('sugg').addEventListener('pointerdown', function(e){
   if(!x) return;
   settingTitle=true; $('title').value=x.title; settingTitle=false;
   hideSugg();
-  pending={ isbn:x.isbn, author:x.author, cover:x.cover, desc:x.desc };
+  pending={ isbn:x.isbn, author:x.author, cover:x.cover, desc:x.desc, genre:x.genre||'' };
   $('isbn').value=x.isbn||'';
-  $('isbnst').textContent='✓ '+x.title+(x.author?'（'+x.author+'）':'');
+  $('isbnst').textContent='✓ '+x.title+(x.author?'（'+x.author+'）':'')+(x.genre?'／'+x.genre:'');
   if(x.isbn){
     fetchBook(x.isbn).then(function(info){
       if(info&&pending&&pending.isbn===x.isbn){
-        pending={ isbn:x.isbn, author:info.author||x.author, cover:info.cover||x.cover, desc:info.desc||x.desc };
+        pending={ isbn:x.isbn, author:info.author||x.author, cover:info.cover||x.cover, desc:info.desc||x.desc, genre:pending.genre };
       }
     }).catch(function(){});
   }
@@ -671,7 +671,7 @@ function lookupIsbn(v){
       if(!info){ $('isbnst').textContent='見つかりませんでした（手入力でOK）'; pending=null; return; }
       pending=info;
       if(info.title){ settingTitle=true; $('title').value=info.title; settingTitle=false; }
-      $('isbnst').textContent='✓ '+info.title+(info.author?'（'+info.author+'）':'');
+      $('isbnst').textContent='✓ '+info.title+(info.author?'（'+info.author+'）':'')+(info.genre?'／'+info.genre:'');
     })
     .catch(function(){ $('isbnst').textContent='通信できませんでした（手入力でOK）'; pending=null; });
 }
