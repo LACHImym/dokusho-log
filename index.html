@@ -67,6 +67,7 @@ h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
 .estar{ background:none; border:none; font-size:22px; line-height:1; color:var(--faint); cursor:pointer; padding:2px; }
 .estar.on{ color:var(--accent); }
 .rstars{ color:var(--accent); font-size:11px; letter-spacing:1px; }
+.gchip{ font-family:var(--mono); font-size:9px; letter-spacing:.05em; color:var(--sub); background:var(--muted); border-radius:4px; padding:2px 7px; }
 .blink{ color:var(--accent); font-size:11px; text-decoration:none; border-bottom:1px solid var(--accent); }
 .noimg{ width:38px; height:54px; border:1px solid var(--line); border-radius:5px; background:var(--muted); color:var(--faint); font-family:var(--mono); font-size:7px; letter-spacing:.08em; display:flex; align-items:center; justify-content:center; text-align:center; flex:none; line-height:1.6; }
 #link{ font-size:12px; }
@@ -263,7 +264,7 @@ function api(path, opts){
     return r.json();
   });
 }
-function normBook(b){ b.desc=b.description||''; b.status=b.status||'read'; b.rating=+(b.rating||0); b.link=b.link||''; return b; }
+function normBook(b){ b.desc=b.description||''; b.status=b.status||'read'; b.rating=+(b.rating||0); b.link=b.link||''; b.genre=b.genre||''; return b; }
 function loadAll(){
   return Promise.all([
     api('members?select=name&order=name.asc'),
@@ -309,7 +310,8 @@ function render(){
       return '<div class="book edit" data-id="'+b.id+'">'+
         '<input type="text" class="et" value="'+esc(b.title)+'">'+
         '<input type="text" class="en" placeholder="ひとこと" value="'+esc(b.note||'')+'">'+
-        '<input type="text" class="ei" placeholder="ISBN（入れると表紙・紹介文を取得）" value="'+esc(b.isbn||'')+'">'+
+        '<input type="text" class="ei" placeholder="ISBN（入れると表紙・紹介文・ジャンルを取得）" value="'+esc(b.isbn||'')+'">'+
+        '<input type="text" class="eg" placeholder="ジャンル（自動・手直しOK）" value="'+esc(b.genre||'')+'">'+
         '<input type="text" class="el" placeholder="リンク（任意）" value="'+esc(b.link||'')+'">'+
         '<div class="es" data-v="'+(b.rating||0)+'">'+starsHtml(b.rating||0)+'</div>'+
         '<div class="row"><input type="date" class="ed" value="'+b.date+'">'+
@@ -324,6 +326,7 @@ function render(){
       (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
       '<div class="bd"><div class="t">'+esc(b.title)+'</div>'+
       '<div class="m"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
+      (b.genre?'<span class="gchip">'+esc(b.genre)+'</span>':'')+
       (isWant?'':'<span class="d">'+md(b.date)+'</span>')+
       (b.rating?'<span class="rstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'')+
       esc(b.note||'')+
@@ -495,7 +498,8 @@ function submitBook(status){
     rating:+($('stars').getAttribute('data-v')||0),
     link:$('link').value.trim(),
     isbn:pending?pending.isbn:'', author:pending?pending.author:'',
-    cover:pending?pending.cover:'', description:pending?pending.desc:''
+    cover:pending?pending.cover:'', description:pending?pending.desc:'',
+    genre:pending?(pending.genre||''):''
   };
   api('books', {method:'POST', body:JSON.stringify(row)})
     .then(function(rs){
@@ -609,7 +613,7 @@ function fetchBook(v){
         var t3=tc.filter(function(t){ return t.TextType==='03'; });
         desc=(t3.length?t3[0].Text:(tc.length?tc[0].Text:''))||'';
       }catch(e){}
-      return { title:s.title||'', isbn:v, author:s.author||'', cover:s.cover||'', desc:String(desc).slice(0,400) };
+      return { title:s.title||'', isbn:v, author:s.author||'', cover:s.cover||'', desc:String(desc).slice(0,400), genre:'' };
     });
 }
 function isbn13(v){
@@ -619,6 +623,23 @@ function isbn13(v){
   for(var i=0;i<12;i++){ sum+=(+core[i])*(i%2?3:1); }
   return core+((10-sum%10)%10);
 }
+var GEN_TOP={'001001':'漫画','001002':'語学・学習','001003':'絵本・児童書','001004':'小説・エッセイ','001005':'IT・コンピュータ','001006':'ビジネス・経済','001007':'旅行・アウトドア','001008':'人文・社会','001009':'芸術・ホビー','001010':'暮らし・健康','001011':'エンタメ','001012':'科学・技術','001013':'写真集','001016':'資格・検定','001017':'ライトノベル','001021':'BL','001028':'医学・看護','001029':'TL'};
+var GEN_SUB={'001':'小説・エッセイ','002':'暮らし・健康','003':'芸術・ホビー','005':'語学・学習','006':'旅行・アウトドア','007':'人文・社会','008':'ビジネス・経済','009':'IT・コンピュータ','010':'科学・技術','011':'漫画','012':'ライトノベル','013':'エンタメ','014':'写真集'};
+function genreFromId(gid){
+  if(!gid) return '';
+  var paths=String(gid).split('/');
+  var content='', fmt='';
+  for(var i=0;i<paths.length;i++){
+    var p=paths[i], top=p.slice(0,6);
+    if(top==='001019'||top==='001020'){
+      var sub=GEN_SUB[p.slice(6,9)];
+      if(sub&&!fmt) fmt=sub;
+    }else if(GEN_TOP[top]){
+      if(!content) content=GEN_TOP[top];
+    }
+  }
+  return content||fmt||'';
+}
 function rakutenByIsbn(v){
   if(!RKT_APP||!RKT_KEY) return Promise.resolve(null);
   return fetch('https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&applicationId='+RKT_APP+'&accessKey='+encodeURIComponent(RKT_KEY)+'&hits=1&isbn='+isbn13(v))
@@ -627,18 +648,20 @@ function rakutenByIsbn(v){
       var it=(d&&d.Items&&d.Items[0])||null;
       if(it&&it.Item) it=it.Item;
       if(!it) return null;
-      return { title:it.title||'', isbn:v, author:it.author||'', cover:it.largeImageUrl||it.mediumImageUrl||'', desc:String(it.itemCaption||'').slice(0,400) };
+      return { title:it.title||'', isbn:v, author:it.author||'', cover:it.largeImageUrl||it.mediumImageUrl||'', desc:String(it.itemCaption||'').slice(0,400), genre:genreFromId(it.booksGenreId) };
     })
     .catch(function(){ return null; });
 }
 function fetchBookFull(v){
-  return fetchBook(v).then(function(info){
-    if(info&&info.desc&&info.cover) return info;
-    return rakutenByIsbn(v).then(function(rk){
-      if(!rk) return info;
-      if(!info) return rk;
-      return { title:info.title||rk.title, isbn:v, author:info.author||rk.author, cover:info.cover||rk.cover, desc:info.desc||rk.desc };
-    });
+  return Promise.all([
+    fetchBook(v).catch(function(){ return null; }),
+    rakutenByIsbn(v)
+  ]).then(function(r){
+    var info=r[0], rk=r[1];
+    if(!info&&!rk) return null;
+    if(!info) return rk;
+    if(!rk) return info;
+    return { title:info.title||rk.title, isbn:v, author:info.author||rk.author, cover:info.cover||rk.cover, desc:info.desc||rk.desc, genre:info.genre||rk.genre };
   });
 }
 function lookupIsbn(v){
@@ -710,6 +733,7 @@ $('shelf').addEventListener('click', function(e){
       if(nt){ patch.title=nt; patch.note=card.querySelector('.en').value.trim(); patch.date=card.querySelector('.ed').value||b.date; }
       patch.link=card.querySelector('.el').value.trim();
       patch.rating=+(card.querySelector('.es').getAttribute('data-v')||0);
+      patch.genre=card.querySelector('.eg').value.trim();
       var ni=card.querySelector('.ei').value.replace(/[^0-9Xx]/g,'');
       var doSave=function(){
         api('books?id=eq.'+b.id, {method:'PATCH', body:JSON.stringify(patch)})
@@ -729,6 +753,7 @@ $('shelf').addEventListener('click', function(e){
               if(info.author) patch.author=info.author;
               if(info.cover) patch.cover=info.cover;
               if(info.desc) patch.description=info.desc;
+              if(info.genre&&!patch.genre) patch.genre=info.genre;
             }
             doSave();
           }).catch(doSave);
@@ -783,7 +808,7 @@ function uploadBooks(inc){
   inc.forEach(function(b){
     if(b&&b.title&&b.date&&!seen[b.title+'|'+b.date]){
       rows.push({ member:state.me, title:b.title, note:b.note||'', date:b.date, status:b.status||'read',
-        rating:+(b.rating||0), link:b.link||'',
+        rating:+(b.rating||0), link:b.link||'', genre:b.genre||'',
         isbn:b.isbn||'', author:b.author||'', cover:b.cover||'', description:b.desc||b.description||'' });
       seen[b.title+'|'+b.date]=1;
     }
