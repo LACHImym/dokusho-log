@@ -644,12 +644,16 @@ function genreFromId(gid){
 }
 function rakutenGenreByTitle(title){
   if(!RKT_APP||!RKT_KEY||!title) return Promise.resolve('');
-  return fetch('https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&applicationId='+RKT_APP+'&accessKey='+encodeURIComponent(RKT_KEY)+'&hits=1&title='+encodeURIComponent(title))
+  return fetch('https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&formatVersion=2&applicationId='+RKT_APP+'&accessKey='+encodeURIComponent(RKT_KEY)+'&hits=5&title='+encodeURIComponent(title))
     .then(function(r){ return r.json(); })
     .then(function(d){
-      var it=(d&&d.Items&&d.Items[0])||null;
-      if(it&&it.Item) it=it.Item;
-      return it?genreFromId(it.booksGenreId):'';
+      var items=(d&&d.Items)||[];
+      for(var i=0;i<items.length;i++){
+        var it=items[i]; if(it&&it.Item) it=it.Item;
+        var g=genreFromId(it.booksGenreId);
+        if(g) return g;
+      }
+      return '';
     })
     .catch(function(){ return ''; });
 }
