@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>読書ログ</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+<title>読書log</title>
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:title" content="読書log #wa読書部">
+<meta property="og:image" content="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,51 +29,121 @@
   --line:rgba(244,243,239,.1); --line-soft:rgba(244,243,239,.07); }
 *{ box-sizing:border-box; }
 body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
-main{ max-width:560px; margin:0 auto; padding:20px 16px 60px; }
-header.app{ display:flex; align-items:center; justify-content:space-between; padding:8px 2px 16px; }
-h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
-#hdate{ font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--sub); margin-top:3px; }
-#whoami{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:500; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 13px; font-family:var(--sans); cursor:pointer; }
-#whoami:active{ transform:scale(.98); }
-.dot{ display:inline-block; width:8px; height:8px; border-radius:50%; flex:none; }
+main{ max-width:560px; margin:0 auto; padding:14px 16px 60px; }
+header.app{ position:relative; text-align:center; padding:2px 0 8px; }
+#menu{ position:absolute; top:2px; right:0; width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:none; border:none; color:var(--ink); cursor:pointer; }
+#menu:active{ transform:scale(.95); }
+#logo{ width:172px; max-width:56%; height:auto; display:inline-block; padding:6px 14px; border-radius:22px; }
+@media (prefers-color-scheme: dark){ #logo{ background:#f4f3ef; } }
+:root[data-theme="dark"] #logo{ background:#f4f3ef; }
+:root[data-theme="light"] #logo{ background:none; }
 #net{ display:none; font-size:12px; color:var(--accent); border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px 14px; margin-bottom:10px; }
 #net.on{ display:block; }
-#toast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:13px; padding:10px 18px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:20; max-width:86vw; }
+#toast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:13px; padding:10px 18px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:40; max-width:86vw; }
 #toast.on{ opacity:1; }
 .banner{ font-size:13px; color:var(--sub); background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:10px; line-height:1.8; }
 .banner button{ background:var(--muted); border:none; color:var(--ink); border-radius:6px; padding:5px 12px; font-size:12px; font-family:var(--sans); font-weight:500; cursor:pointer; margin-right:6px; }
 .banner button.acc{ background:var(--ink); color:var(--paper); }
 .ptext{ font-size:12px; color:var(--sub); background:var(--paper); border:1px solid var(--line-soft); border-radius:8px; padding:8px 10px; margin:8px 0; white-space:pre-wrap; word-break:break-all; line-height:1.7; }
 #bento{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
-.bcard{ border-radius:16px; padding:14px; min-height:88px; display:flex; flex-direction:column; }
+.bcard{ border-radius:16px; padding:14px 16px; min-height:82px; display:flex; align-items:center; justify-content:space-between; }
 .bcard.dark{ background:var(--ink); color:var(--paper); }
 .bcard.hot{ background:var(--accent); color:var(--on-accent); }
-.blabel{ font-family:var(--mono); font-size:9px; letter-spacing:.15em; text-transform:uppercase; opacity:.6; }
-.bbig{ font-size:34px; font-weight:600; letter-spacing:-0.03em; line-height:1.15; margin-top:auto; }
-.bsub{ font-size:10px; opacity:.6; }
-.entry{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px 16px; }
-.entry input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-size:15px; font-family:var(--sans); outline:none; border-radius:0; }
-.entry input[type="text"]:focus{ border-bottom-color:var(--accent); }
-#title{ font-size:16px; font-weight:500; }
-.entry .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; }
-#fin{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:7px 8px; font-size:13px; font-family:var(--mono); color-scheme:light dark; }
-#add{ background:var(--ink); color:var(--paper); border:none; border-radius:10px; padding:11px 20px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
-#add:active{ transform:scale(.98); }
-#add:disabled{ opacity:.5; }
-#want{ background:var(--muted); border:none; color:var(--ink); border-radius:10px; padding:11px 16px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
-#want:active{ transform:scale(.98); }
-#want:disabled{ opacity:.5; }
-.fin1{ flex:none; align-self:center; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:6px; padding:4px 9px; font-family:var(--mono); font-size:10px; cursor:pointer; white-space:nowrap; }
+.blabel{ font-size:13px; font-weight:600; }
+.bnum{ display:flex; align-items:baseline; gap:3px; }
+.bbig{ font-size:34px; font-weight:700; letter-spacing:-0.03em; line-height:1; }
+.bunit{ font-size:13px; font-weight:500; opacity:.85; }
+#recbtn{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--muted); border:none; color:var(--ink); border-radius:16px; padding:16px; font-size:15px; font-weight:600; font-family:var(--sans); cursor:pointer; margin-bottom:4px; }
+#recbtn:active{ transform:scale(.99); }
+#recbtn .plus{ width:24px; height:24px; border-radius:50%; background:var(--ink); color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:16px; }
+#filterwrap{ position:relative; margin-top:14px; }
+#filter{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-right:26px; scroll-behavior:smooth; }
+#filter::-webkit-scrollbar{ display:none; }
+.chip{ display:flex; align-items:center; gap:6px; flex:none; background:var(--card); border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:500; font-family:var(--sans); cursor:pointer; }
+.chip.on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.dot{ display:inline-block; width:8px; height:8px; border-radius:50%; flex:none; }
+#filtnext{ position:absolute; right:0; top:0; bottom:0; width:26px; display:flex; align-items:center; justify-content:flex-end; background:linear-gradient(90deg, transparent, var(--paper) 55%); border:none; color:var(--sub); cursor:pointer; }
+#monthback{ display:none; align-items:center; gap:8px; font-size:12px; color:var(--sub); margin-top:12px; }
+#monthback.on{ display:flex; }
+#monthback button{ background:var(--muted); border:none; color:var(--ink); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:500; font-family:var(--sans); cursor:pointer; }
+.sect{ margin-top:20px; }
+.sect>.head{ display:flex; align-items:center; gap:8px; padding:0 2px 10px; }
+.sect .stitle{ font-size:14px; font-weight:600; display:flex; align-items:center; gap:7px; }
+.sect .stitle .mk{ width:7px; height:7px; border-radius:50%; background:var(--ink); flex:none; }
+.sect .scount{ font-family:var(--mono); font-size:12px; color:var(--ink); }
+.sect .scount b{ color:var(--accent); font-weight:600; }
+.mkimg{ margin-left:auto; background:none; border:none; color:var(--faint); cursor:pointer; display:flex; align-items:center; gap:4px; font-family:var(--mono); font-size:10px; letter-spacing:.05em; }
+.mkimg:active{ transform:scale(.96); }
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 14px; }
+.gcard{ min-width:0; }
+.gcard.mine .cvwrap{ cursor:pointer; }
+.cvwrap{ position:relative; aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:var(--muted); border:1px solid var(--line); }
+.cvwrap img{ width:100%; height:100%; object-fit:contain; display:block; }
+.cvwrap .noimg{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--faint); font-family:var(--mono); font-size:15px; font-weight:500; letter-spacing:.1em; text-align:center; line-height:1.5; }
+.sharebtn{ position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:9px; background:rgba(251,250,246,.92); border:1px solid var(--line); color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+:root[data-theme="dark"] .sharebtn{ background:rgba(29,28,25,.92); }
+@media (prefers-color-scheme: dark){ .sharebtn{ background:rgba(29,28,25,.92); } }
+.sharebtn:active{ transform:scale(.92); }
+.gg{ font-size:10.5px; color:var(--sub); margin-top:9px; }
+.gt{ font-size:13.5px; font-weight:600; line-height:1.4; letter-spacing:-0.01em; margin-top:3px; }
+.gm{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-top:6px; font-size:11px; color:var(--sub); }
+.gm .d{ font-family:var(--mono); font-size:10px; color:var(--faint); }
+.pill{ font-family:var(--mono); font-size:9px; letter-spacing:.08em; padding:2px 7px; border-radius:4px; font-weight:500; }
+.rstars{ color:var(--accent); font-size:10px; letter-spacing:1px; }
+.gnote{ font-size:11.5px; color:var(--sub); margin-top:5px; line-height:1.65; }
+.blink{ display:inline-block; margin-top:5px; color:var(--accent); font-size:11px; text-decoration:none; border-bottom:1px solid var(--accent); }
+.fin1{ margin-top:8px; background:none; border:1px solid var(--accent); color:var(--accent); border-radius:8px; padding:5px 12px; font-size:11px; font-weight:600; font-family:var(--sans); cursor:pointer; }
 .fin1:active{ transform:scale(.98); }
+.empty{ text-align:center; color:var(--sub); font-size:13px; padding:44px 10px; line-height:2; }
+.empty .big{ font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-0.02em; }
+footer.app{ margin-top:40px; text-align:center; }
+footer.app button{ background:none; border:none; color:var(--faint); font-family:var(--mono); font-size:10px; letter-spacing:.12em; cursor:pointer; padding:4px 6px; }
+/* edit card (spans grid) */
+.ecard{ grid-column:1/-1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+.ecard input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
+.ecard input[type="text"]:focus{ border-bottom-color:var(--accent); }
+.ecard .es{ margin-top:8px; }
+.ecard .row{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.ecard .row input[type="date"]{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:6px 8px; font-size:12px; font-family:var(--mono); color-scheme:light dark; }
 .es{ display:flex; gap:2px; }
-.edit .es{ margin-top:6px; }
 .estar{ background:none; border:none; font-size:22px; line-height:1; color:var(--faint); cursor:pointer; padding:2px; }
 .estar.on{ color:var(--accent); }
-.rstars{ color:var(--accent); font-size:11px; letter-spacing:1px; }
-.gchip{ font-family:var(--mono); font-size:9px; letter-spacing:.05em; color:var(--sub); background:var(--muted); border-radius:4px; padding:2px 7px; }
-.blink{ color:var(--accent); font-size:11px; text-decoration:none; border-bottom:1px solid var(--accent); }
-.noimg{ width:38px; height:54px; border:1px solid var(--line); border-radius:5px; background:var(--muted); color:var(--faint); font-family:var(--mono); font-size:7px; letter-spacing:.08em; display:flex; align-items:center; justify-content:center; text-align:center; flex:none; line-height:1.6; }
-#link{ font-size:12px; }
+.btn{ background:var(--muted); border:none; color:var(--ink); border-radius:8px; padding:8px 14px; font-size:12.5px; font-weight:500; font-family:var(--sans); cursor:pointer; }
+.btn:active{ transform:scale(.98); }
+.btn.save{ background:var(--ink); color:var(--paper); }
+.btn.del{ margin-left:auto; background:none; color:var(--faint); }
+/* modals */
+.modal{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; z-index:30; }
+.modal.on{ display:flex; }
+#overlay, #pick, #entrymodal{ align-items:center; justify-content:center; padding:20px; }
+#sheet, #picksheet, #esheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#shot{ width:100%; border-radius:10px; display:block; }
+#sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
+#sheet .row{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+.mhead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.mhead span{ font-size:16px; font-weight:600; }
+.xbtn{ width:30px; height:30px; border-radius:8px; background:var(--muted); border:none; color:var(--ink); font-size:14px; cursor:pointer; }
+#esheet input#title{ font-size:16px; font-weight:500; }
+#esheet input#note{ font-size:15px; }
+.ncount{ text-align:right; font-family:var(--mono); font-size:10px; color:var(--faint); margin-top:2px; }
+.isbnrow{ display:flex; align-items:center; gap:10px; margin-top:6px; }
+.isbnrow input{ width:150px; flex:none; font-size:13px !important; font-family:var(--mono); }
+#isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#esheet input#link{ font-size:12px !important; margin-top:6px; }
+.starsrow{ display:flex; align-items:center; gap:10px; margin-top:12px; }
+.starsrow .lbl{ font-size:12px; color:var(--sub); }
+.datebtns{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; }
+.datebtns label{ font-size:12px; color:var(--sub); }
+.datebtns input[type="date"]{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:7px 8px; font-size:13px; font-family:var(--mono); color-scheme:light dark; }
+.datebtns .acts{ display:flex; gap:8px; }
+#want{ background:var(--muted); border:none; color:var(--ink); border-radius:10px; padding:11px 16px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
+#add{ background:var(--ink); color:var(--paper); border:none; border-radius:10px; padding:11px 20px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; white-space:nowrap; }
+#want:active, #add:active{ transform:scale(.98); }
+#want:disabled, #add:disabled{ opacity:.5; }
+#esheet input#title{ width:100%; }
+#esheet > #esheet-form input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); outline:none; border-radius:0; }
+#esheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); outline:none; border-radius:0; }
+#esheet input[type="text"]:focus{ border-bottom-color:var(--accent); }
 #sugg{ display:none; background:var(--paper); border:1px solid var(--line); border-radius:12px; margin-top:6px; overflow:hidden; }
 #sugg.on{ display:block; }
 .sg{ display:block; width:100%; text-align:left; background:none; border:none; border-top:1px solid var(--line-soft); padding:10px 12px; cursor:pointer; font-family:var(--sans); }
@@ -78,47 +151,7 @@ h1{ font-size:22px; font-weight:600; letter-spacing:-0.03em; margin:0; }
 .sg:active{ background:var(--muted); }
 .sg .st{ font-size:13px; font-weight:600; color:var(--ink); line-height:1.4; }
 .sg .sa{ font-size:11px; color:var(--sub); margin-top:2px; }
-.isbnrow{ display:flex; align-items:center; gap:10px; }
-.isbnrow input[type="text"]{ width:190px; flex:none; font-size:12px; font-family:var(--mono); }
-#isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#filter{ display:flex; flex-wrap:wrap; gap:6px; margin-top:16px; }
-.chip{ display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:500; font-family:var(--sans); cursor:pointer; }
-.chip.on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
-.month{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:6px 14px 4px; margin-top:12px; }
-.month>.head{ display:flex; align-items:center; gap:8px; padding:10px 2px 8px; }
-.month h2{ font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.15em; text-transform:uppercase; color:var(--sub); margin:0; }
-.month .gcount{ font-family:var(--mono); font-size:11px; color:var(--ink); }
-.month .gcount b{ color:var(--accent); font-weight:600; }
-.mkimg{ margin-left:auto; background:none; border:1px solid var(--line); color:var(--sub); border-radius:6px; padding:4px 10px; font-family:var(--mono); font-size:10px; letter-spacing:.05em; cursor:pointer; }
-.mkimg:active{ transform:scale(.98); }
-.book{ border-top:1px solid var(--line-soft); padding:11px 2px; }
-.book.mine{ cursor:pointer; }
-.book .t{ font-size:14px; font-weight:600; line-height:1.5; letter-spacing:-0.01em; }
-.book .wrap{ display:flex; gap:12px; align-items:flex-start; }
-.book .bd{ flex:1; min-width:0; }
-.book img.cv{ width:38px; border-radius:5px; border:1px solid var(--line); flex:none; display:block; }
-.mkcard{ flex:none; align-self:center; background:none; border:1px solid var(--line); color:var(--faint); border-radius:6px; padding:4px 9px; font-family:var(--mono); font-size:10px; cursor:pointer; white-space:nowrap; }
-.mkcard:active{ transform:scale(.98); }
-.book .m{ display:flex; align-items:center; flex-wrap:wrap; gap:7px; font-size:12px; color:var(--sub); margin-top:5px; }
-.book .m .d{ font-family:var(--mono); font-size:10px; color:var(--faint); }
-.pill{ font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:2px 8px; border-radius:4px; font-weight:500; }
-.edit input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
-.edit .row{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
-.edit .row input[type="date"]{ border:1px solid var(--line); background:none; color:var(--sub); border-radius:8px; padding:6px 8px; font-size:12px; font-family:var(--mono); color-scheme:light dark; }
-.btn{ background:var(--muted); border:none; color:var(--ink); border-radius:8px; padding:8px 14px; font-size:12.5px; font-weight:500; font-family:var(--sans); cursor:pointer; }
-.btn:active{ transform:scale(.98); }
-.btn.save{ background:var(--ink); color:var(--paper); }
-.btn.del{ margin-left:auto; background:none; color:var(--faint); }
-.empty{ text-align:center; color:var(--sub); font-size:13px; padding:44px 10px; line-height:2; }
-.empty .big{ font-size:16px; font-weight:600; color:var(--ink); letter-spacing:-0.02em; }
-footer.app{ margin-top:40px; text-align:center; }
-footer.app button{ background:none; border:none; color:var(--faint); font-family:var(--mono); font-size:10px; letter-spacing:.12em; cursor:pointer; padding:4px 6px; }
-#overlay, #pick{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; align-items:center; justify-content:center; padding:20px; z-index:9; }
-#overlay.on, #pick.on{ display:flex; }
-#sheet, #picksheet{ background:var(--card); border-radius:18px; padding:14px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
-#shot{ width:100%; border-radius:10px; display:block; }
-#sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
-#sheet .row{ display:flex; gap:8px; justify-content:flex-end; }
+/* pick */
 #picksheet h2{ font-size:17px; font-weight:600; letter-spacing:-0.02em; margin:6px 4px 4px; }
 #picksheet .lead{ font-size:12px; color:var(--sub); margin:0 4px 14px; }
 #members{ display:flex; flex-direction:column; gap:8px; }
@@ -128,49 +161,42 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 #newname{ flex:1; min-width:0; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
 #picksheet .foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
 #pickmsg{ font-size:12px; color:var(--accent); margin:0 4px 12px; }
+/* drawer */
+#drawer{ justify-content:flex-end; }
+#dsheet{ background:var(--card); width:82%; max-width:340px; height:100%; padding:18px 16px; overflow:auto; }
+#drawer .mhead{ margin-bottom:16px; }
+.dsect{ margin-bottom:22px; }
+.dlabel{ font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--faint); margin-bottom:8px; }
+#dwho{ display:flex; align-items:center; gap:9px; width:100%; background:var(--paper); border:1px solid var(--line); color:var(--ink); border-radius:12px; padding:12px 14px; font-size:14px; font-weight:500; font-family:var(--sans); cursor:pointer; text-align:left; }
+#dmonths{ display:flex; flex-direction:column; gap:2px; }
+.mrow{ display:flex; align-items:center; justify-content:space-between; width:100%; background:none; border:none; color:var(--ink); border-radius:10px; padding:11px 8px; font-size:14px; font-family:var(--sans); cursor:pointer; text-align:left; border-bottom:1px solid var(--line-soft); }
+.mrow:last-child{ border-bottom:none; }
+.mrow.on{ color:var(--accent); font-weight:600; }
+.mrow .mc{ font-family:var(--mono); font-size:12px; color:var(--faint); }
 </style>
 </head>
 <body>
 <main>
 <header class="app">
-  <div>
-    <h1>読書ログ</h1>
-    <div id="hdate"></div>
-  </div>
-  <button id="whoami" title="部員を切り替え"></button>
+  <button id="menu" aria-label="メニュー"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <img id="logo" src="logo.png" alt="読書log #wa読書部">
 </header>
 
 <div id="net"></div>
 
 <div id="bento"></div>
 
-<section class="entry">
-  <input type="text" id="title" placeholder="本のタイトル" autocomplete="off">
-  <div id="sugg"></div>
-  <input type="text" id="note" placeholder="ひとこと（なくてもOK）" autocomplete="off">
-  <div class="isbnrow">
-    <input type="text" id="isbn" placeholder="ISBNで自動入力（任意）" inputmode="numeric" autocomplete="off">
-    <span id="isbnst"></span>
-  </div>
-  <input type="text" id="link" placeholder="リンク（感想ブログ・書籍ページなど 任意）" autocomplete="off">
-  <div class="row" style="justify-content:flex-start; gap:10px;">
-    <span style="font-size:12px;color:var(--sub);">評価</span>
-    <div id="stars" class="es" data-v="0"></div>
-  </div>
-  <div class="row">
-    <label style="font-size:12px;color:var(--sub);">読了日 <input type="date" id="fin"></label>
-    <span style="display:flex;gap:8px;">
-      <button id="want">読みたい</button>
-      <button id="add">読了</button>
-    </span>
-  </div>
-</section>
+<button id="recbtn"><span class="plus">＋</span>記録する</button>
 
 <div id="postbox"></div>
-
 <div id="migrate"></div>
 
-<div id="filter"></div>
+<div id="filterwrap">
+  <div id="filter"></div>
+  <button id="filtnext" aria-label="右へ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+</div>
+
+<div id="monthback"><button id="tonow">← 今月に戻る</button><span id="mbnow"></span></div>
 
 <section id="shelf"></section>
 
@@ -181,9 +207,9 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 </footer>
 </main>
 
-<div id="overlay">
+<div id="overlay" class="modal">
   <div id="sheet">
-    <img id="shot" alt="まとめ画像">
+    <img id="shot" alt="シェア画像">
     <p class="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
     <div class="row">
       <button class="btn" id="txtcopy" hidden>テキストをコピー</button>
@@ -194,7 +220,30 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
   </div>
 </div>
 
-<div id="pick">
+<div id="entrymodal" class="modal">
+  <div id="esheet">
+    <div class="mhead"><span>記録する</span><button class="xbtn" id="ecancel">✕</button></div>
+    <input type="text" id="title" placeholder="*本のタイトル" autocomplete="off">
+    <div id="sugg"></div>
+    <input type="text" id="note" placeholder="ひとこと" maxlength="80" autocomplete="off">
+    <div class="ncount"><span id="ncount">0</span>/80</div>
+    <div class="isbnrow">
+      <input type="text" id="isbn" placeholder="ISBN" inputmode="numeric" autocomplete="off">
+      <span id="isbnst"></span>
+    </div>
+    <input type="text" id="link" placeholder="リンク（感想ブログ・書籍ページなど 任意）" autocomplete="off">
+    <div class="starsrow"><span class="lbl">評価</span><div id="stars" class="es" data-v="0"></div></div>
+    <div class="datebtns">
+      <label>読了日 <input type="date" id="fin"></label>
+      <span class="acts">
+        <button id="want">読みたい</button>
+        <button id="add">読了</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div id="pick" class="modal">
   <div id="picksheet">
     <h2>あなたはだれ？</h2>
     <p class="lead">名前を選ぶと、その人の本棚として記録されます。</p>
@@ -207,6 +256,21 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <div class="foot"><button class="btn" id="guest" hidden>ゲストのまま見る</button><button class="btn" id="pickclose" hidden>閉じる</button></div>
   </div>
 </div>
+
+<div id="drawer" class="modal">
+  <div id="dsheet">
+    <div class="mhead"><span>メニュー</span><button class="xbtn" id="dclose">✕</button></div>
+    <div class="dsect">
+      <div class="dlabel">あなた</div>
+      <button id="dwho"></button>
+    </div>
+    <div class="dsect">
+      <div class="dlabel">過去の月</div>
+      <div id="dmonths"></div>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="file" accept=".json,application/json" hidden>
 <div id="toast"></div>
 
@@ -221,8 +285,9 @@ var APP_URL='https://lachimym.github.io/dokusho-log/';
 var DISP="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
 var SANS="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
 var MONO="'IBM Plex Mono','Hiragino Kaku Gothic ProN',monospace";
+var NOTE_MAX=80;
 
-var state={me:'', members:[], books:[], editing:null, filter:'*'};
+var state={me:'', members:[], books:[], editing:null, filter:'*', viewMonth:null};
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -242,6 +307,7 @@ function today(){
 }
 function md(iso){ var p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
 function ymLabel(ym){ var p=ym.split('-'); return (+p[0])+'年'+(+p[1])+'月'; }
+function ymDot(ym){ var p=ym.split('-'); return (+p[0])+'.'+(+p[1]); }
 
 var MEMCOL=[['#ff5a36','#ffffff'],['#8e6cff','#ffffff'],['#2456f0','#ffffff'],['#d4ff52','#131311']];
 function memCol(name){
@@ -281,80 +347,151 @@ function netFail(){
   $('net').classList.add('on');
 }
 
+function starsHtml(v){
+  var h='';
+  for(var i=1;i<=5;i++){ h+='<button type="button" class="estar'+(i<=v?' on':'')+'" data-n="'+i+'">★</button>'; }
+  return h;
+}
+
+function cardHtml(b){
+  if(state.editing===b.id){
+    return '<div class="ecard" data-id="'+b.id+'">'+
+      '<input type="text" class="et" value="'+esc(b.title)+'">'+
+      '<input type="text" class="en" placeholder="ひとこと" maxlength="'+NOTE_MAX+'" value="'+esc(b.note||'')+'">'+
+      '<input type="text" class="ei" placeholder="ISBN（入れると表紙・紹介文・ジャンルを取得）" value="'+esc(b.isbn||'')+'">'+
+      '<input type="text" class="eg" placeholder="ジャンル（自動・手直しOK）" value="'+esc(b.genre||'')+'">'+
+      '<input type="text" class="el" placeholder="リンク（任意）" value="'+esc(b.link||'')+'">'+
+      '<div class="es" data-v="'+(b.rating||0)+'">'+starsHtml(b.rating||0)+'</div>'+
+      '<div class="row"><input type="date" class="ed" value="'+b.date+'">'+
+      '<button class="btn save" data-act="save">保存</button>'+
+      '<button class="btn" data-act="cancel">やめる</button>'+
+      '<button class="btn del" data-act="del">削除</button></div></div>';
+  }
+  var mine=b.member===state.me;
+  var c=memCol(b.member);
+  var isWant=b.status==='want';
+  var shareSvg='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/></svg>';
+  return '<div class="gcard'+(mine?' mine':'')+'" data-id="'+b.id+'">'+
+    '<div class="cvwrap">'+
+      (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
+      '<button class="sharebtn" aria-label="シェア">'+shareSvg+'</button>'+
+    '</div>'+
+    (b.genre?'<div class="gg">'+esc(b.genre)+'</div>':'')+
+    '<div class="gt">'+esc(b.title)+'</div>'+
+    '<div class="gm"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
+    (isWant?'':'<span class="d">'+md(b.date)+'</span>')+
+    (b.rating?'<span class="rstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'')+'</div>'+
+    (b.note?'<div class="gnote">'+esc(b.note)+'</div>':'')+
+    (b.link?'<a class="blink" href="'+esc(b.link)+'" target="_blank" rel="noopener">リンク↗</a>':'')+
+    (isWant&&mine?'<div><button class="fin1">読了にする</button></div>':'')+
+    '</div>';
+}
+
 function render(){
-  var mc=memCol(state.me);
-  $('whoami').innerHTML=(state.me?'<span class="dot" style="background:'+mc[0]+'"></span>':'')+esc(state.me||'ゲスト（見るだけ）')+'<span style="color:var(--faint)">▾</span>';
   var nowYm=today().slice(0,7), nowY=today().slice(0,4);
   var clubM=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===nowYm; }).length;
   var clubY=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,4)===nowY; }).length;
   $('bento').innerHTML=
-    '<div class="bcard dark"><div class="blabel">CLUB · THIS MONTH</div><div class="bbig">'+clubM+'</div><div class="bsub">みんなで今月・冊</div></div>'+
-    '<div class="bcard hot"><div class="blabel">CLUB · THIS YEAR</div><div class="bbig">'+clubY+'</div><div class="bsub">みんなで今年・冊</div></div>';
+    '<div class="bcard dark"><span class="blabel">今月</span><span class="bnum"><span class="bbig">'+clubM+'</span><span class="bunit">冊</span></span></div>'+
+    '<div class="bcard hot"><span class="blabel">今年</span><span class="bnum"><span class="bbig">'+clubY+'</span><span class="bunit">冊</span></span></div>';
+
   var f=$('filter');
   if(state.members.length){
-    var chips='<button class="chip'+(state.filter==='*'?' on':'')+'" data-f="*">みんな</button>';
+    var chips='<button class="chip'+(state.filter==='*'?' on':'')+'" data-f="*">ALL</button>';
     state.members.forEach(function(m){
       var c=memCol(m);
       chips+='<button class="chip'+(state.filter===m?' on':'')+'" data-f="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+'</button>';
     });
     f.innerHTML=chips;
   }else{ f.innerHTML=''; }
+
+  var viewingPast=!!state.viewMonth && state.viewMonth!==nowYm;
+  var mb=$('monthback');
+  if(viewingPast){ mb.classList.add('on'); $('mbnow').textContent=ymLabel(state.viewMonth)+'を表示中'; }
+  else{ mb.classList.remove('on'); }
+
   var shelf=$('shelf');
-  var books=state.books.filter(function(b){ return state.filter==='*'||b.member===state.filter; });
-  if(!books.length){
-    shelf.innerHTML='<div class="empty"><div class="big">まだ記録がありません</div>読み終わった本のタイトルを入れて、最初の1冊をどうぞ。</div>';
-    return;
-  }
-  function rowHtml(b){
-    if(state.editing===b.id){
-      return '<div class="book edit" data-id="'+b.id+'">'+
-        '<input type="text" class="et" value="'+esc(b.title)+'">'+
-        '<input type="text" class="en" placeholder="ひとこと" value="'+esc(b.note||'')+'">'+
-        '<input type="text" class="ei" placeholder="ISBN（入れると表紙・紹介文・ジャンルを取得）" value="'+esc(b.isbn||'')+'">'+
-        '<input type="text" class="eg" placeholder="ジャンル（自動・手直しOK）" value="'+esc(b.genre||'')+'">'+
-        '<input type="text" class="el" placeholder="リンク（任意）" value="'+esc(b.link||'')+'">'+
-        '<div class="es" data-v="'+(b.rating||0)+'">'+starsHtml(b.rating||0)+'</div>'+
-        '<div class="row"><input type="date" class="ed" value="'+b.date+'">'+
-        '<button class="btn save" data-act="save">保存</button>'+
-        '<button class="btn" data-act="cancel">やめる</button>'+
-        '<button class="btn del" data-act="del">削除</button></div></div>';
-    }
-    var mine=b.member===state.me;
-    var c=memCol(b.member);
-    var isWant=b.status==='want';
-    return '<div class="book'+(mine?' mine':'')+'" data-id="'+b.id+'"><div class="wrap">'+
-      (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
-      '<div class="bd"><div class="t">'+esc(b.title)+'</div>'+
-      '<div class="m"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
-      (b.genre?'<span class="gchip">'+esc(b.genre)+'</span>':'')+
-      (isWant?'':'<span class="d">'+md(b.date)+'</span>')+
-      (b.rating?'<span class="rstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'')+
-      esc(b.note||'')+
-      (b.link?' <a class="blink" href="'+esc(b.link)+'" target="_blank" rel="noopener">リンク↗</a>':'')+'</div></div>'+
-      (isWant&&mine?'<button class="fin1">読了</button>':'')+
-      '<button class="mkcard">1枚に</button></div></div>';
-  }
-  var wants=books.filter(function(b){ return b.status==='want'; });
-  var reads=books.filter(function(b){ return b.status!=='want'; });
+  var byMember=state.books.filter(function(b){ return state.filter==='*'||b.member===state.filter; });
   var html='';
-  if(wants.length){
-    html+='<section class="month"><div class="head"><h2>● 読みたい</h2></div>';
-    wants.forEach(function(b){ html+=rowHtml(b); });
-    html+='</section>';
+
+  if(!viewingPast){
+    var wants=byMember.filter(function(b){ return b.status==='want'; });
+    if(wants.length){
+      html+='<section class="sect"><div class="head"><span class="stitle"><span class="mk"></span>読みたい</span></div><div class="grid">';
+      wants.forEach(function(b){ html+=cardHtml(b); });
+      html+='</div></section>';
+    }
   }
-  var groups={};
-  reads.forEach(function(b){ var ym=b.date.slice(0,7); (groups[ym]=groups[ym]||[]).push(b); });
-  var yms=Object.keys(groups).sort().reverse();
-  yms.forEach(function(ym){
-    var arr=groups[ym];
-    html+='<section class="month"><div class="head"><h2>● '+ymLabel(ym)+'</h2>'+
-      (state.filter==='*'?'<span class="gcount"><b>'+arr.length+'</b>冊</span>':'')+
-      '<button class="mkimg" data-ym="'+ym+'">この月を1枚に</button></div>';
-    arr.forEach(function(b){ html+=rowHtml(b); });
-    html+='</section>';
-  });
+
+  var targetYm=viewingPast?state.viewMonth:nowYm;
+  var reads=byMember.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===targetYm; })
+    .sort(function(a,b){ return a.date<b.date?1:-1; });
+  html+='<section class="sect"><div class="head"><span class="stitle"><span class="mk"></span>'+ymDot(targetYm)+'</span>'+
+    '<span class="scount"><b>'+reads.length+'</b>冊</span>'+
+    '<button class="mkimg" data-ym="'+targetYm+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l4-4 5 5"/><circle cx="9" cy="9" r="1.5"/></svg>まとめ画像</button></div>';
+  if(reads.length){
+    html+='<div class="grid">';
+    reads.forEach(function(b){ html+=cardHtml(b); });
+    html+='</div>';
+  }else{
+    html+='<div class="empty"><div class="big">まだ記録がありません</div>「＋記録する」から最初の1冊をどうぞ。</div>';
+  }
+  html+='</section>';
   shelf.innerHTML=html;
 }
+
+function fmtDrawer(){
+  var who=state.me||'ゲスト（見るだけ）';
+  var c=memCol(state.me);
+  $('dwho').innerHTML=(state.me?'<span class="dot" style="background:'+c[0]+'"></span>':'')+esc(who)+'　<span style="color:var(--faint);margin-left:auto">切替 ▾</span>';
+  var nowYm=today().slice(0,7);
+  var groups={};
+  state.books.forEach(function(b){ if(b.status!=='want'){ var ym=b.date.slice(0,7); groups[ym]=(groups[ym]||0)+1; } });
+  var yms=Object.keys(groups).sort().reverse();
+  var html='<button class="mrow'+((!state.viewMonth||state.viewMonth===nowYm)?' on':'')+'" data-ym="__now"><span>今月</span><span class="mc">'+(groups[nowYm]||0)+'冊</span></button>';
+  yms.forEach(function(ym){
+    if(ym===nowYm) return;
+    html+='<button class="mrow'+(state.viewMonth===ym?' on':'')+'" data-ym="'+ym+'"><span>'+ymLabel(ym)+'</span><span class="mc">'+groups[ym]+'冊</span></button>';
+  });
+  $('dmonths').innerHTML=html;
+}
+function openDrawer(){ fmtDrawer(); $('drawer').classList.add('on'); }
+$('menu').addEventListener('click', openDrawer);
+$('dclose').addEventListener('click', function(){ $('drawer').classList.remove('on'); });
+$('drawer').addEventListener('click', function(e){
+  if(e.target===$('drawer')){ $('drawer').classList.remove('on'); return; }
+  var mr=e.target.closest('.mrow');
+  if(mr){
+    var ym=mr.getAttribute('data-ym');
+    state.viewMonth=(ym==='__now')?null:ym;
+    $('drawer').classList.remove('on');
+    render();
+    window.scrollTo(0,0);
+    return;
+  }
+  if(e.target.closest('#dwho')){ $('drawer').classList.remove('on'); openPick(); }
+});
+$('tonow').addEventListener('click', function(){ state.viewMonth=null; render(); });
+
+/* filter scroll */
+$('filtnext').addEventListener('click', function(){ $('filter').scrollBy({left:160,behavior:'smooth'}); });
+$('filter').addEventListener('click', function(e){
+  var c=e.target.closest('.chip');
+  if(!c) return;
+  state.filter=c.getAttribute('data-f');
+  render();
+});
+
+/* record modal */
+function openEntry(){
+  if(!state.me){ openPick('記録するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+  $('entrymodal').classList.add('on');
+  setTimeout(function(){ $('title').focus(); }, 50);
+}
+function closeEntry(){ $('entrymodal').classList.remove('on'); hideSugg(); }
+$('recbtn').addEventListener('click', openEntry);
+$('ecancel').addEventListener('click', closeEntry);
+$('entrymodal').addEventListener('click', function(e){ if(e.target===$('entrymodal')) closeEntry(); });
 
 function renderPick(){
   var box=$('members');
@@ -415,13 +552,6 @@ $('addmem').addEventListener('click', function(){
       }
     });
 });
-$('whoami').addEventListener('click', function(){ openPick(); });
-$('filter').addEventListener('click', function(e){
-  var c=e.target.closest('.chip');
-  if(!c) return;
-  state.filter=c.getAttribute('data-f');
-  render();
-});
 
 $('fin').value=today();
 $('stars').innerHTML=starsHtml(0);
@@ -433,18 +563,8 @@ $('stars').addEventListener('click', function(e){
   this.setAttribute('data-v', nv);
   this.innerHTML=starsHtml(nv);
 });
-(function(){
-  var n=new Date();
-  var w=['SUN','MON','TUE','WED','THU','FRI','SAT'][n.getDay()];
-  var mo=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][n.getMonth()];
-  $('hdate').textContent=w+' · '+mo+' '+n.getDate();
-})();
+$('note').addEventListener('input', function(){ $('ncount').textContent=this.value.length; });
 
-function starsHtml(v){
-  var h='';
-  for(var i=1;i<=5;i++){ h+='<button type="button" class="estar'+(i<=v?' on':'')+'" data-n="'+i+'">★</button>'; }
-  return h;
-}
 function makePostText(b){
   var lines=[];
   var who=b.author?'（'+b.author+'）':'';
@@ -490,10 +610,10 @@ function showPostBanner(b){
 function submitBook(status){
   var t=$('title').value.trim();
   if(!t){ $('title').focus(); return; }
-  if(!state.me){ openPick('記録するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+  if(!state.me){ closeEntry(); openPick('記録するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
   $('add').disabled=true; $('want').disabled=true;
   var row={
-    member:state.me, title:t, note:$('note').value.trim(),
+    member:state.me, title:t, note:$('note').value.trim().slice(0,NOTE_MAX),
     date:(status==='want'?today():($('fin').value||today())), status:status,
     rating:+($('stars').getAttribute('data-v')||0),
     link:$('link').value.trim(),
@@ -503,27 +623,21 @@ function submitBook(status){
   };
   api('books', {method:'POST', body:JSON.stringify(row)})
     .then(function(rs){
-      state.books.unshift(normBook(rs[0]));
+      var saved=normBook(rs[0]);
+      state.books.unshift(saved);
       state.books.sort(function(a,b){ return a.date<b.date?1:-1; });
-      $('title').value=''; $('note').value=''; $('fin').value=today();
-$('stars').innerHTML=starsHtml(0);
-$('stars').addEventListener('click', function(e){
-  var b=e.target.closest('.estar');
-  if(!b) return;
-  var cur=+(this.getAttribute('data-v')||0), n=+b.getAttribute('data-n');
-  var nv=(n===cur)?0:n;
-  this.setAttribute('data-v', nv);
-  this.innerHTML=starsHtml(nv);
-});
+      $('title').value=''; $('note').value=''; $('ncount').textContent='0'; $('fin').value=today();
       $('isbn').value=''; $('isbnst').textContent=''; pending=null;
       $('link').value='';
       $('stars').setAttribute('data-v','0');
       $('stars').innerHTML=starsHtml(0);
-      var saved=normBook(rs[0]);
+      state.viewMonth=null;
+      closeEntry();
       render();
       showPostBanner(saved);
       if(!saved.genre&&saved.title) autoGenre(saved);
       if(status==='want') toast('「読みたい」に置きました。');
+      else toast('読了を記録しました。おつかれさまです。');
     })
     .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
     .then(function(){ $('add').disabled=false; $('want').disabled=false; });
@@ -709,8 +823,8 @@ function lookupIsbn(v){
 $('shelf').addEventListener('click', function(e){
   var mk=e.target.closest('.mkimg');
   if(mk){ makeImage(mk.getAttribute('data-ym')); return; }
-  var mc=e.target.closest('.mkcard');
-  if(mc){ makeBookImage(mc.closest('.book').getAttribute('data-id')); return; }
+  var sb=e.target.closest('.sharebtn');
+  if(sb){ makeBookImage(sb.closest('.gcard').getAttribute('data-id')); return; }
   if(e.target.closest('a')) return;
   var es=e.target.closest('.estar');
   if(es){
@@ -724,7 +838,7 @@ $('shelf').addEventListener('click', function(e){
   }
   var f1=e.target.closest('.fin1');
   if(f1){
-    var wid=f1.closest('.book').getAttribute('data-id');
+    var wid=f1.closest('.gcard').getAttribute('data-id');
     var wb=state.books.find(function(x){ return String(x.id)===String(wid); });
     if(wb&&wb.member===state.me){
       api('books?id=eq.'+wb.id, {method:'PATCH', body:JSON.stringify({status:'read', date:today()})})
@@ -738,20 +852,19 @@ $('shelf').addEventListener('click', function(e){
     }
     return;
   }
-  var card=e.target.closest('.book');
-  if(!card) return;
-  var id=card.getAttribute('data-id');
-  var b=state.books.find(function(x){ return String(x.id)===String(id); });
-  if(!b) return;
-  var act=e.target.getAttribute('data-act');
-  if(card.classList.contains('edit')){
+  var ecard=e.target.closest('.ecard');
+  if(ecard){
+    var eid=ecard.getAttribute('data-id');
+    var eb=state.books.find(function(x){ return String(x.id)===String(eid); });
+    if(!eb) return;
+    var act=e.target.getAttribute('data-act');
     if(!act) return;
     if(act==='cancel'){ state.editing=null; render(); return; }
     if(act==='del'){
-      if(!confirm('『'+b.title+'』を削除しますか？')) return;
-      api('books?id=eq.'+b.id, {method:'DELETE'})
+      if(!confirm('『'+eb.title+'』を削除しますか？')) return;
+      api('books?id=eq.'+eb.id, {method:'DELETE'})
         .then(function(){
-          state.books=state.books.filter(function(x){ return x.id!==b.id; });
+          state.books=state.books.filter(function(x){ return x.id!==eb.id; });
           state.editing=null; render();
         })
         .catch(function(){ toast('削除できませんでした。電波を確認してもう一度お試しください。'); });
@@ -759,22 +872,22 @@ $('shelf').addEventListener('click', function(e){
     }
     if(act==='save'){
       var patch={};
-      var nt=card.querySelector('.et').value.trim();
-      if(nt){ patch.title=nt; patch.note=card.querySelector('.en').value.trim(); patch.date=card.querySelector('.ed').value||b.date; }
-      patch.link=card.querySelector('.el').value.trim();
-      patch.rating=+(card.querySelector('.es').getAttribute('data-v')||0);
-      patch.genre=card.querySelector('.eg').value.trim();
-      var ni=card.querySelector('.ei').value.replace(/[^0-9Xx]/g,'');
+      var nt=ecard.querySelector('.et').value.trim();
+      if(nt){ patch.title=nt; patch.note=ecard.querySelector('.en').value.trim().slice(0,NOTE_MAX); patch.date=ecard.querySelector('.ed').value||eb.date; }
+      patch.link=ecard.querySelector('.el').value.trim();
+      patch.rating=+(ecard.querySelector('.es').getAttribute('data-v')||0);
+      patch.genre=ecard.querySelector('.eg').value.trim();
+      var ni=ecard.querySelector('.ei').value.replace(/[^0-9Xx]/g,'');
       var doSave=function(){
-        api('books?id=eq.'+b.id, {method:'PATCH', body:JSON.stringify(patch)})
+        api('books?id=eq.'+eb.id, {method:'PATCH', body:JSON.stringify(patch)})
           .then(function(rs){
-            Object.assign(b, normBook(rs[0]));
+            Object.assign(eb, normBook(rs[0]));
             state.books.sort(function(a,x){ return a.date<x.date?1:-1; });
             state.editing=null; render();
           })
           .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); });
       };
-      if(ni!==(b.isbn||'')){
+      if(ni!==(eb.isbn||'')){
         patch.isbn=ni;
         if(!ni){ patch.cover=''; patch.description=''; patch.author=''; doSave(); }
         else if(ni.length===10||ni.length===13){
@@ -791,10 +904,14 @@ $('shelf').addEventListener('click', function(e){
       }else{ doSave(); }
       return;
     }
-  }else{
-    if(b.member!==state.me) return;
-    state.editing=b.id; render();
+    return;
   }
+  var card=e.target.closest('.gcard');
+  if(!card) return;
+  var id=card.getAttribute('data-id');
+  var b=state.books.find(function(x){ return String(x.id)===String(id); });
+  if(!b || b.member!==state.me) return;
+  state.editing=b.id; render();
 });
 
 $('theme').addEventListener('click', function(){
@@ -956,7 +1073,7 @@ function makeImage(ym){
   var arr=state.books.filter(function(b){
     return b.status!=='want'&&b.date.slice(0,7)===ym&&(state.filter==='*'||b.member===state.filter);
   }).sort(function(a,b){ return a.date<b.date?-1:1; });
-  if(!arr.length) return;
+  if(!arr.length){ toast('この月の記録がまだありません。'); return; }
   var who=state.filter==='*'?CLUB:state.filter;
   var mixed=state.filter==='*';
   Promise.all([loadCovers(arr.map(function(b){ return b.cover; }).filter(Boolean).slice(0,8)), fontsReady()])
@@ -1062,7 +1179,7 @@ function renderImage(ym, arr, imgs, who, mixed){
   ctx.fillStyle=ISUB;
   ctx.font='26px '+DISP;
   ctx.textAlign='right';
-  ctx.fillText('読書ログ', W-M, 1290);
+  ctx.fillText('読書log', W-M, 1290);
   ctx.textAlign='left';
   var url;
   try{ url=cv.toDataURL('image/png'); }
@@ -1194,7 +1311,7 @@ function renderBookImage(b, cover){
   ctx.fillStyle=ISUB;
   ctx.font='26px '+DISP;
   ctx.textAlign='right';
-  ctx.fillText(b.member||'読書ログ', W-M, 1010);
+  ctx.fillText(b.member||'読書log', W-M, 1010);
   ctx.textAlign='left';
   var url;
   try{ url=cv.toDataURL('image/png'); }
