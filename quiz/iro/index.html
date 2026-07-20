@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>色彩図鑑MASTER｜色名あて4択クイズ</title>
+<meta name="description" content="色見本を見て色の名前を当てる4択クイズ。和の伝統色から世界の色まで、全987色から出題。5問100点満点であなたの色彩センスをチェック！">
+<meta property="og:title" content="色彩図鑑MASTER｜色名あて4択クイズ">
+<meta property="og:description" content="色見本を見て色の名前を当てる4択クイズ。和の伝統色から世界の色まで全987色。5問100点満点であなたの色彩センスをチェック！">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23fbfaf7'/%3E%3Cpath d='M50 12a38 38 0 100 76c6 0 8-4 8-8 0-6-6-6-6-12 0-4 4-6 8-6h6a30 30 0 00-24-50z' fill='%23ec6816'/%3E%3Ccircle cx='38' cy='34' r='6' fill='%23ca0048'/%3E%3Ccircle cx='62' cy='36' r='6' fill='%231d50a2'/%3E%3Ccircle cx='30' cy='56' r='6' fill='%234e67b0'/%3E%3Ccircle cx='66' cy='60' r='6' fill='%233eb370'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#efece4; --card:#f4f1ea; --ink:#2b2622; --sub:#7a7167;
+    --accent:#ec6816; --accent2:#ca0048; --ok:#2f9e6f; --ng:#d0455f;
+    --sh-d:#d3cec3; --sh-l:#ffffff; --radius:22px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif;
+    line-height:1.6; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:20px 16px 40px;
+  }
+  .wrap{width:100%;max-width:560px}
+  header.app{text-align:center;margin:8px 0 22px}
+  .logo{
+    display:inline-flex;align-items:center;gap:10px;
+    font-weight:800;font-size:26px;letter-spacing:.02em;
+  }
+  .logo .dot{width:14px;height:14px;border-radius:50%;
+    background:conic-gradient(#ca0048,#ec6816,#ffd900,#3eb370,#1d50a2,#8e4898,#ca0048)}
+  .tagline{color:var(--sub);font-size:13px;margin-top:6px}
+
+  .panel{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:8px 8px 18px var(--sh-d), -8px -8px 18px var(--sh-l);
+    padding:24px 20px; margin-bottom:18px;
+  }
+  h2.section{font-size:17px;margin:0 0 4px;font-weight:800}
+  .muted{color:var(--sub);font-size:13.5px;margin:0 0 16px}
+
+  .levels{display:flex;flex-direction:column;gap:12px}
+  button{font-family:inherit;cursor:pointer}
+  .btn{
+    border:none;background:var(--card);color:var(--ink);
+    border-radius:16px;padding:15px 16px;font-size:15.5px;font-weight:700;
+    box-shadow:6px 6px 12px var(--sh-d), -6px -6px 12px var(--sh-l);
+    transition:transform .08s ease, box-shadow .12s ease; width:100%;
+    text-align:left;
+  }
+  .btn:active{transform:translateY(1px);
+    box-shadow:inset 4px 4px 8px var(--sh-d), inset -4px -4px 8px var(--sh-l)}
+  .btn .lv-name{display:flex;justify-content:space-between;align-items:center}
+  .btn .lv-desc{color:var(--sub);font-weight:500;font-size:12.5px;margin-top:3px}
+  .chip{font-size:11px;font-weight:700;color:#fff;background:var(--accent);
+    padding:3px 9px;border-radius:999px}
+  .chip.alt{background:var(--accent2)}
+  .chip.mix{background:linear-gradient(90deg,#1d50a2,#8e4898,#ca0048)}
+
+  /* progress */
+  .topbar{display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;color:var(--sub);margin-bottom:14px;font-weight:700}
+  .bar{height:8px;border-radius:999px;background:#e2ddd2;overflow:hidden;
+    box-shadow:inset 2px 2px 4px var(--sh-d), inset -2px -2px 4px var(--sh-l);margin-bottom:20px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    width:0;transition:width .35s ease}
+
+  .swatch{
+    height:190px;border-radius:18px;margin:0 auto 8px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.05), 6px 6px 14px var(--sh-d), -6px -6px 14px var(--sh-l);
+    display:flex;align-items:flex-end;justify-content:flex-end;padding:10px}
+  .swatch .hex{font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    background:rgba(255,255,255,.72);color:#333;padding:2px 7px;border-radius:6px;
+    opacity:0;transition:opacity .3s}
+  .swatch.reveal .hex{opacity:1}
+  .q-label{text-align:center;color:var(--sub);font-size:13.5px;margin:2px 0 16px;font-weight:700}
+
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:420px){.options{grid-template-columns:1fr}}
+  .opt{
+    border:none;border-radius:16px;padding:16px 12px;font-size:15px;font-weight:700;
+    background:var(--card);color:var(--ink);
+    box-shadow:5px 5px 11px var(--sh-d), -5px -5px 11px var(--sh-l);
+    transition:transform .08s, box-shadow .12s;min-height:56px;line-height:1.35}
+  .opt:active{transform:translateY(1px)}
+  .opt.correct{background:linear-gradient(135deg,#eafaf2,#d5f2e4);color:#1c7a53;
+    box-shadow:inset 3px 3px 7px #c3e6d3, inset -3px -3px 7px #ffffff}
+  .opt.wrong{background:linear-gradient(135deg,#fbe7ec,#f5d3dc);color:#b23153;
+    box-shadow:inset 3px 3px 7px #e9c2cd, inset -3px -3px 7px #ffffff}
+  .opt.dim{opacity:.5}
+  .opt:disabled{cursor:default}
+
+  .feedback{margin-top:18px;min-height:10px}
+  .fb-card{border-radius:14px;padding:14px 15px;background:#f0ede6;
+    box-shadow:inset 3px 3px 7px var(--sh-d), inset -3px -3px 7px var(--sh-l)}
+  .fb-head{font-weight:800;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .fb-yomi{color:var(--sub);font-size:12.5px;font-weight:600}
+  .fb-desc{font-size:13.5px;margin-top:6px;color:#443f39}
+  .fb-ok{color:var(--ok)} .fb-ng{color:var(--ng)}
+  .next{margin-top:16px;text-align:center}
+  .next .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+    box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l);text-align:center;
+    display:inline-block;width:auto;padding:13px 34px}
+
+  /* result */
+  .score-big{font-size:56px;font-weight:800;text-align:center;line-height:1;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0}
+  .score-big small{font-size:20px;color:var(--sub);-webkit-text-fill-color:var(--sub)}
+  .rank{text-align:center;font-weight:800;font-size:18px;margin:2px 0 4px}
+  .result-msg{text-align:center;color:var(--sub);font-size:13.5px;margin-bottom:16px}
+  .review{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .rev{display:flex;align-items:center;gap:12px;background:#f0ede6;border-radius:12px;padding:10px 12px;
+    box-shadow:inset 2px 2px 6px var(--sh-d), inset -2px -2px 6px var(--sh-l)}
+  .rev .sw{width:34px;height:34px;border-radius:9px;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+  .rev .info{flex:1;min-width:0}
+  .rev .nm{font-weight:800;font-size:14px}
+  .rev .ym{color:var(--sub);font-size:11.5px}
+  .rev .mk{font-size:18px}
+  .actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .btn.x{background:#1d1d1f;color:#fff;text-align:center;
+    box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l)}
+  .btn.replay{text-align:center}
+
+  .cta{margin-top:18px;text-align:center}
+  .cta a{display:block;text-decoration:none;color:var(--ink);
+    background:linear-gradient(135deg,#fff6ef,#ffe9dc);border-radius:16px;padding:16px;
+    box-shadow:5px 5px 11px var(--sh-d), -5px -5px 11px var(--sh-l)}
+  .cta .k{font-size:11px;letter-spacing:.15em;color:var(--accent);font-weight:800}
+  .cta .t{font-weight:800;font-size:15px;margin:3px 0}
+  .cta .g{color:var(--sub);font-size:12.5px}
+
+  footer.app{text-align:center;color:var(--sub);font-size:12px;margin-top:26px}
+  footer.app a{color:var(--accent);text-decoration:none;font-weight:700}
+  .hidden{display:none}
+  .credit{font-size:11px;color:#a89f93;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="app">
+    <div class="logo"><span class="dot"></span>色彩図鑑MASTER</div>
+    <div class="tagline">色を見て、名前を当てる。4択カラークイズ</div>
+  </header>
+
+  <!-- START -->
+  <section id="start" class="panel">
+    <h2 class="section">レベルを選んでスタート</h2>
+    <p class="muted">色見本を見て、正しい色名を4つの中から選びます。全5問・100点満点。</p>
+    <div id="levels" class="levels"></div>
+    <p class="credit" id="poolInfo"></p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="panel hidden">
+    <div class="topbar"><span id="qCount">第1問 / 5</span><span id="qScore">0 点</span></div>
+    <div class="bar"><i id="progress"></i></div>
+    <div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div>
+    <div class="q-label">この色の名前は？</div>
+    <div id="options" class="options"></div>
+    <div id="feedback" class="feedback"></div>
+    <div id="next" class="next hidden"><button class="btn" id="nextBtn">次へ →</button></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="panel hidden">
+    <div class="score-big"><span id="finalScore">0</span><small> / 100点</small></div>
+    <div class="rank" id="rankText"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <div class="review" id="review"></div>
+    <div class="actions">
+      <button class="btn x" id="shareBtn">𝕏 で結果をシェア</button>
+      <button class="btn replay" id="replayBtn">もう一度あそぶ</button>
+    </div>
+    <div class="cta">
+      <a href="https://lachiart.com/blog/" target="_blank" rel="noopener">
+        <span class="k">IRO TELLER</span>
+        <span class="t">色の名前には、物語がある。</span>
+        <span class="g">らちまゆみのブログを読む →</span>
+      </a>
+    </div>
+  </section>
+
+  <footer class="app">
+    データ出典：色彩図鑑（全<span id="totalColors">987</span>色）<br>
+    <a href="https://lachiart.com/" target="_blank" rel="noopener">LACHIART</a>
+  </footer>
+</div>
+
+<script src="colors.js"></script>
+<script>
+(function(){
+  "use strict";
+  var COLORS = window.IRO_COLORS || [];
+  var LEVELS = window.IRO_LEVELS || [];
+  var QN = 5, PER = 20;
+  var SITE_URL = "https://lachiart.com/quiz/iro/";
+
+  var el = function(id){ return document.getElementById(id); };
+  document.getElementById('totalColors').textContent = COLORS.length;
+
+  function shuffle(a){
+    a = a.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
+    return a;
+  }
+  function sample(arr,n){ return shuffle(arr).slice(0,n); }
+
+  // group by level and family
+  var byLevel = {};
+  COLORS.forEach(function(c){ (byLevel[c.lv]=byLevel[c.lv]||[]).push(c); });
+
+  // build level buttons from data (auto-generates; future levels just appear)
+  var levelsInData = Object.keys(byLevel).map(Number).sort(function(a,b){return a-b;});
+  var levelsBox = el('levels');
+  var meta = {};
+  LEVELS.forEach(function(l){ meta[l.lv]=l; });
+
+  levelsInData.forEach(function(lv, idx){
+    var m = meta[lv] || {name:'レベル'+lv, desc:''};
+    var b = document.createElement('button');
+    b.className = 'btn';
+    var chipCls = idx===0 ? 'chip' : 'chip alt';
+    b.innerHTML = '<span class="lv-name"><span>Level '+lv+'　'+m.name+'</span>'+
+      '<span class="'+chipCls+'">'+byLevel[lv].length+'色</span></span>'+
+      '<span class="lv-desc">'+m.desc+'</span>';
+    b.addEventListener('click', function(){ startQuiz([lv]); });
+    levelsBox.appendChild(b);
+  });
+  // mix mode
+  if(levelsInData.length>1){
+    var mb = document.createElement('button');
+    mb.className='btn';
+    mb.innerHTML='<span class="lv-name"><span>ミックス　全レベル</span>'+
+      '<span class="chip mix">'+COLORS.length+'色</span></span>'+
+      '<span class="lv-desc">和の色も世界の色もまとめて出題</span>';
+    mb.addEventListener('click', function(){ startQuiz(levelsInData); });
+    levelsBox.appendChild(mb);
+  }
+  el('poolInfo').textContent = '出題プール：' + levelsInData.map(function(lv){
+    return (meta[lv]?meta[lv].name:('Lv'+lv))+' '+byLevel[lv].length+'色';
+  }).join(' ／ ');
+
+  var state = null;
+
+  function pool(levels){
+    var p = [];
+    levels.forEach(function(lv){ p = p.concat(byLevel[lv]||[]); });
+    return p;
+  }
+
+  function buildQuestions(levels){
+    var p = pool(levels);
+    // pick QN answers with distinct display names
+    var answers = [], usedNames = {};
+    var shuffled = shuffle(p);
+    for(var i=0;i<shuffled.length && answers.length<QN;i++){
+      var c = shuffled[i];
+      if(usedNames[c.n]) continue;
+      usedNames[c.n]=1; answers.push(c);
+    }
+    return answers.map(function(ans){
+      // distractors: prefer same family, distinct name & hex
+      var sameFam = p.filter(function(c){
+        return c.f===ans.f && c.n!==ans.n && c.h!==ans.h;
+      });
+      var picks = [], seen = {}; seen[ans.n]=1;
+      shuffle(sameFam).forEach(function(c){
+        if(picks.length>=3) return;
+        if(seen[c.n]) return;
+        seen[c.n]=1; picks.push(c);
+      });
+      if(picks.length<3){
+        shuffle(p).forEach(function(c){
+          if(picks.length>=3) return;
+          if(seen[c.n] || c.h===ans.h) return;
+          seen[c.n]=1; picks.push(c);
+        });
+      }
+      var options = shuffle(picks.concat([ans]));
+      return { ans:ans, options:options };
+    });
+  }
+
+  function startQuiz(levels){
+    state = { qs:buildQuestions(levels), idx:0, score:0, log:[] };
+    show('quiz');
+    renderQ();
+  }
+
+  function show(which){
+    ['start','quiz','result'].forEach(function(s){
+      el(s).classList.toggle('hidden', s!==which);
+    });
+    window.scrollTo(0,0);
+  }
+
+  function renderQ(){
+    var q = state.qs[state.idx];
+    el('qCount').textContent = '第'+(state.idx+1)+'問 / '+QN;
+    el('qScore').textContent = state.score+' 点';
+    el('progress').style.width = (state.idx/QN*100)+'%';
+
+    var sw = el('swatch');
+    sw.style.background = q.ans.h;
+    sw.classList.remove('reveal');
+    el('swatchHex').textContent = q.ans.h.toUpperCase();
+
+    var box = el('options'); box.innerHTML='';
+    q.options.forEach(function(opt){
+      var b = document.createElement('button');
+      b.className='opt'; b.textContent = opt.n;
+      b.addEventListener('click', function(){ choose(b, opt, q); });
+      box.appendChild(b);
+    });
+    el('feedback').innerHTML='';
+    el('next').classList.add('hidden');
+  }
+
+  function choose(btn, opt, q){
+    var buttons = el('options').querySelectorAll('.opt');
+    var correct = opt.n===q.ans.n && opt.h===q.ans.h;
+    buttons.forEach(function(b){
+      b.disabled = true;
+      if(b.textContent===q.ans.n){ b.classList.add('correct'); }
+    });
+    if(!correct){ btn.classList.add('wrong'); }
+    buttons.forEach(function(b){
+      if(!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('dim');
+    });
+    el('swatch').classList.add('reveal');
+    if(correct){ state.score += PER; el('qScore').textContent = state.score+' 点'; }
+    state.log.push({ c:q.ans, ok:correct });
+
+    var fb = el('feedback');
+    fb.innerHTML =
+      '<div class="fb-card">'+
+        '<div class="fb-head '+(correct?'fb-ok':'fb-ng')+'">'+
+          (correct?'◎ 正解！':'× 残念…')+
+          '<span style="color:var(--ink)">'+q.ans.n+'</span>'+
+          '<span class="fb-yomi">'+q.ans.y+'</span>'+
+        '</div>'+
+        (q.ans.d ? '<div class="fb-desc">'+q.ans.d+'</div>' : '')+
+      '</div>';
+    el('progress').style.width = ((state.idx+1)/QN*100)+'%';
+    el('next').classList.remove('hidden');
+    el('nextBtn').textContent = (state.idx+1<QN) ? '次へ →' : '結果を見る →';
+  }
+
+  el('nextBtn').addEventListener('click', function(){
+    state.idx++;
+    if(state.idx<QN){ renderQ(); }
+    else { renderResult(); }
+  });
+
+  function rankOf(score){
+    if(score>=100) return ['色彩の達人！','全問正解。まさに歩く色見本帳です。'];
+    if(score>=80)  return ['色彩マスター','色名の知識、かなりのものです。'];
+    if(score>=60)  return ['色彩ハンター','いい感じ。あと少しで上級者。'];
+    if(score>=40)  return ['色彩みならい','知ってる色を増やしていこう。'];
+    if(score>=20)  return ['色彩ビギナー','ここからが伸びしろ！'];
+    return ['色の世界へようこそ','まずは一色ずつ覚えていこう。'];
+  }
+
+  function renderResult(){
+    show('result');
+    el('finalScore').textContent = state.score;
+    var r = rankOf(state.score);
+    el('rankText').textContent = r[0];
+    el('resultMsg').textContent = r[1];
+    var rv = el('review'); rv.innerHTML='';
+    state.log.forEach(function(item){
+      var d = document.createElement('div');
+      d.className='rev';
+      d.innerHTML =
+        '<span class="sw" style="background:'+item.c.h+'"></span>'+
+        '<span class="info"><span class="nm">'+item.c.n+'</span>'+
+        '<span class="ym"> '+item.c.y+'</span></span>'+
+        '<span class="mk">'+(item.ok?'⭕️':'❌')+'</span>';
+      rv.appendChild(d);
+    });
+  }
+
+  el('replayBtn').addEventListener('click', function(){ show('start'); });
+
+  el('shareBtn').addEventListener('click', function(){
+    var text = '色彩図鑑MASTERで '+state.score+'点（'+rankOf(state.score)[0]+'）！\n色名あて4択クイズ、あなたは何点取れる？';
+    var url = SITE_URL+'?v=2';
+    var share = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('色彩図鑑MASTER,色の名前');
+    window.open(share,'_blank','noopener');
+  });
+})();
+</script>
+</body>
+</html>
