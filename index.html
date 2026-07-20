@@ -31,12 +31,15 @@
 body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
 main{ max-width:560px; margin:0 auto; padding:14px 16px 60px; }
 header.app{ position:relative; text-align:center; padding:2px 0 8px; }
-#menu{ position:absolute; top:2px; right:0; width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:none; border:none; color:var(--ink); cursor:pointer; }
+#menu{ position:fixed; top:10px; right:12px; z-index:25; width:42px; height:42px; display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--line); border-radius:12px; color:var(--ink); cursor:pointer; box-shadow:0 1px 4px rgba(19,19,17,.06); }
 #menu:active{ transform:scale(.95); }
-#logo{ width:172px; max-width:56%; height:auto; display:inline-block; padding:6px 14px; border-radius:22px; }
-@media (prefers-color-scheme: dark){ #logo{ background:#f4f3ef; } }
-:root[data-theme="dark"] #logo{ background:#f4f3ef; }
-:root[data-theme="light"] #logo{ background:none; }
+.logo{ width:172px; max-width:56%; height:auto; }
+#logodark{ display:none; }
+@media (prefers-color-scheme: dark){ #logo{ display:none; } #logodark{ display:inline-block; } }
+:root[data-theme="dark"] #logo{ display:none; }
+:root[data-theme="dark"] #logodark{ display:inline-block; }
+:root[data-theme="light"] #logo{ display:inline-block; }
+:root[data-theme="light"] #logodark{ display:none; }
 #net{ display:none; font-size:12px; color:var(--accent); border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px 14px; margin-bottom:10px; }
 #net.on{ display:block; }
 #toast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:13px; padding:10px 18px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:40; max-width:86vw; }
@@ -164,7 +167,10 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 /* drawer */
 #drawer{ justify-content:flex-end; }
 #dsheet{ background:var(--card); width:82%; max-width:340px; height:100%; padding:18px 16px; overflow:auto; }
-#drawer .mhead{ margin-bottom:16px; }
+#drawer .mhead{ margin-bottom:14px; }
+#drec{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--ink); color:var(--paper); border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:600; font-family:var(--sans); cursor:pointer; margin-bottom:20px; }
+#drec:active{ transform:scale(.99); }
+#drec .plus{ width:22px; height:22px; border-radius:50%; background:var(--paper); color:var(--ink); display:flex; align-items:center; justify-content:center; font-size:15px; }
 .dsect{ margin-bottom:22px; }
 .dlabel{ font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--faint); margin-bottom:8px; }
 #dwho{ display:flex; align-items:center; gap:9px; width:100%; background:var(--paper); border:1px solid var(--line); color:var(--ink); border-radius:12px; padding:12px 14px; font-size:14px; font-weight:500; font-family:var(--sans); cursor:pointer; text-align:left; }
@@ -179,7 +185,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <main>
 <header class="app">
   <button id="menu" aria-label="メニュー"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-  <img id="logo" src="logo.png" alt="読書log #wa読書部">
+  <img id="logo" class="logo" src="logo.png" alt="読書log #wa読書部">
+  <img id="logodark" class="logo" src="logo-dark.png" alt="読書log #wa読書部">
 </header>
 
 <div id="net"></div>
@@ -260,6 +267,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <div id="drawer" class="modal">
   <div id="dsheet">
     <div class="mhead"><span>メニュー</span><button class="xbtn" id="dclose">✕</button></div>
+    <button id="drec"><span class="plus">＋</span>記録する</button>
     <div class="dsect">
       <div class="dlabel">あなた</div>
       <button id="dwho"></button>
@@ -458,6 +466,7 @@ function fmtDrawer(){
 function openDrawer(){ fmtDrawer(); $('drawer').classList.add('on'); }
 $('menu').addEventListener('click', openDrawer);
 $('dclose').addEventListener('click', function(){ $('drawer').classList.remove('on'); });
+$('drec').addEventListener('click', function(){ $('drawer').classList.remove('on'); openEntry(); });
 $('drawer').addEventListener('click', function(e){
   if(e.target===$('drawer')){ $('drawer').classList.remove('on'); return; }
   var mr=e.target.closest('.mrow');
