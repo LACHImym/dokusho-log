@@ -118,8 +118,15 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 /* modals */
 .modal{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; z-index:30; }
 .modal.on{ display:flex; }
-#overlay, #pick, #entrymodal{ align-items:center; justify-content:center; padding:20px; }
-#sheet, #picksheet, #esheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#overlay, #pick, #entrymodal, #editmodal{ align-items:center; justify-content:center; padding:20px; }
+#sheet, #picksheet, #esheet, #edsheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#edsheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
+#edsheet input[type="text"]:focus{ border-bottom-color:var(--accent); }
+#edsheet input#ed-title{ font-size:16px; font-weight:500; }
+#edsheet input#ed-isbn{ width:150px; flex:none; font-family:var(--mono); font-size:13px; }
+#edsheet input#ed-link, #edsheet input#ed-genre{ font-size:12.5px; }
+#ed-isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#ed-del{ color:var(--faint); background:none; }
 #shot{ width:100%; border-radius:10px; display:block; }
 #sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
 #sheet .row{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
@@ -250,6 +257,29 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
   </div>
 </div>
 
+<div id="editmodal" class="modal">
+  <div id="edsheet">
+    <div class="mhead"><span>編集</span><button class="xbtn" id="edclose">✕</button></div>
+    <input type="text" id="ed-title" placeholder="*本のタイトル" autocomplete="off">
+    <input type="text" id="ed-note" placeholder="ひとこと" maxlength="80" autocomplete="off">
+    <div class="ncount"><span id="ed-ncount">0</span>/80</div>
+    <div class="isbnrow">
+      <input type="text" id="ed-isbn" placeholder="ISBN" inputmode="numeric" autocomplete="off">
+      <span id="ed-isbnst"></span>
+    </div>
+    <input type="text" id="ed-genre" placeholder="ジャンル（自動・手直しOK）" autocomplete="off">
+    <input type="text" id="ed-link" placeholder="リンク（感想ブログ・書籍ページなど 任意）" autocomplete="off">
+    <div class="starsrow"><span class="lbl">評価</span><div id="ed-stars" class="es" data-v="0"></div></div>
+    <div class="datebtns">
+      <label>読了日 <input type="date" id="ed-fin"></label>
+      <span class="acts">
+        <button class="btn" id="ed-del">削除</button>
+        <button class="btn save" id="ed-save">保存</button>
+      </span>
+    </div>
+  </div>
+</div>
+
 <div id="pick" class="modal">
   <div id="picksheet">
     <h2>あなたはだれ？</h2>
@@ -362,19 +392,6 @@ function starsHtml(v){
 }
 
 function cardHtml(b){
-  if(state.editing===b.id){
-    return '<div class="ecard" data-id="'+b.id+'">'+
-      '<input type="text" class="et" value="'+esc(b.title)+'">'+
-      '<input type="text" class="en" placeholder="ひとこと" maxlength="'+NOTE_MAX+'" value="'+esc(b.note||'')+'">'+
-      '<input type="text" class="ei" placeholder="ISBN（入れると表紙・紹介文・ジャンルを取得）" value="'+esc(b.isbn||'')+'">'+
-      '<input type="text" class="eg" placeholder="ジャンル（自動・手直しOK）" value="'+esc(b.genre||'')+'">'+
-      '<input type="text" class="el" placeholder="リンク（任意）" value="'+esc(b.link||'')+'">'+
-      '<div class="es" data-v="'+(b.rating||0)+'">'+starsHtml(b.rating||0)+'</div>'+
-      '<div class="row"><input type="date" class="ed" value="'+b.date+'">'+
-      '<button class="btn save" data-act="save">保存</button>'+
-      '<button class="btn" data-act="cancel">やめる</button>'+
-      '<button class="btn del" data-act="del">削除</button></div></div>';
-  }
   var mine=b.member===state.me;
   var c=memCol(b.member);
   var isWant=b.status==='want';
@@ -585,7 +602,6 @@ function makePostText(b){
   }
   if(b.rating) lines.push('★★★★★'.slice(0,b.rating)+'☆☆☆☆☆'.slice(0,5-b.rating));
   if(b.note) lines.push('「'+b.note+'」');
-  if(b.link) lines.push(b.link);
   lines.push(TAG+' '+APP_URL);
   return lines.join('\n');
 }
@@ -861,66 +877,91 @@ $('shelf').addEventListener('click', function(e){
     }
     return;
   }
-  var ecard=e.target.closest('.ecard');
-  if(ecard){
-    var eid=ecard.getAttribute('data-id');
-    var eb=state.books.find(function(x){ return String(x.id)===String(eid); });
-    if(!eb) return;
-    var act=e.target.getAttribute('data-act');
-    if(!act) return;
-    if(act==='cancel'){ state.editing=null; render(); return; }
-    if(act==='del'){
-      if(!confirm('『'+eb.title+'』を削除しますか？')) return;
-      api('books?id=eq.'+eb.id, {method:'DELETE'})
-        .then(function(){
-          state.books=state.books.filter(function(x){ return x.id!==eb.id; });
-          state.editing=null; render();
-        })
-        .catch(function(){ toast('削除できませんでした。電波を確認してもう一度お試しください。'); });
-      return;
-    }
-    if(act==='save'){
-      var patch={};
-      var nt=ecard.querySelector('.et').value.trim();
-      if(nt){ patch.title=nt; patch.note=ecard.querySelector('.en').value.trim().slice(0,NOTE_MAX); patch.date=ecard.querySelector('.ed').value||eb.date; }
-      patch.link=ecard.querySelector('.el').value.trim();
-      patch.rating=+(ecard.querySelector('.es').getAttribute('data-v')||0);
-      patch.genre=ecard.querySelector('.eg').value.trim();
-      var ni=ecard.querySelector('.ei').value.replace(/[^0-9Xx]/g,'');
-      var doSave=function(){
-        api('books?id=eq.'+eb.id, {method:'PATCH', body:JSON.stringify(patch)})
-          .then(function(rs){
-            Object.assign(eb, normBook(rs[0]));
-            state.books.sort(function(a,x){ return a.date<x.date?1:-1; });
-            state.editing=null; render();
-          })
-          .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); });
-      };
-      if(ni!==(eb.isbn||'')){
-        patch.isbn=ni;
-        if(!ni){ patch.cover=''; patch.description=''; patch.author=''; doSave(); }
-        else if(ni.length===10||ni.length===13){
-          fetchBookFull(ni).then(function(info){
-            if(info){
-              if(info.author) patch.author=info.author;
-              if(info.cover) patch.cover=info.cover;
-              if(info.desc) patch.description=info.desc;
-              if(info.genre&&!patch.genre) patch.genre=info.genre;
-            }
-            doSave();
-          }).catch(doSave);
-        }else{ doSave(); }
-      }else{ doSave(); }
-      return;
-    }
-    return;
-  }
   var card=e.target.closest('.gcard');
   if(!card) return;
   var id=card.getAttribute('data-id');
   var b=state.books.find(function(x){ return String(x.id)===String(id); });
   if(!b || b.member!==state.me) return;
-  state.editing=b.id; render();
+  openEdit(b);
+});
+
+function openEdit(b){
+  state.editing=b.id;
+  $('ed-title').value=b.title||'';
+  $('ed-note').value=b.note||'';
+  $('ed-ncount').textContent=(b.note||'').length;
+  $('ed-isbn').value=b.isbn||'';
+  $('ed-isbnst').textContent='';
+  $('ed-genre').value=b.genre||'';
+  $('ed-link').value=b.link||'';
+  $('ed-stars').setAttribute('data-v', b.rating||0);
+  $('ed-stars').innerHTML=starsHtml(b.rating||0);
+  $('ed-fin').value=b.date;
+  $('editmodal').classList.add('on');
+}
+function closeEdit(){ state.editing=null; $('editmodal').classList.remove('on'); }
+$('edclose').addEventListener('click', closeEdit);
+$('editmodal').addEventListener('click', function(e){ if(e.target===$('editmodal')) closeEdit(); });
+$('ed-note').addEventListener('input', function(){ $('ed-ncount').textContent=this.value.length; });
+$('ed-stars').addEventListener('click', function(e){
+  var b=e.target.closest('.estar');
+  if(!b) return;
+  var cur=+(this.getAttribute('data-v')||0), n=+b.getAttribute('data-n');
+  var nv=(n===cur)?0:n;
+  this.setAttribute('data-v', nv);
+  this.innerHTML=starsHtml(nv);
+});
+$('ed-del').addEventListener('click', function(){
+  var eb=state.books.find(function(x){ return x.id===state.editing; });
+  if(!eb) return;
+  if(!confirm('『'+eb.title+'』を削除しますか？')) return;
+  api('books?id=eq.'+eb.id, {method:'DELETE'})
+    .then(function(){
+      state.books=state.books.filter(function(x){ return x.id!==eb.id; });
+      closeEdit(); render();
+      toast('削除しました。');
+    })
+    .catch(function(){ toast('削除できませんでした。電波を確認してもう一度お試しください。'); });
+});
+$('ed-save').addEventListener('click', function(){
+  var eb=state.books.find(function(x){ return x.id===state.editing; });
+  if(!eb) return;
+  var btn=$('ed-save');
+  btn.disabled=true;
+  var patch={};
+  var nt=$('ed-title').value.trim();
+  if(nt){ patch.title=nt; patch.note=$('ed-note').value.trim().slice(0,NOTE_MAX); patch.date=$('ed-fin').value||eb.date; }
+  patch.link=$('ed-link').value.trim();
+  patch.rating=+($('ed-stars').getAttribute('data-v')||0);
+  patch.genre=$('ed-genre').value.trim();
+  var ni=$('ed-isbn').value.replace(/[^0-9Xx]/g,'');
+  var doSave=function(){
+    api('books?id=eq.'+eb.id, {method:'PATCH', body:JSON.stringify(patch)})
+      .then(function(rs){
+        Object.assign(eb, normBook(rs[0]));
+        state.books.sort(function(a,x){ return a.date<x.date?1:-1; });
+        closeEdit(); render();
+        toast('保存しました。');
+      })
+      .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
+      .then(function(){ btn.disabled=false; });
+  };
+  if(ni!==(eb.isbn||'')){
+    patch.isbn=ni;
+    if(!ni){ patch.cover=''; patch.description=''; patch.author=''; doSave(); }
+    else if(ni.length===10||ni.length===13){
+      $('ed-isbnst').textContent='検索中…';
+      fetchBookFull(ni).then(function(info){
+        if(info){
+          if(info.author) patch.author=info.author;
+          if(info.cover) patch.cover=info.cover;
+          if(info.desc) patch.description=info.desc;
+          if(info.genre&&!patch.genre) patch.genre=info.genre;
+        }
+        doSave();
+      }).catch(doSave);
+    }else{ doSave(); }
+  }else{ doSave(); }
 });
 
 $('theme').addEventListener('click', function(){
