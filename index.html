@@ -63,7 +63,9 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .bcard{ border-radius:16px; padding:14px 16px; min-height:82px; display:flex; align-items:center; justify-content:space-between; }
 .bcard.dark{ background:var(--ink); color:var(--paper); }
 .bcard.hot{ background:var(--accent); color:var(--on-accent); }
-.blabel{ font-size:13px; font-weight:600; }
+.blabel{ font-size:13px; font-weight:600; line-height:1.35; }
+.blabel small{ font-size:10.5px; font-weight:500; opacity:.65; }
+#tagline{ text-align:center; font-size:12.5px; font-weight:500; color:var(--sub); letter-spacing:.02em; margin:2px 0 14px; }
 .bnum{ display:flex; align-items:baseline; gap:3px; }
 .bbig{ font-size:34px; font-weight:700; letter-spacing:-0.03em; line-height:1; }
 .bunit{ font-size:13px; font-weight:500; opacity:.85; }
@@ -208,6 +210,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 </header>
 
 <div id="net"></div>
+
+<p id="tagline">年に１冊でも、みんなで寄せれば無限大</p>
 
 <div id="bento"></div>
 
@@ -428,8 +432,8 @@ function render(){
   var clubM=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===nowYm; }).length;
   var clubY=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,4)===nowY; }).length;
   $('bento').innerHTML=
-    '<div class="bcard dark"><span class="blabel">今月</span><span class="bnum"><span class="bbig">'+clubM+'</span><span class="bunit">冊</span></span></div>'+
-    '<div class="bcard hot"><span class="blabel">今年</span><span class="bnum"><span class="bbig">'+clubY+'</span><span class="bunit">冊</span></span></div>';
+    '<div class="bcard dark"><span class="blabel">今月<br><small>みんなで</small></span><span class="bnum"><span class="bbig">'+clubM+'</span><span class="bunit">冊</span></span></div>'+
+    '<div class="bcard hot"><span class="blabel">今年<br><small>みんなで</small></span><span class="bnum"><span class="bbig">'+clubY+'</span><span class="bunit">冊</span></span></div>';
 
   var f=$('filter');
   if(state.members.length){
