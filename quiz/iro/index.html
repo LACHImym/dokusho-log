@@ -170,9 +170,10 @@
 <div class="wrap">
   <header class="app">
     <div class="brand">
-      <!-- 公式ロゴがあれば下の <img> を有効化し .brand-fallback を削除
-      <img class="brand-logo" src="logo.png" alt="色名MASTER"> -->
-      <div class="brand-fallback">
+      <!-- 公式ロゴ(logo.png)を quiz/iro/ に置けば自動で表示。無ければ下のテキストにフォールバック -->
+      <img class="brand-logo" src="logo.png" alt="色名MASTER"
+           onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block';">
+      <div id="brandFallback" class="brand-fallback" style="display:none">
         <div class="brand-kicker">SHIKIMEI</div>
         <div class="brand-title"><span class="c1">色</span><span class="c2">名</span><span class="m">MASTER</span></div>
       </div>
