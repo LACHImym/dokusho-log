@@ -13,6 +13,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6177307831535485" crossorigin="anonymous"></script>
 <style>
   :root{
     /* 白背景・フラット。ブランド色（キュビコンの赤/青/黄/紺）由来のアクセント */
@@ -48,6 +49,10 @@
   /* ===== 共通 ===== */
   button{font-family:inherit;cursor:pointer;border:none;background:none}
   .hidden{display:none}
+
+  /* ===== 冒頭の広告枠 ===== */
+  .ad-top{margin:4px 0 18px;min-height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .ad-top .adsbygoogle{width:100%}
 
   /* ===== スタート（レベル選択） ===== */
   .start-lead{color:var(--sub);font-size:13.5px;text-align:center;margin:0 0 18px}
@@ -180,6 +185,16 @@
     </div>
     <p class="tagline">世界の色の名前クイズ</p>
   </header>
+
+  <!-- 広告枠（ページを開いた瞬間から見える位置＝クイズ冒頭。常時表示） -->
+  <div class="ad-top">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-6177307831535485"
+         data-ad-slot="2286251553"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
 
   <!-- START -->
   <section id="start">
@@ -437,6 +452,9 @@
     var share = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('色名MASTER,色の名前');
     window.open(share,'_blank','noopener');
   });
+
+  // 冒頭の広告を読み込む（常時表示の枠なので初回に1回だけ）
+  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
 })();
 </script>
 </body>
