@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <style>
+      .nv{fill:none;stroke:#34485f;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+      .red{fill:#e60012}.blue{fill:#0068b7}.yel{fill:#ffe100}.wht{fill:#ffffff}
+    </style>
+  </defs>
+
+  <!-- collar / shoulders (blue) -->
+  <path class="blue" d="M98 214 C124 202 168 202 198 214 C214 222 224 246 226 282 L74 282 C76 248 84 224 98 214 Z"/>
+  <path class="nv" d="M98 214 C124 202 168 202 198 214 C214 222 224 246 226 282 L74 282 C76 248 84 224 98 214 Z"/>
+  <path class="nv" d="M106 224 C126 236 152 238 172 231" style="stroke-width:7"/>
+
+  <!-- hair full head + ponytail (red) -->
+  <path class="red" d="M150 38 C198 38 236 74 240 124 C243 160 232 184 226 208 C222 224 227 246 208 249 C192 252 185 236 188 220 C193 192 182 176 160 172 C132 166 116 150 114 122 C110 84 118 38 150 38 Z"/>
+
+  <!-- face profile (white) over left portion -->
+  <path class="wht" d="M150 52 C122 52 96 72 86 100 C81 116 78 126 66 134 C60 138 60 144 66 148 C76 152 82 154 84 166 C87 184 96 202 116 208 C136 214 156 210 168 197 C179 184 180 150 174 120 C168 90 168 52 150 52 Z"/>
+
+  <!-- red bang over forehead -->
+  <path class="red" d="M150 54 C130 56 112 70 106 92 C120 76 138 70 153 73 Z"/>
+
+  <!-- navy outlines -->
+  <path class="nv" d="M150 38 C198 38 236 74 240 124 C243 160 232 184 226 208 C222 224 227 246 208 249 C192 252 185 236 188 220 C193 192 182 176 160 172"/>
+  <path class="nv" d="M150 52 C122 52 96 72 86 100 C81 116 78 126 66 134 C60 138 60 144 66 148 C76 152 82 154 84 166 C87 184 96 202 116 208"/>
+  <path class="nv" d="M150 54 C130 56 112 70 106 92" style="stroke-width:7"/>
+  <path class="nv" d="M92 112 C100 106 113 106 121 113" style="stroke-width:7"/>
+
+  <!-- yellow square earring -->
+  <rect class="yel" x="95" y="150" width="27" height="27" rx="3"/>
+  <rect x="95" y="150" width="27" height="27" rx="3" fill="none" stroke="#34485f" stroke-width="7"/>
+</svg>
