@@ -15,7 +15,7 @@
     /* 背景：無彩色のライトグレー / アクセント：薄いオレンジ */
     --bg:#eaeaec; --card:#eaeaec; --ink:#353638; --sub:#83858a;
     --accent:#f2ab63; --accent-deep:#e2912f; --accent-ink:#c67617; --on-accent:#3d2c14;
-    --ok:#2f9e6f; --ng:#d0455f;
+    --ok:#2f9e6f; --ng:#d0455f; --divider:#d8d9dc;
     --sh-d:#c8c8cb; --sh-l:#ffffff; --radius:22px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -64,13 +64,17 @@
   .chip.alt{background:var(--accent-deep)}
   .chip.mix{background:linear-gradient(90deg,var(--accent),var(--accent-deep))}
 
-  /* progress */
+  /* progress dots（名画MASTER準拠：正解=オレンジ / 不正解=グレー / 現在=raised / 未回答=inset） */
   .topbar{display:flex;justify-content:space-between;align-items:center;
-    font-size:13px;color:var(--sub);margin-bottom:14px;font-weight:700}
-  .bar{height:8px;border-radius:999px;background:#e2ddd2;overflow:hidden;
-    box-shadow:inset 2px 2px 4px var(--sh-d), inset -2px -2px 4px var(--sh-l);margin-bottom:20px}
-  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-deep));
-    width:0;transition:width .35s ease}
+    font-size:12px;color:var(--sub);margin-bottom:18px;font-weight:700;letter-spacing:.08em}
+  .dots{display:flex;gap:8px}
+  .dot{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+    font-size:10px;font-weight:800;background:var(--card);color:var(--sub);
+    box-shadow:inset 3px 3px 6px var(--sh-d), inset -3px -3px 6px var(--sh-l);
+    transition:box-shadow .15s, background .15s, color .15s}
+  .dot.current{box-shadow:6px 6px 12px var(--sh-d), -6px -6px 12px var(--sh-l);color:var(--ink)}
+  .dot.ok{background:var(--accent);color:var(--on-accent);box-shadow:none}
+  .dot.ng{background:#b9bbc0;color:#fff;box-shadow:none}
 
   .swatch{
     height:190px;border-radius:18px;margin:0 auto 8px;
@@ -109,22 +113,42 @@
     box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l);text-align:center;
     display:inline-block;width:auto;padding:13px 34px}
 
-  /* result */
-  .score-big{font-size:56px;font-weight:800;text-align:center;line-height:1;
-    background:linear-gradient(135deg,var(--accent-deep),var(--accent-ink));
-    -webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0}
-  .score-big small{font-size:20px;color:var(--sub);-webkit-text-fill-color:var(--sub)}
-  .rank{text-align:center;font-weight:800;font-size:18px;margin:2px 0 4px}
-  .result-msg{text-align:center;color:var(--sub);font-size:13.5px;margin-bottom:16px}
-  .review{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-  .rev{display:flex;align-items:center;gap:12px;background:#f0ede6;border-radius:12px;padding:10px 12px;
-    box-shadow:inset 2px 2px 6px var(--sh-d), inset -2px -2px 6px var(--sh-l)}
-  .rev .sw{width:34px;height:34px;border-radius:9px;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+  /* result — 名画MASTER準拠のスコアダイヤル */
+  #result{text-align:center}
+  .score-dial{position:relative;width:240px;height:240px;margin:6px auto 18px;
+    border-radius:50%;background:var(--card);
+    box-shadow:12px 12px 28px var(--sh-d), -12px -12px 28px var(--sh-l)}
+  .score-dial svg{position:absolute;inset:0;width:100%;height:100%}
+  .ring-guide{fill:none;stroke:#d3d4d8;stroke-width:5;stroke-dasharray:2 6}
+  .ring-arc{fill:none;stroke:url(#scoreGrad);stroke-width:5;stroke-linecap:round;
+    transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .8s ease}
+  .score-dial-inner{position:absolute;inset:28px;border-radius:50%;background:var(--card);
+    box-shadow:inset 4px 4px 10px var(--sh-d), inset -4px -4px 10px var(--sh-l);
+    display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score-label{margin:0;font-size:10px;font-weight:700;letter-spacing:.2em;color:var(--sub)}
+  #resultScore{margin:2px 0 0;font-size:56px;font-weight:300;letter-spacing:-.04em;line-height:1.1;
+    background:linear-gradient(180deg,var(--ink),#7f8288);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .score-unit{font-size:18px;font-weight:500}
+  #resultSub{margin:0;font-size:11px;color:var(--accent-ink);font-weight:700}
+  .rank{text-align:center;font-weight:800;font-size:18px;margin:2px 0 2px}
+  .result-msg{text-align:center;color:var(--sub);font-size:13.5px;margin-bottom:4px}
+  .recap-title{font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--sub);
+    text-align:left;border-top:1px solid var(--divider);padding-top:20px;margin:24px 0 12px}
+  .review{display:flex;flex-direction:column;gap:10px;margin-top:6px;text-align:left}
+  .rev{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:10px 12px;
+    box-shadow:6px 6px 14px var(--sh-d), -6px -6px 14px var(--sh-l)}
+  .rev .num{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--card);
+    font-size:11px;font-weight:800;display:grid;place-items:center;flex:0 0 auto}
+  .rev .sw{width:44px;height:44px;border-radius:12px;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
   .rev .info{flex:1;min-width:0}
   .rev .nm{font-weight:800;font-size:14px}
   .rev .ym{color:var(--sub);font-size:11.5px}
-  .rev .mk{font-size:18px}
-  .actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .rev .mk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+    font-size:14px;font-weight:800;flex:0 0 auto}
+  .rev .mk.ok{background:#f6e6d3;color:var(--accent-ink)}
+  .rev .mk.ng{background:#e4e5e8;color:#7c7f84}
+  .actions{display:flex;flex-direction:column;gap:12px;margin-top:22px}
   .btn.x{background:#1d1d1f;color:#fff;text-align:center;
     box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l)}
   .btn.replay{text-align:center}
@@ -160,8 +184,7 @@
 
   <!-- QUIZ -->
   <section id="quiz" class="panel hidden">
-    <div class="topbar"><span id="qCount">第1問 / 5</span><span id="qScore">0 点</span></div>
-    <div class="bar"><i id="progress"></i></div>
+    <div class="topbar"><span id="qCount">第1問 / 5</span><div id="dots" class="dots" aria-label="正解状況"></div></div>
     <div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div>
     <div class="q-label">この色の名前は？</div>
     <div id="options" class="options"></div>
@@ -171,14 +194,31 @@
 
   <!-- RESULT -->
   <section id="result" class="panel hidden">
-    <div class="score-big"><span id="finalScore">0</span><small> / 100点</small></div>
+    <div class="score-dial">
+      <svg viewBox="0 0 240 240" aria-hidden="true">
+        <defs>
+          <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f2ab63"/>
+            <stop offset="100%" stop-color="#c67617"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-guide" cx="120" cy="120" r="110"/>
+        <circle id="scoreArc" class="ring-arc" cx="120" cy="120" r="110"/>
+      </svg>
+      <div class="score-dial-inner">
+        <p class="score-label">YOUR SCORE</p>
+        <p id="resultScore"><span id="finalScore">0</span><span class="score-unit">点</span></p>
+        <p id="resultSub"></p>
+      </div>
+    </div>
     <div class="rank" id="rankText"></div>
     <div class="result-msg" id="resultMsg"></div>
-    <div class="review" id="review"></div>
     <div class="actions">
       <button class="btn x" id="shareBtn">𝕏 で結果をシェア</button>
       <button class="btn replay" id="replayBtn">もう一度あそぶ</button>
     </div>
+    <h3 class="recap-title">今回の色</h3>
+    <div class="review" id="review"></div>
     <div class="cta">
       <a href="https://lachiart.com/blog/" target="_blank" rel="noopener">
         <span class="k">IRO TELLER</span>
@@ -302,11 +342,22 @@
     window.scrollTo(0,0);
   }
 
+  // 進行ドット（正解=オレンジ / 不正解=グレー / 現在=raised / 未回答=inset）
+  function renderDots(){
+    var box = el('dots'); box.innerHTML='';
+    var res = state.log;
+    for(var i=0;i<QN;i++){
+      var d = document.createElement('span');
+      d.className = 'dot' + (i<res.length ? (res[i].ok?' ok':' ng') : (i===res.length?' current':''));
+      d.textContent = i+1;
+      box.appendChild(d);
+    }
+  }
+
   function renderQ(){
     var q = state.qs[state.idx];
     el('qCount').textContent = '第'+(state.idx+1)+'問 / '+QN;
-    el('qScore').textContent = state.score+' 点';
-    el('progress').style.width = (state.idx/QN*100)+'%';
+    renderDots();
 
     var sw = el('swatch');
     sw.style.background = q.ans.h;
@@ -336,8 +387,9 @@
       if(!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('dim');
     });
     el('swatch').classList.add('reveal');
-    if(correct){ state.score += PER; el('qScore').textContent = state.score+' 点'; }
+    if(correct){ state.score += PER; }
     state.log.push({ c:q.ans, ok:correct });
+    renderDots();
 
     var fb = el('feedback');
     fb.innerHTML =
@@ -349,7 +401,6 @@
         '</div>'+
         (q.ans.d ? '<div class="fb-desc">'+q.ans.d+'</div>' : '')+
       '</div>';
-    el('progress').style.width = ((state.idx+1)/QN*100)+'%';
     el('next').classList.remove('hidden');
     el('nextBtn').textContent = (state.idx+1<QN) ? '次へ →' : '結果を見る →';
   }
@@ -371,19 +422,31 @@
 
   function renderResult(){
     show('result');
+    var correctCount = state.log.filter(function(x){return x.ok;}).length;
     el('finalScore').textContent = state.score;
+    el('resultSub').textContent = QN+'問中'+correctCount+'問正解';
     var r = rankOf(state.score);
     el('rankText').textContent = r[0];
     el('resultMsg').textContent = r[1];
+
+    // スコアダイヤルの円弧（円周=2πr, r=110）を得点率ぶん伸ばす
+    var arc = el('scoreArc');
+    var circ = 2 * Math.PI * 110;
+    arc.style.strokeDasharray = circ;
+    arc.style.strokeDashoffset = circ;
+    arc.getBoundingClientRect(); // レイアウト確定 → 0%から得点率へCSS遷移
+    arc.style.strokeDashoffset = circ * (1 - state.score/100);
+
     var rv = el('review'); rv.innerHTML='';
-    state.log.forEach(function(item){
+    state.log.forEach(function(item, i){
       var d = document.createElement('div');
       d.className='rev';
       d.innerHTML =
+        '<span class="num">'+(i+1)+'</span>'+
         '<span class="sw" style="background:'+item.c.h+'"></span>'+
         '<span class="info"><span class="nm">'+item.c.n+'</span>'+
         '<span class="ym"> '+item.c.y+'</span></span>'+
-        '<span class="mk">'+(item.ok?'⭕️':'❌')+'</span>';
+        '<span class="mk '+(item.ok?'ok':'ng')+'">'+(item.ok?'○':'×')+'</span>';
       rv.appendChild(d);
     });
   }
