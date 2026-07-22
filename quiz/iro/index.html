@@ -3,20 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>色彩図鑑MASTER｜色名あて4択クイズ</title>
-<meta name="description" content="色見本を見て色の名前を当てる4択クイズ。和の伝統色から世界の色まで、全987色から出題。5問100点満点であなたの色彩センスをチェック！">
-<meta property="og:title" content="色彩図鑑MASTER｜色名あて4択クイズ">
-<meta property="og:description" content="色見本を見て色の名前を当てる4択クイズ。和の伝統色から世界の色まで全987色。5問100点満点であなたの色彩センスをチェック！">
+<title>色名MASTER｜世界の色の名前クイズ</title>
+<meta name="description" content="色見本を見て色の名前を当てる4択クイズ。和の伝統色から世界の色まで、全987色から出題。全5問・100点満点であなたの色彩センスをチェック！">
+<meta property="og:title" content="色名MASTER｜世界の色の名前クイズ">
+<meta property="og:description" content="色見本を見て色名を当てる4択クイズ。和・世界の全987色から出題。全5問100点満点。あなたは何点とれる？">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23eaeaec'/%3E%3Cpath d='M50 12a38 38 0 100 76c6 0 8-4 8-8 0-6-6-6-6-12 0-4 4-6 8-6h6a30 30 0 00-24-50z' fill='%23f2ab63'/%3E%3Ccircle cx='38' cy='34' r='6' fill='%23c67617'/%3E%3Ccircle cx='62' cy='36' r='6' fill='%23a9a9ad'/%3E%3Ccircle cx='30' cy='56' r='6' fill='%23838388'/%3E%3Ccircle cx='66' cy='60' r='6' fill='%23e2912f'/%3E%3C/svg%3E">
+<meta property="og:url" content="https://lachiart.com/quiz/iro/">
+<meta property="og:image" content="https://lachiart.com/quiz/iro/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <style>
   :root{
-    /* 背景：無彩色のライトグレー / アクセント：薄いオレンジ */
-    --bg:#eaeaec; --card:#eaeaec; --ink:#353638; --sub:#83858a;
-    --accent:#f2ab63; --accent-deep:#e2912f; --accent-ink:#c67617; --on-accent:#3d2c14;
-    --ok:#2f9e6f; --ng:#d0455f; --divider:#d8d9dc;
-    --sh-d:#c8c8cb; --sh-l:#ffffff; --radius:22px;
+    /* 白背景・フラット。ブランド色（キュビコンの赤/青/黄/紺）由来のアクセント */
+    --bg:#ffffff; --ink:#2b3a55; --sub:#8b93a3; --line:#e9ecf1;
+    --badge:#eceef3; --teal:#16b8a0; --teal-deep:#0e9b88;
+    --star:#f39800; --pink:#e4007f; --ng:#c4c8d0;
+    --card:#f7f8fb;
+    --radius:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
@@ -25,186 +29,194 @@
     font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif;
     line-height:1.6; min-height:100vh;
     display:flex; flex-direction:column; align-items:center;
-    padding:20px 16px 40px;
+    padding:22px 18px 44px;
   }
-  .wrap{width:100%;max-width:560px}
-  header.app{text-align:center;margin:8px 0 22px}
-  .logo{
-    display:inline-flex;align-items:center;gap:10px;
-    font-weight:800;font-size:26px;letter-spacing:.02em;
-  }
-  .logo .dot{width:14px;height:14px;border-radius:50%;
-    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
-    box-shadow:2px 2px 4px var(--sh-d), -2px -2px 4px var(--sh-l)}
-  .tagline{color:var(--sub);font-size:13px;margin-top:6px}
+  .wrap{width:100%;max-width:480px}
 
-  .panel{
-    background:var(--card);border-radius:var(--radius);
-    box-shadow:8px 8px 18px var(--sh-d), -8px -8px 18px var(--sh-l);
-    padding:24px 20px; margin-bottom:18px;
-  }
-  h2.section{font-size:17px;margin:0 0 4px;font-weight:800}
-  .muted{color:var(--sub);font-size:13.5px;margin:0 0 16px}
+  /* ===== ヘッダー／ロゴ（キュビコン＋ワードマーク） ===== */
+  header.app{text-align:center;margin:6px 0 20px}
+  .brand{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
+  .brand-logo{width:210px;max-width:64vw;height:auto;display:block}
+  /* 公式ロゴ(logo.png)未設置時のテキスト代替 */
+  .brand-fallback{position:relative;line-height:1;text-align:center}
+  .brand-kicker{font-size:11px;font-weight:800;letter-spacing:.35em;color:var(--sub);margin-bottom:2px}
+  .brand-title{font-size:40px;font-weight:900;letter-spacing:.02em;color:var(--ink)}
+  .brand-title .m{display:block;font-size:26px;letter-spacing:.06em;margin-top:-2px}
+  .brand-title .c1{color:var(--pink)} .brand-title .c2{color:#0068b7}
+  .tagline{margin:10px 0 0;color:var(--sub);font-size:14px;font-weight:600;letter-spacing:.02em}
 
-  .levels{display:flex;flex-direction:column;gap:12px}
-  button{font-family:inherit;cursor:pointer}
-  .btn{
-    border:none;background:var(--card);color:var(--ink);
-    border-radius:16px;padding:15px 16px;font-size:15.5px;font-weight:700;
-    box-shadow:6px 6px 12px var(--sh-d), -6px -6px 12px var(--sh-l);
-    transition:transform .08s ease, box-shadow .12s ease; width:100%;
-    text-align:left;
-  }
-  .btn:active{transform:translateY(1px);
-    box-shadow:inset 4px 4px 8px var(--sh-d), inset -4px -4px 8px var(--sh-l)}
-  .btn .lv-name{display:flex;justify-content:space-between;align-items:center}
-  .btn .lv-desc{color:var(--sub);font-weight:500;font-size:12.5px;margin-top:3px}
-  .chip{font-size:11px;font-weight:800;color:var(--on-accent);background:var(--accent);
-    padding:3px 9px;border-radius:999px}
-  .chip.alt{background:var(--accent-deep)}
-  .chip.mix{background:linear-gradient(90deg,var(--accent),var(--accent-deep))}
+  /* ===== 共通 ===== */
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .hidden{display:none}
 
-  /* progress dots（名画MASTER準拠：正解=オレンジ / 不正解=グレー / 現在=raised / 未回答=inset） */
-  .topbar{display:flex;justify-content:space-between;align-items:center;
-    font-size:12px;color:var(--sub);margin-bottom:18px;font-weight:700;letter-spacing:.08em}
+  /* ===== スタート（レベル選択） ===== */
+  .start-lead{color:var(--sub);font-size:13.5px;text-align:center;margin:0 0 18px}
+  .levels{display:flex;flex-direction:column;gap:14px}
+  .level{
+    display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+    width:100%;text-align:left;padding:16px 18px;border-radius:var(--radius);
+    background:var(--card);border:1.5px solid var(--line);
+    transition:transform .1s, border-color .15s, box-shadow .15s}
+  .level:hover{border-color:#dfe3ea;box-shadow:0 6px 18px rgba(43,58,85,.06)}
+  .level:active{transform:translateY(1px)}
+  .lv-rank{text-align:center;min-width:56px}
+  .lv-kicker{display:block;font-size:9px;font-weight:800;letter-spacing:.18em;color:var(--star)}
+  .lv-stars{display:block;color:var(--star);font-size:15px;letter-spacing:.06em;margin-top:1px}
+  .lv-name{font-size:16px;font-weight:800}
+  .lv-desc{font-size:12px;color:var(--sub);margin-top:2px}
+  .lv-count{font-size:12px;font-weight:800;color:var(--sub);white-space:nowrap}
+  .lv-count b{color:var(--ink);font-size:15px}
+  .pool-note{font-size:11px;color:#aab0bc;margin:16px 0 0;text-align:center}
+
+  /* ===== クイズ ===== */
+  .qtop{display:flex;justify-content:flex-end;align-items:center;margin:2px 0 16px}
   .dots{display:flex;gap:8px}
-  .dot{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
-    font-size:10px;font-weight:800;background:var(--card);color:var(--sub);
-    box-shadow:inset 3px 3px 6px var(--sh-d), inset -3px -3px 6px var(--sh-l);
-    transition:box-shadow .15s, background .15s, color .15s}
-  .dot.current{box-shadow:6px 6px 12px var(--sh-d), -6px -6px 12px var(--sh-l);color:var(--ink)}
-  .dot.ok{background:var(--accent);color:var(--on-accent);box-shadow:none}
-  .dot.ng{background:#b9bbc0;color:#fff;box-shadow:none}
+  .dot{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+    font-size:11px;font-weight:800;background:#eef0f4;color:#aab0bc;
+    transition:background .2s,color .2s}
+  .dot.current{background:var(--teal);color:#fff}
+  .dot.ok{background:var(--teal);color:#fff}
+  .dot.ng{background:var(--ng);color:#fff}
 
-  /* 白いマット（真っ白背景）＋余白で色見本を見せ、ニューモーフィズムのカードと自然につなぐ */
-  .swatch-frame{
-    background:#ffffff;border-radius:20px;padding:18px;margin:0 auto 8px;
-    box-shadow:7px 7px 16px var(--sh-d), -7px -7px 16px var(--sh-l)}
   .swatch{
-    height:172px;border-radius:12px;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
-    display:flex;align-items:flex-end;justify-content:flex-end;padding:8px}
+    height:210px;border-radius:22px;margin:0 0 22px;
+    box-shadow:0 10px 26px rgba(43,58,85,.10), inset 0 0 0 1px rgba(0,0,0,.05);
+    display:flex;align-items:flex-end;justify-content:flex-end;padding:10px}
   .swatch .hex{font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
-    background:rgba(255,255,255,.8);color:#333;padding:2px 7px;border-radius:6px;
+    background:rgba(255,255,255,.82);color:#333;padding:2px 8px;border-radius:6px;
     opacity:0;transition:opacity .3s}
   .swatch.reveal .hex{opacity:1}
-  .q-label{text-align:center;color:var(--sub);font-size:13.5px;margin:2px 0 16px;font-weight:700}
 
-  .options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media(max-width:420px){.options{grid-template-columns:1fr}}
+  .qlabel{text-align:center;font-size:16px;font-weight:700;margin:0 0 18px;color:var(--ink)}
+  .qlabel b{color:var(--pink);font-weight:900;margin-right:4px}
+
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+  @media(max-width:440px){.options{grid-template-columns:1fr}}
   .opt{
-    border:none;border-radius:16px;padding:16px 12px;font-size:15px;font-weight:700;
-    background:var(--card);color:var(--ink);
-    box-shadow:5px 5px 11px var(--sh-d), -5px -5px 11px var(--sh-l);
-    transition:transform .08s, box-shadow .12s;min-height:56px;line-height:1.35}
-  .opt:active{transform:translateY(1px)}
-  .opt.correct{background:linear-gradient(135deg,#eafaf2,#d5f2e4);color:#1c7a53;
-    box-shadow:inset 3px 3px 7px #c3e6d3, inset -3px -3px 7px #ffffff}
-  .opt.wrong{background:linear-gradient(135deg,#fbe7ec,#f5d3dc);color:#b23153;
-    box-shadow:inset 3px 3px 7px #e9c2cd, inset -3px -3px 7px #ffffff}
-  .opt.dim{opacity:.5}
+    display:flex;align-items:center;gap:12px;padding:8px 10px;
+    border:2px solid transparent;border-radius:16px;text-align:left;
+    transition:border-color .15s, background .15s}
+  .opt:not(:disabled):hover{background:var(--card)}
   .opt:disabled{cursor:default}
-  /* 回答後に各選択肢の実際の色を●で表示 */
-  .odot{display:inline-block;width:13px;height:13px;border-radius:50%;
-    margin-right:7px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+  .lbadge{width:48px;height:48px;border-radius:50%;flex:0 0 auto;
+    display:grid;place-items:center;font-size:19px;font-weight:800;
+    background:var(--badge);color:var(--ink);
+    box-shadow:inset 0 0 0 1px rgba(43,58,85,.08);
+    transition:background .2s, color .2s, box-shadow .2s}
+  .lbadge.filled{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+  .lname{font-size:15.5px;font-weight:700;color:var(--ink);transition:color .15s}
+  .opt.correct{border-color:var(--pink)}
+  .opt.correct .lname{color:var(--pink);font-weight:800}
+  .opt.chosen .lname{text-decoration:line-through;text-decoration-thickness:2px}
+  .opt.wrongdim .lname{color:var(--sub)}
 
-  .feedback{margin-top:18px;min-height:10px}
-  .fb-card{border-radius:14px;padding:14px 15px;background:#f0ede6;
-    box-shadow:inset 3px 3px 7px var(--sh-d), inset -3px -3px 7px var(--sh-l)}
-  .fb-head{font-weight:800;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-  .fb-yomi{color:var(--sub);font-size:12.5px;font-weight:600}
-  .fb-desc{font-size:13.5px;margin-top:6px;color:#443f39}
-  .fb-ok{color:var(--ok)} .fb-ng{color:var(--ng)}
+  .feedback{margin-top:22px}
+  .fb-card{border-radius:16px;padding:16px 16px;background:var(--card);border:1.5px solid var(--line)}
+  .fb-tag{display:inline-block;font-size:12px;font-weight:800;padding:3px 12px;border-radius:999px;margin-bottom:8px}
+  .fb-tag.ok{background:#d9f5ef;color:var(--teal-deep)}
+  .fb-tag.ng{background:#f6e0ee;color:var(--pink)}
+  .fb-name{font-size:16px;font-weight:800}
+  .fb-name .yomi{font-size:12.5px;font-weight:600;color:var(--sub);margin-left:6px}
+  .fb-desc{font-size:13.5px;color:#4b5568;margin-top:6px}
   .next{margin-top:16px;text-align:center}
-  .next .btn{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:var(--on-accent);
-    box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l);text-align:center;
-    display:inline-block;width:auto;padding:13px 34px}
+  .btn-next{background:var(--teal);color:#fff;font-weight:800;font-size:15px;
+    padding:13px 40px;border-radius:999px;box-shadow:0 8px 18px -4px rgba(22,184,160,.5);
+    transition:transform .1s}
+  .btn-next:active{transform:translateY(1px)}
 
-  /* result — 名画MASTER準拠のスコアダイヤル */
+  /* ===== 結果 ===== */
   #result{text-align:center}
-  .score-dial{position:relative;width:240px;height:240px;margin:6px auto 18px;
-    border-radius:50%;background:var(--card);
-    box-shadow:12px 12px 28px var(--sh-d), -12px -12px 28px var(--sh-l)}
+  .score-dial{position:relative;width:224px;height:224px;margin:2px auto 16px}
   .score-dial svg{position:absolute;inset:0;width:100%;height:100%}
-  .ring-guide{fill:none;stroke:#d3d4d8;stroke-width:5;stroke-dasharray:2 6}
-  .ring-arc{fill:none;stroke:url(#scoreGrad);stroke-width:5;stroke-linecap:round;
-    transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .8s ease}
-  .score-dial-inner{position:absolute;inset:28px;border-radius:50%;background:var(--card);
-    box-shadow:inset 4px 4px 10px var(--sh-d), inset -4px -4px 10px var(--sh-l);
-    display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .score-label{margin:0;font-size:10px;font-weight:700;letter-spacing:.2em;color:var(--sub)}
-  #resultScore{margin:2px 0 0;font-size:56px;font-weight:300;letter-spacing:-.04em;line-height:1.1;
-    background:linear-gradient(180deg,var(--ink),#7f8288);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .score-unit{font-size:18px;font-weight:500}
-  #resultSub{margin:0;font-size:11px;color:var(--accent-ink);font-weight:700}
-  .rank{text-align:center;font-weight:800;font-size:18px;margin:2px 0 2px}
-  .result-msg{text-align:center;color:var(--sub);font-size:13.5px;margin-bottom:4px}
-  .recap-title{font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--sub);
-    text-align:left;border-top:1px solid var(--divider);padding-top:20px;margin:24px 0 12px}
-  .review{display:flex;flex-direction:column;gap:10px;margin-top:6px;text-align:left}
-  .rev{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:10px 12px;
-    box-shadow:6px 6px 14px var(--sh-d), -6px -6px 14px var(--sh-l)}
-  .rev .num{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--card);
+  .ring-guide{fill:none;stroke:#eceef3;stroke-width:12}
+  .ring-arc{fill:none;stroke:url(#scoreGrad);stroke-width:12;stroke-linecap:round;
+    transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .9s ease}
+  .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score-label{margin:0;font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--sub)}
+  #resultScore{margin:2px 0 0;font-size:58px;font-weight:800;line-height:1;color:var(--ink);letter-spacing:-.03em}
+  .score-unit{font-size:18px;font-weight:700;color:var(--sub);margin-left:2px}
+  #resultSub{margin:2px 0 0;font-size:12px;color:var(--teal-deep);font-weight:700}
+  .rank{font-weight:900;font-size:19px;margin:6px 0 2px}
+  .result-msg{color:var(--sub);font-size:13.5px;margin:0 0 6px}
+  .actions{display:flex;flex-direction:column;gap:12px;max-width:340px;margin:22px auto 0}
+  .btn-x{background:#111214;color:#fff;font-weight:800;font-size:15px;padding:14px;border-radius:14px}
+  .btn-replay{background:var(--card);color:var(--ink);font-weight:800;font-size:15px;padding:14px;
+    border-radius:14px;border:1.5px solid var(--line)}
+  .recap-title{font-size:11px;font-weight:800;letter-spacing:.15em;color:var(--sub);
+    text-align:left;border-top:1px solid var(--line);padding-top:20px;margin:26px 0 12px}
+  .review{display:flex;flex-direction:column;gap:10px;text-align:left}
+  .rev{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);
+    border-radius:14px;padding:10px 12px}
+  .rev .num{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;
     font-size:11px;font-weight:800;display:grid;place-items:center;flex:0 0 auto}
-  .rev .sw{width:44px;height:44px;border-radius:12px;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+  .rev .sw{width:42px;height:42px;border-radius:11px;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
   .rev .info{flex:1;min-width:0}
   .rev .nm{font-weight:800;font-size:14px}
   .rev .ym{color:var(--sub);font-size:11.5px}
-  .rev .mk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  .rev .mk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
     font-size:14px;font-weight:800;flex:0 0 auto}
-  .rev .mk.ok{background:#f6e6d3;color:var(--accent-ink)}
-  .rev .mk.ng{background:#e4e5e8;color:#7c7f84}
-  .actions{display:flex;flex-direction:column;gap:12px;margin-top:22px}
-  .btn.x{background:#1d1d1f;color:#fff;text-align:center;
-    box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l)}
-  .btn.replay{text-align:center}
+  .rev .mk.ok{background:#d9f5ef;color:var(--teal-deep)}
+  .rev .mk.ng{background:#eef0f4;color:#9aa0ac}
 
-  footer.app{text-align:center;color:var(--sub);font-size:12px;margin-top:26px}
-  footer.app a{color:var(--accent-ink);text-decoration:none;font-weight:700}
-  .hidden{display:none}
-  .credit{font-size:11px;color:#a89f93;margin-top:6px}
+  /* ===== フッター ===== */
+  footer.app{width:100%;max-width:480px;text-align:center;color:#a7adba;font-size:11px;
+    margin-top:30px;padding-top:18px;border-top:1px solid var(--line)}
+  footer.app .site{font-weight:800;letter-spacing:.2em;color:var(--sub)}
+  footer.app a{color:var(--sub);text-decoration:none}
+  footer.app .src{margin-bottom:6px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="app">
-    <div class="logo"><span class="dot"></span>色彩図鑑MASTER</div>
-    <div class="tagline">色を見て、名前を当てる。4択カラークイズ</div>
+    <div class="brand">
+      <!-- 公式ロゴがあれば下の <img> を有効化し .brand-fallback を削除
+      <img class="brand-logo" src="logo.png" alt="色名MASTER"> -->
+      <div class="brand-fallback">
+        <div class="brand-kicker">SHIKIMEI</div>
+        <div class="brand-title"><span class="c1">色</span><span class="c2">名</span><span class="m">MASTER</span></div>
+      </div>
+    </div>
+    <p class="tagline">世界の色の名前クイズ</p>
   </header>
 
   <!-- START -->
-  <section id="start" class="panel">
-    <h2 class="section">レベルを選んでスタート</h2>
-    <p class="muted">色見本を見て、正しい色名を4つの中から選びます。全5問・100点満点。</p>
+  <section id="start">
+    <p class="start-lead">色見本を見て、正しい色名を4つの中から選ぼう。全5問・100点満点。</p>
     <div id="levels" class="levels"></div>
-    <p class="credit" id="poolInfo"></p>
+    <p class="pool-note" id="poolInfo"></p>
   </section>
 
   <!-- QUIZ -->
-  <section id="quiz" class="panel hidden">
-    <div class="topbar"><span id="qCount">第1問 / 5</span><div id="dots" class="dots" aria-label="正解状況"></div></div>
-    <div class="swatch-frame"><div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div></div>
-    <div class="q-label">この色の名前は？</div>
+  <section id="quiz" class="hidden">
+    <div class="qtop"><div id="dots" class="dots" aria-label="正解状況"></div></div>
+    <div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div>
+    <p class="qlabel"><b>Q.</b>この色の名前は？</p>
     <div id="options" class="options"></div>
-    <div id="feedback" class="feedback"></div>
-    <div id="next" class="next hidden"><button class="btn" id="nextBtn">次へ →</button></div>
+    <div id="feedback" class="feedback hidden">
+      <div class="fb-card">
+        <span id="fbTag" class="fb-tag"></span>
+        <div class="fb-name"><span id="fbName"></span><span class="yomi" id="fbYomi"></span></div>
+        <div class="fb-desc" id="fbDesc"></div>
+      </div>
+      <div class="next"><button class="btn-next" id="nextBtn">次へ →</button></div>
+    </div>
   </section>
 
   <!-- RESULT -->
-  <section id="result" class="panel hidden">
+  <section id="result" class="hidden">
     <div class="score-dial">
-      <svg viewBox="0 0 240 240" aria-hidden="true">
+      <svg viewBox="0 0 224 224" aria-hidden="true">
         <defs>
           <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#f2ab63"/>
-            <stop offset="100%" stop-color="#c67617"/>
+            <stop offset="0%" stop-color="#16b8a0"/>
+            <stop offset="100%" stop-color="#0068b7"/>
           </linearGradient>
         </defs>
-        <circle class="ring-guide" cx="120" cy="120" r="110"/>
-        <circle id="scoreArc" class="ring-arc" cx="120" cy="120" r="110"/>
+        <circle class="ring-guide" cx="112" cy="112" r="100"/>
+        <circle id="scoreArc" class="ring-arc" cx="112" cy="112" r="100"/>
       </svg>
-      <div class="score-dial-inner">
+      <div class="score-inner">
         <p class="score-label">YOUR SCORE</p>
         <p id="resultScore"><span id="finalScore">0</span><span class="score-unit">点</span></p>
         <p id="resultSub"></p>
@@ -213,18 +225,18 @@
     <div class="rank" id="rankText"></div>
     <div class="result-msg" id="resultMsg"></div>
     <div class="actions">
-      <button class="btn x" id="shareBtn">𝕏 で結果をシェア</button>
-      <button class="btn replay" id="replayBtn">もう一度あそぶ</button>
+      <button class="btn-x" id="shareBtn">𝕏 で結果をシェア</button>
+      <button class="btn-replay" id="replayBtn">もう一度あそぶ</button>
     </div>
     <h3 class="recap-title">今回の色</h3>
     <div class="review" id="review"></div>
   </section>
-
-  <footer class="app">
-    データ出典：色彩図鑑（全<span id="totalColors">987</span>色）<br>
-    <a href="https://lachiart.com/" target="_blank" rel="noopener">LACHIART</a>
-  </footer>
 </div>
+
+<footer class="app">
+  <p class="src">データ出典：色彩図鑑（全<span id="totalColors">987</span>色）</p>
+  <p><a class="site" href="https://lachiart.com/" target="_blank" rel="noopener">LACHIART</a></p>
+</footer>
 
 <script src="colors.js"></script>
 <script>
@@ -234,45 +246,50 @@
   var LEVELS = window.IRO_LEVELS || [];
   var QN = 5, PER = 20;
   var SITE_URL = "https://lachiart.com/quiz/iro/";
+  var LETTERS = ['A','B','C','D'];
 
   var el = function(id){ return document.getElementById(id); };
-  document.getElementById('totalColors').textContent = COLORS.length;
+  el('totalColors').textContent = COLORS.length;
 
   function shuffle(a){
     a = a.slice();
     for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
     return a;
   }
-  function sample(arr,n){ return shuffle(arr).slice(0,n); }
+  // 背景色に応じて文字色（白 or 紺）を選ぶ
+  function textColor(hex){
+    var h = hex.replace('#','');
+    var r=parseInt(h.substr(0,2),16), g=parseInt(h.substr(2,2),16), b=parseInt(h.substr(4,2),16);
+    var lum = 0.299*r + 0.587*g + 0.114*b;
+    return lum > 150 ? '#2b3a55' : '#ffffff';
+  }
 
-  // group by level and family
   var byLevel = {};
   COLORS.forEach(function(c){ (byLevel[c.lv]=byLevel[c.lv]||[]).push(c); });
-
-  // build level buttons from data (auto-generates; future levels just appear)
   var levelsInData = Object.keys(byLevel).map(Number).sort(function(a,b){return a-b;});
-  var levelsBox = el('levels');
-  var meta = {};
-  LEVELS.forEach(function(l){ meta[l.lv]=l; });
+  var meta = {}; LEVELS.forEach(function(l){ meta[l.lv]=l; });
 
+  function stars(n){ return '★★★'.slice(0, n) || '★'; }
+
+  var levelsBox = el('levels');
   levelsInData.forEach(function(lv, idx){
     var m = meta[lv] || {name:'レベル'+lv, desc:''};
     var b = document.createElement('button');
-    b.className = 'btn';
-    var chipCls = idx===0 ? 'chip' : 'chip alt';
-    b.innerHTML = '<span class="lv-name"><span>Level '+lv+'　'+m.name+'</span>'+
-      '<span class="'+chipCls+'">'+byLevel[lv].length+'色</span></span>'+
-      '<span class="lv-desc">'+m.desc+'</span>';
+    b.className='level';
+    b.innerHTML =
+      '<span class="lv-rank"><span class="lv-kicker">LEVEL</span><span class="lv-stars">'+stars(idx+1)+'</span></span>'+
+      '<span class="lv-main"><span class="lv-name">'+m.name+'</span><span class="lv-desc">'+m.desc+'</span></span>'+
+      '<span class="lv-count"><b>'+byLevel[lv].length+'</b>色</span>';
     b.addEventListener('click', function(){ startQuiz([lv]); });
     levelsBox.appendChild(b);
   });
-  // mix mode
   if(levelsInData.length>1){
     var mb = document.createElement('button');
-    mb.className='btn';
-    mb.innerHTML='<span class="lv-name"><span>ミックス　全レベル</span>'+
-      '<span class="chip mix">'+COLORS.length+'色</span></span>'+
-      '<span class="lv-desc">和の色も世界の色もまとめて出題</span>';
+    mb.className='level';
+    mb.innerHTML =
+      '<span class="lv-rank"><span class="lv-kicker">LEVEL</span><span class="lv-stars">★★★</span></span>'+
+      '<span class="lv-main"><span class="lv-name">ミックス</span><span class="lv-desc">和も世界もまとめて出題</span></span>'+
+      '<span class="lv-count"><b>'+COLORS.length+'</b>色</span>';
     mb.addEventListener('click', function(){ startQuiz(levelsInData); });
     levelsBox.appendChild(mb);
   }
@@ -281,60 +298,35 @@
   }).join(' ／ ');
 
   var state = null;
-
-  function pool(levels){
-    var p = [];
-    levels.forEach(function(lv){ p = p.concat(byLevel[lv]||[]); });
-    return p;
-  }
+  function pool(levels){ var p=[]; levels.forEach(function(lv){ p=p.concat(byLevel[lv]||[]); }); return p; }
 
   function buildQuestions(levels){
     var p = pool(levels);
-    // pick QN answers with distinct display names
     var answers = [], usedNames = {};
-    var shuffled = shuffle(p);
-    for(var i=0;i<shuffled.length && answers.length<QN;i++){
-      var c = shuffled[i];
-      if(usedNames[c.n]) continue;
+    shuffle(p).forEach(function(c){
+      if(answers.length>=QN || usedNames[c.n]) return;
       usedNames[c.n]=1; answers.push(c);
-    }
+    });
     return answers.map(function(ans){
-      // distractors: prefer same family, distinct name & hex
-      var sameFam = p.filter(function(c){
-        return c.f===ans.f && c.n!==ans.n && c.h!==ans.h;
-      });
-      var picks = [], seen = {}; seen[ans.n]=1;
-      shuffle(sameFam).forEach(function(c){
-        if(picks.length>=3) return;
-        if(seen[c.n]) return;
-        seen[c.n]=1; picks.push(c);
-      });
+      var sameFam = p.filter(function(c){ return c.f===ans.f && c.n!==ans.n && c.h!==ans.h; });
+      var picks=[], seen={}; seen[ans.n]=1;
+      shuffle(sameFam).forEach(function(c){ if(picks.length<3 && !seen[c.n]){ seen[c.n]=1; picks.push(c); } });
       if(picks.length<3){
-        shuffle(p).forEach(function(c){
-          if(picks.length>=3) return;
-          if(seen[c.n] || c.h===ans.h) return;
-          seen[c.n]=1; picks.push(c);
-        });
+        shuffle(p).forEach(function(c){ if(picks.length<3 && !seen[c.n] && c.h!==ans.h){ seen[c.n]=1; picks.push(c); } });
       }
-      var options = shuffle(picks.concat([ans]));
-      return { ans:ans, options:options };
+      return { ans:ans, options:shuffle(picks.concat([ans])) };
     });
   }
 
   function startQuiz(levels){
     state = { qs:buildQuestions(levels), idx:0, score:0, log:[] };
-    show('quiz');
-    renderQ();
+    show('quiz'); renderQ();
   }
-
   function show(which){
-    ['start','quiz','result'].forEach(function(s){
-      el(s).classList.toggle('hidden', s!==which);
-    });
+    ['start','quiz','result'].forEach(function(s){ el(s).classList.toggle('hidden', s!==which); });
     window.scrollTo(0,0);
   }
 
-  // 進行ドット（正解=オレンジ / 不正解=グレー / 現在=raised / 未回答=inset）
   function renderDots(){
     var box = el('dots'); box.innerHTML='';
     var res = state.log;
@@ -348,23 +340,21 @@
 
   function renderQ(){
     var q = state.qs[state.idx];
-    el('qCount').textContent = '第'+(state.idx+1)+'問 / '+QN;
     renderDots();
-
     var sw = el('swatch');
     sw.style.background = q.ans.h;
     sw.classList.remove('reveal');
     el('swatchHex').textContent = q.ans.h.toUpperCase();
 
     var box = el('options'); box.innerHTML='';
-    q.options.forEach(function(opt){
+    q.options.forEach(function(opt, i){
       var b = document.createElement('button');
-      b.className='opt'; b.textContent = opt.n; b._opt = opt;
+      b.className='opt'; b._opt = opt;
+      b.innerHTML = '<span class="lbadge">'+LETTERS[i]+'</span><span class="lname">'+opt.n+'</span>';
       b.addEventListener('click', function(){ choose(b, opt, q); });
       box.appendChild(b);
     });
-    el('feedback').innerHTML='';
-    el('next').classList.add('hidden');
+    el('feedback').classList.add('hidden');
   }
 
   function choose(btn, opt, q){
@@ -372,38 +362,34 @@
     var correct = opt.n===q.ans.n && opt.h===q.ans.h;
     buttons.forEach(function(b){
       b.disabled = true;
-      if(b.textContent===q.ans.n){ b.classList.add('correct'); }
-      // 各選択肢の実際の色を●で表示（回答後）
       var o = b._opt;
-      b.innerHTML = '<span class="odot" style="background:'+o.h+'"></span>'+o.n;
-    });
-    if(!correct){ btn.classList.add('wrong'); }
-    buttons.forEach(function(b){
-      if(!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('dim');
+      var badge = b.querySelector('.lbadge');
+      badge.style.background = o.h;
+      badge.style.color = textColor(o.h);
+      badge.classList.add('filled');
+      var isCorrect = (o.n===q.ans.n && o.h===q.ans.h);
+      if(isCorrect){ b.classList.add('correct'); }
+      else if(b===btn){ b.classList.add('chosen'); }
+      else { b.classList.add('wrongdim'); }
     });
     el('swatch').classList.add('reveal');
     if(correct){ state.score += PER; }
     state.log.push({ c:q.ans, ok:correct });
     renderDots();
 
-    var fb = el('feedback');
-    fb.innerHTML =
-      '<div class="fb-card">'+
-        '<div class="fb-head '+(correct?'fb-ok':'fb-ng')+'">'+
-          (correct?'◎ 正解！':'× 残念…')+
-          '<span style="color:var(--ink)">'+q.ans.n+'</span>'+
-          '<span class="fb-yomi">'+q.ans.y+'</span>'+
-        '</div>'+
-        (q.ans.d ? '<div class="fb-desc">'+q.ans.d+'</div>' : '')+
-      '</div>';
-    el('next').classList.remove('hidden');
+    el('fbTag').className = 'fb-tag ' + (correct?'ok':'ng');
+    el('fbTag').textContent = correct ? '◎ 正解！' : '× 残念…';
+    el('fbName').textContent = q.ans.n;
+    el('fbYomi').textContent = q.ans.y;
+    el('fbDesc').textContent = q.ans.d || '';
+    el('fbDesc').style.display = q.ans.d ? '' : 'none';
+    el('feedback').classList.remove('hidden');
     el('nextBtn').textContent = (state.idx+1<QN) ? '次へ →' : '結果を見る →';
   }
 
   el('nextBtn').addEventListener('click', function(){
     state.idx++;
-    if(state.idx<QN){ renderQ(); }
-    else { renderResult(); }
+    if(state.idx<QN){ renderQ(); } else { renderResult(); }
   });
 
   function rankOf(score){
@@ -424,12 +410,11 @@
     el('rankText').textContent = r[0];
     el('resultMsg').textContent = r[1];
 
-    // スコアダイヤルの円弧（円周=2πr, r=110）を得点率ぶん伸ばす
     var arc = el('scoreArc');
-    var circ = 2 * Math.PI * 110;
+    var circ = 2 * Math.PI * 100;
     arc.style.strokeDasharray = circ;
     arc.style.strokeDashoffset = circ;
-    arc.getBoundingClientRect(); // レイアウト確定 → 0%から得点率へCSS遷移
+    arc.getBoundingClientRect();
     arc.style.strokeDashoffset = circ * (1 - state.score/100);
 
     var rv = el('review'); rv.innerHTML='';
@@ -447,11 +432,10 @@
   }
 
   el('replayBtn').addEventListener('click', function(){ show('start'); });
-
   el('shareBtn').addEventListener('click', function(){
-    var text = '色彩図鑑MASTERで '+state.score+'点（'+rankOf(state.score)[0]+'）！\n色名あて4択クイズ、あなたは何点取れる？';
+    var text = '色名MASTERで '+state.score+'点（'+rankOf(state.score)[0]+'）！\n世界の色の名前クイズ、あなたは何点とれる？';
     var url = SITE_URL+'?v=2';
-    var share = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('色彩図鑑MASTER,色の名前');
+    var share = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('色名MASTER,色の名前');
     window.open(share,'_blank','noopener');
   });
 })();
