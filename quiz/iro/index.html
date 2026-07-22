@@ -76,12 +76,16 @@
   .dot.ok{background:var(--accent);color:var(--on-accent);box-shadow:none}
   .dot.ng{background:#b9bbc0;color:#fff;box-shadow:none}
 
+  /* 白いマット（真っ白背景）＋余白で色見本を見せ、ニューモーフィズムのカードと自然につなぐ */
+  .swatch-frame{
+    background:#ffffff;border-radius:20px;padding:18px;margin:0 auto 8px;
+    box-shadow:7px 7px 16px var(--sh-d), -7px -7px 16px var(--sh-l)}
   .swatch{
-    height:190px;border-radius:18px;margin:0 auto 8px;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.05), 6px 6px 14px var(--sh-d), -6px -6px 14px var(--sh-l);
-    display:flex;align-items:flex-end;justify-content:flex-end;padding:10px}
+    height:172px;border-radius:12px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+    display:flex;align-items:flex-end;justify-content:flex-end;padding:8px}
   .swatch .hex{font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
-    background:rgba(255,255,255,.72);color:#333;padding:2px 7px;border-radius:6px;
+    background:rgba(255,255,255,.8);color:#333;padding:2px 7px;border-radius:6px;
     opacity:0;transition:opacity .3s}
   .swatch.reveal .hex{opacity:1}
   .q-label{text-align:center;color:var(--sub);font-size:13.5px;margin:2px 0 16px;font-weight:700}
@@ -100,6 +104,9 @@
     box-shadow:inset 3px 3px 7px #e9c2cd, inset -3px -3px 7px #ffffff}
   .opt.dim{opacity:.5}
   .opt:disabled{cursor:default}
+  /* 回答後に各選択肢の実際の色を●で表示 */
+  .odot{display:inline-block;width:13px;height:13px;border-radius:50%;
+    margin-right:7px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
 
   .feedback{margin-top:18px;min-height:10px}
   .fb-card{border-radius:14px;padding:14px 15px;background:#f0ede6;
@@ -153,14 +160,6 @@
     box-shadow:6px 6px 14px var(--sh-d), -4px -4px 10px var(--sh-l)}
   .btn.replay{text-align:center}
 
-  .cta{margin-top:18px;text-align:center}
-  .cta a{display:block;text-decoration:none;color:var(--ink);
-    background:linear-gradient(135deg,#f6efe7,#f2e7da);border-radius:16px;padding:16px;
-    box-shadow:5px 5px 11px var(--sh-d), -5px -5px 11px var(--sh-l)}
-  .cta .k{font-size:11px;letter-spacing:.15em;color:var(--accent-ink);font-weight:800}
-  .cta .t{font-weight:800;font-size:15px;margin:3px 0}
-  .cta .g{color:var(--sub);font-size:12.5px}
-
   footer.app{text-align:center;color:var(--sub);font-size:12px;margin-top:26px}
   footer.app a{color:var(--accent-ink);text-decoration:none;font-weight:700}
   .hidden{display:none}
@@ -185,7 +184,7 @@
   <!-- QUIZ -->
   <section id="quiz" class="panel hidden">
     <div class="topbar"><span id="qCount">第1問 / 5</span><div id="dots" class="dots" aria-label="正解状況"></div></div>
-    <div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div>
+    <div class="swatch-frame"><div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div></div>
     <div class="q-label">この色の名前は？</div>
     <div id="options" class="options"></div>
     <div id="feedback" class="feedback"></div>
@@ -219,13 +218,6 @@
     </div>
     <h3 class="recap-title">今回の色</h3>
     <div class="review" id="review"></div>
-    <div class="cta">
-      <a href="https://lachiart.com/blog/" target="_blank" rel="noopener">
-        <span class="k">IRO TELLER</span>
-        <span class="t">色の名前には、物語がある。</span>
-        <span class="g">らちまゆみのブログを読む →</span>
-      </a>
-    </div>
   </section>
 
   <footer class="app">
@@ -367,7 +359,7 @@
     var box = el('options'); box.innerHTML='';
     q.options.forEach(function(opt){
       var b = document.createElement('button');
-      b.className='opt'; b.textContent = opt.n;
+      b.className='opt'; b.textContent = opt.n; b._opt = opt;
       b.addEventListener('click', function(){ choose(b, opt, q); });
       box.appendChild(b);
     });
@@ -381,6 +373,9 @@
     buttons.forEach(function(b){
       b.disabled = true;
       if(b.textContent===q.ans.n){ b.classList.add('correct'); }
+      // 各選択肢の実際の色を●で表示（回答後）
+      var o = b._opt;
+      b.innerHTML = '<span class="odot" style="background:'+o.h+'"></span>'+o.n;
     });
     if(!correct){ btn.classList.add('wrong'); }
     buttons.forEach(function(b){
