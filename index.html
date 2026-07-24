@@ -1409,7 +1409,6 @@ function presentSlides(urls, ym){
   wrap.classList.toggle('multi', urls.length>1);
   box.innerHTML=urls.map(function(u,i){ return '<img src="'+u+'" alt="まとめ '+(i+1)+'枚目">'; }).join('');
   $('shotdots').innerHTML=urls.map(function(u,i){ return '<span class="shotdot'+(i===0?' on':'')+'"></span>'; }).join('');
-  box.scrollLeft=0;
   function idx(){ return Math.round(box.scrollLeft/box.clientWidth); }
   function sync(){
     var n=idx();
@@ -1431,8 +1430,12 @@ function presentSlides(urls, ym){
     });
   };
   $('overlay').classList.add('on');
+  $('sheet').scrollTop=0;
+  requestAnimationFrame(function(){ box.scrollLeft=0; sync(); });
+  setTimeout(function(){ box.scrollLeft=0; sync(); }, 60);
 }
 function presentImage(url, fname, book){
+  $('sheet').scrollTop=0;
   $('shotswrap').style.display='none'; $('shots').innerHTML='';
   $('shot').style.display='block';
   $('hint').textContent='スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。';
