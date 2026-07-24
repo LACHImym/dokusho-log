@@ -1256,17 +1256,6 @@ function renderSummaryPage(ym, arr, who, mixed, pageNo, total){
   ctx.fillText(ymLabel(ym)+' の読書log', M, 96);
   ctx.fillStyle=IACC; ctx.font='500 24px '+MONO;
   ctx.fillText(TAG, M, 138);
-  // bento
-  var bw=282, bh=118, bx=W-M-bw, by=54;
-  ctx.fillStyle=IINK; roundRectPath(ctx,bx,by,bw,bh,26); ctx.fill();
-  ctx.fillStyle=IPAPER; ctx.font='600 26px '+DISP;
-  ctx.fillText(mixed?'みんなで':(who||''), bx+26, by+bh/2+9);
-  var num=String(arr.length);
-  ctx.textAlign='right'; ctx.font='600 74px '+DISP;
-  ctx.fillText(num, bx+bw-64, by+bh/2+26);
-  var nW=ctx.measureText(num).width;
-  ctx.textAlign='left'; ctx.font='500 26px '+DISP;
-  ctx.fillText('冊', bx+bw-58, by+bh/2+24);
   // divider
   ctx.strokeStyle=ILINE; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(M,190); ctx.lineTo(W-M,190); ctx.stroke();
@@ -1336,7 +1325,6 @@ function drawBookCard(ctx, b, cover, x, y, cw, mixed){
   }
   ctx.restore();
   ctx.strokeStyle=ILINE; ctx.lineWidth=1; roundRectPath(ctx,x+0.5,y+0.5,cw-1,coverH-1,16); ctx.stroke();
-  drawShareIcon(ctx, x+cw-42, y+12, 30);
   var ty=y+coverH+34;
   if(b.genre){ ctx.fillStyle=ISUB; ctx.font='21px '+DISP; ctx.fillText(b.genre, x, ty); ty+=30; }
   ctx.fillStyle=IINK; ctx.font='600 27px '+DISP;
