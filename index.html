@@ -1271,17 +1271,23 @@ function renderSummaryPage(ym, arr, who, mixed, pageNo, total){
   ctx.fillText(ymLabel(ym)+' の読書log', M, 96);
   ctx.fillStyle=IACC; ctx.font='500 24px '+MONO;
   ctx.fillText(TAG, M, 138);
-  // bento (ALLのまとめのみ「みんなで◯冊」)
+  // bento (ALLのまとめのみ「みんなで◯冊」)。桁数が増えても被らないよう段組み＋自動縮小
   if(mixed){
-    var bw=282, bh=118, bx=W-M-bw, by=54;
+    var bw=282, bh=118, bx=W-M-bw, by=54, pad=24;
     ctx.fillStyle=IINK; roundRectPath(ctx,bx,by,bw,bh,26); ctx.fill();
-    ctx.textAlign='left'; ctx.fillStyle=IPAPER; ctx.font='600 26px '+DISP;
-    ctx.fillText('みんなで', bx+26, by+bh/2+9);
-    var num=String(arr.length);
-    ctx.textAlign='right'; ctx.font='600 74px '+DISP;
-    ctx.fillText(num, bx+bw-64, by+bh/2+26);
-    ctx.textAlign='left'; ctx.font='500 26px '+DISP;
-    ctx.fillText('冊', bx+bw-58, by+bh/2+24);
+    ctx.textAlign='left'; ctx.fillStyle=IPAPER;
+    ctx.font='500 24px '+DISP;
+    ctx.fillText('みんなで', bx+pad, by+42);
+    var num=String(arr.length), unitFs=26;
+    ctx.font='500 '+unitFs+'px '+DISP;
+    var unitW=ctx.measureText('冊').width+8;
+    var numFs=62, avail=bw-2*pad-unitW;
+    ctx.font='600 '+numFs+'px '+DISP;
+    while(numFs>28 && ctx.measureText(num).width>avail){ numFs-=2; ctx.font='600 '+numFs+'px '+DISP; }
+    var numW=ctx.measureText(num).width, baseY=by+bh-24;
+    ctx.fillText(num, bx+pad, baseY);
+    ctx.font='500 '+unitFs+'px '+DISP;
+    ctx.fillText('冊', bx+pad+numW+8, baseY);
   }
   // divider
   ctx.strokeStyle=ILINE; ctx.lineWidth=2;
