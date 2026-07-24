@@ -141,8 +141,17 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 #ed-isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #ed-del{ color:var(--faint); background:none; }
 #shot{ width:100%; border-radius:10px; display:block; }
-#shots{ display:none; }
-#shots img{ width:100%; border-radius:10px; display:block; margin-bottom:10px; }
+#shotswrap{ display:none; position:relative; }
+#shots{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; border-radius:10px; }
+#shots::-webkit-scrollbar{ display:none; }
+#shots img{ flex:0 0 100%; scroll-snap-align:center; width:100%; border-radius:10px; display:block; }
+.shotnav{ position:absolute; top:calc(50% - 12px); transform:translateY(-50%); width:40px; height:40px; border-radius:50%; background:rgba(19,19,17,.5); color:#fff; border:none; font-size:24px; line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center; padding:0; z-index:2; }
+#shotswrap.multi .shotnav{ display:flex; }
+.shotnav:active{ transform:translateY(-50%) scale(.92); }
+#shotprev{ left:8px; } #shotnext{ right:8px; }
+#shotdots{ display:flex; justify-content:center; gap:7px; margin-top:12px; }
+.shotdot{ width:7px; height:7px; border-radius:50%; background:var(--line); }
+.shotdot.on{ background:var(--accent); }
 #sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
 #sheet .row{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
 .mhead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
@@ -241,7 +250,12 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <div id="overlay" class="modal">
   <div id="sheet">
     <img id="shot" alt="シェア画像">
-    <div id="shots"></div>
+    <div id="shotswrap">
+      <div id="shots"></div>
+      <button id="shotprev" class="shotnav" aria-label="前へ">‹</button>
+      <button id="shotnext" class="shotnav" aria-label="次へ">›</button>
+      <div id="shotdots"></div>
+    </div>
     <p class="hint" id="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
     <div class="row">
       <button class="btn" id="txtcopy" hidden>テキストをコピー</button>
@@ -1369,10 +1383,23 @@ function renderBookPage(ym, books, coverMap, mixed, pageNo, total){
 }
 function presentSlides(urls, ym){
   $('shot').style.display='none';
-  var box=$('shots'); box.style.display='block';
+  var wrap=$('shotswrap'), box=$('shots');
+  wrap.style.display='block';
+  wrap.classList.toggle('multi', urls.length>1);
   box.innerHTML=urls.map(function(u,i){ return '<img src="'+u+'" alt="まとめ '+(i+1)+'枚目">'; }).join('');
+  $('shotdots').innerHTML=urls.map(function(u,i){ return '<span class="shotdot'+(i===0?' on':'')+'"></span>'; }).join('');
+  box.scrollLeft=0;
+  function idx(){ return Math.round(box.scrollLeft/box.clientWidth); }
+  function sync(){
+    var n=idx();
+    var dots=$('shotdots').children;
+    for(var k=0;k<dots.length;k++){ dots[k].classList.toggle('on', k===n); }
+  }
+  box.onscroll=sync;
+  $('shotprev').onclick=function(){ box.scrollTo({left:(idx()-1)*box.clientWidth, behavior:'smooth'}); };
+  $('shotnext').onclick=function(){ box.scrollTo({left:(idx()+1)*box.clientWidth, behavior:'smooth'}); };
   $('txtcopy').hidden=true; $('share').hidden=true;
-  $('hint').textContent='スマホは各画像を長押しで保存できます。'+(urls.length>1?'（全'+urls.length+'枚）':'');
+  $('hint').textContent=urls.length>1?('‹ ›で切り替え・スマホは各画像を長押しで保存できます。（全'+urls.length+'枚）'):'スマホは画像を長押しで保存できます。';
   var dl=$('dl');
   dl.textContent=urls.length>1?('画像を保存（'+urls.length+'枚）'):'画像を保存';
   dl.onclick=function(){
@@ -1385,7 +1412,7 @@ function presentSlides(urls, ym){
   $('overlay').classList.add('on');
 }
 function presentImage(url, fname, book){
-  $('shots').style.display='none'; $('shots').innerHTML='';
+  $('shotswrap').style.display='none'; $('shots').innerHTML='';
   $('shot').style.display='block';
   $('hint').textContent='スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。';
   $('dl').textContent='画像を保存';
