@@ -265,7 +265,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <div class="datebtns">
       <label>読了日 <input type="date" id="fin"></label>
       <span class="acts">
-        <button id="want">読みたい</button>
+        <button id="want">積読</button>
         <button id="add">読了</button>
       </span>
     </div>
@@ -438,6 +438,7 @@ function render(){
   var f=$('filter');
   if(state.members.length){
     var chips='<button class="chip'+(state.filter==='*'?' on':'')+'" data-f="*">ALL</button>';
+    chips+='<button class="chip'+(state.filter==='#tsundoku'?' on':'')+'" data-f="#tsundoku">積読</button>';
     state.members.forEach(function(m){
       var c=memCol(m);
       chips+='<button class="chip'+(state.filter===m?' on':'')+'" data-f="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+'</button>';
@@ -445,19 +446,40 @@ function render(){
     f.innerHTML=chips;
   }else{ f.innerHTML=''; }
 
-  var viewingPast=!!state.viewMonth && state.viewMonth!==nowYm;
+  var isTsundoku=state.filter==='#tsundoku';
+  var viewingPast=!isTsundoku && !!state.viewMonth && state.viewMonth!==nowYm;
   var mb=$('monthback');
   if(viewingPast){ mb.classList.add('on'); $('mbnow').textContent=ymLabel(state.viewMonth)+'を表示中'; }
   else{ mb.classList.remove('on'); }
 
   var shelf=$('shelf');
-  var byMember=state.books.filter(function(b){ return state.filter==='*'||b.member===state.filter; });
   var html='';
 
-  if(!viewingPast){
-    var wants=byMember.filter(function(b){ return b.status==='want'; });
+  if(isTsundoku){
+    var allWants=state.books.filter(function(b){ return b.status==='want'; })
+      .sort(function(a,b){ return a.date<b.date?1:-1; });
+    html+='<section class="sect"><div class="head"><span class="stitle"><span class="mk"></span>積読</span>'+
+      '<span class="scount"><b>'+allWants.length+'</b>冊</span></div>';
+    if(allWants.length){
+      html+='<div class="grid">';
+      allWants.forEach(function(b){ html+=cardHtml(b); });
+      html+='</div>';
+    }else{
+      html+='<div class="empty"><div class="big">積読はまだありません</div>「＋記録する」の「積読」から追加できます。</div>';
+    }
+    html+='</section>';
+    shelf.innerHTML=html;
+    return;
+  }
+
+  var byMember=state.books.filter(function(b){ return state.filter==='*'||b.member===state.filter; });
+
+  if(!viewingPast && state.filter!=='*'){
+    var wants=byMember.filter(function(b){ return b.status==='want'; })
+      .sort(function(a,b){ return a.date<b.date?1:-1; });
     if(wants.length){
-      html+='<section class="sect"><div class="head"><span class="stitle"><span class="mk"></span>読みたい</span></div><div class="grid">';
+      html+='<section class="sect"><div class="head"><span class="stitle"><span class="mk"></span>積読</span>'+
+        '<span class="scount"><b>'+wants.length+'</b>冊</span></div><div class="grid">';
       wants.forEach(function(b){ html+=cardHtml(b); });
       html+='</div></section>';
     }
@@ -610,7 +632,7 @@ function makePostText(b){
   var lines=[];
   var who=b.author?'（'+b.author+'）':'';
   if(b.status==='want'){
-    lines.push('読みたい本『'+b.title+'』'+who);
+    lines.push('積読『'+b.title+'』'+who);
   }else{
     var dp=b.date.split('-');
     lines.push((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' 読了『'+b.title+'』'+who);
@@ -676,7 +698,7 @@ function submitBook(status){
       render();
       showPostBanner(saved);
       if(!saved.genre&&saved.title) autoGenre(saved);
-      if(status==='want') toast('「読みたい」に置きました。');
+      if(status==='want') toast('「積読」に追加しました。');
       else toast('読了を記録しました。おつかれさまです。');
     })
     .catch(function(){ toast('保存できませんでした。電波を確認してもう一度お試しください。'); })
@@ -1304,7 +1326,7 @@ function renderBookImage(b, cover){
   ctx.font='26px '+MONO;
   if(b.status==='want'){
     ctx.fillStyle=IACC;
-    ctx.fillText('読みたい', W-M, 116);
+    ctx.fillText('積読', W-M, 116);
     ctx.fillStyle=ISUB;
   }else{
     var dp=b.date.split('-');
