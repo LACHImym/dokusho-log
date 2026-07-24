@@ -145,11 +145,11 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 #shots{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; border-radius:10px; }
 #shots::-webkit-scrollbar{ display:none; }
 #shots img{ flex:0 0 100%; scroll-snap-align:center; width:100%; border-radius:10px; display:block; }
-.shotnav{ position:absolute; top:calc(50% - 12px); transform:translateY(-50%); width:40px; height:40px; border-radius:50%; background:rgba(19,19,17,.5); color:#fff; border:none; font-size:24px; line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center; padding:0; z-index:2; }
-#shotswrap.multi .shotnav{ display:flex; }
-.shotnav:active{ transform:translateY(-50%) scale(.92); }
-#shotprev{ left:8px; } #shotnext{ right:8px; }
-#shotdots{ display:flex; justify-content:center; gap:7px; margin-top:12px; }
+#shotctrl{ display:none; align-items:center; justify-content:center; gap:16px; margin-top:12px; }
+#shotswrap.multi #shotctrl{ display:flex; }
+.shotnav{ width:36px; height:36px; border-radius:50%; background:var(--muted); color:var(--ink); border:none; font-size:22px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+.shotnav:active{ transform:scale(.92); }
+#shotdots{ display:flex; justify-content:center; gap:7px; }
 .shotdot{ width:7px; height:7px; border-radius:50%; background:var(--line); }
 .shotdot.on{ background:var(--accent); }
 #sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
@@ -252,9 +252,11 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <img id="shot" alt="シェア画像">
     <div id="shotswrap">
       <div id="shots"></div>
-      <button id="shotprev" class="shotnav" aria-label="前へ">‹</button>
-      <button id="shotnext" class="shotnav" aria-label="次へ">›</button>
-      <div id="shotdots"></div>
+      <div id="shotctrl">
+        <button id="shotprev" class="shotnav" aria-label="前へ">‹</button>
+        <div id="shotdots"></div>
+        <button id="shotnext" class="shotnav" aria-label="次へ">›</button>
+      </div>
     </div>
     <p class="hint" id="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
     <div class="row">
