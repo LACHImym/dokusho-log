@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>色名MASTER｜世界の色の名前クイズ</title>
-<meta name="description" content="色見本を見て色の名前を当てる4択クイズ。和の伝統色から世界の色まで、全987色から出題。全5問・100点満点であなたの色彩センスをチェック！">
+<meta name="description" content="色見本を見て色の名前を当てる4択クイズ。毎日更新の「今日の5色」に挑戦して連続記録をのばそう。和の伝統色から世界の色まで全987色から出題、全5問・100点満点。">
 <meta property="og:title" content="色名MASTER｜世界の色の名前クイズ">
-<meta property="og:description" content="色見本を見て色名を当てる4択クイズ。和・世界の全987色から出題。全5問100点満点。あなたは何点とれる？">
+<meta property="og:description" content="毎日更新の「今日の5色」に挑戦！色見本を見て色名を当てる4択クイズ。連続記録をのばそう。全5問100点満点。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://lachiart.com/quiz/iro/">
 <meta property="og:image" content="https://lachiart.com/quiz/iro/og-card.png">
@@ -20,7 +20,7 @@
     --bg:#ffffff; --ink:#2b3a55; --sub:#8b93a3; --line:#e9ecf1;
     --badge:#eceef3; --teal:#2dd4bf; --teal-deep:#0d9488;
     --star:#0d9488; --pink:#e4007f; --ng:#c4c8d0;
-    --card:#f7f8fb;
+    --card:#f7f8fb; --fire:#f97316;
     --radius:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -34,11 +34,10 @@
   }
   .wrap{width:100%;max-width:480px}
 
-  /* ===== ヘッダー／ロゴ（キュビコン＋ワードマーク） ===== */
-  header.app{text-align:center;margin:6px 0 20px}
+  /* ===== ヘッダー／ロゴ ===== */
+  header.app{text-align:center;margin:6px 0 18px}
   .brand{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
   .brand-logo{width:210px;max-width:64vw;height:auto;display:block}
-  /* 公式ロゴ(logo.png)未設置時のテキスト代替 */
   .brand-fallback{position:relative;line-height:1;text-align:center}
   .brand-kicker{font-size:11px;font-weight:800;letter-spacing:.35em;color:var(--sub);margin-bottom:2px}
   .brand-title{font-size:40px;font-weight:900;letter-spacing:.02em;color:var(--ink)}
@@ -54,8 +53,30 @@
   .ad-top{margin:4px 0 18px;min-height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden}
   .ad-top .adsbygoogle{width:100%}
 
-  /* ===== スタート（レベル選択） ===== */
-  .start-lead{color:var(--sub);font-size:13.5px;text-align:center;margin:0 0 18px}
+  /* ===== ホーム：今日の5色（デイリーカード） ===== */
+  .daily-card{display:block;width:100%;text-align:left;border-radius:22px;padding:20px 20px 18px;
+    color:#fff;background:linear-gradient(135deg,#2dd4bf,#0d9488);
+    box-shadow:0 12px 26px -8px rgba(13,148,136,.55);margin-bottom:26px;
+    transition:transform .1s, box-shadow .15s}
+  .daily-card:active{transform:translateY(1px)}
+  .dc-top{display:flex;justify-content:space-between;align-items:center}
+  .dc-badge{font-size:11px;font-weight:800;letter-spacing:.14em;background:rgba(255,255,255,.22);
+    padding:4px 12px;border-radius:999px}
+  .dc-num{font-size:20px;font-weight:900;letter-spacing:.02em}
+  .dc-date{font-size:12.5px;opacity:.92;margin-top:14px}
+  .dc-title{font-size:23px;font-weight:900;margin-top:1px;letter-spacing:.01em}
+  .dc-clear{display:inline-block;font-size:12.5px;font-weight:800;margin-top:8px;
+    background:rgba(255,255,255,.2);padding:3px 12px;border-radius:999px}
+  .dc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px}
+  .dc-streak{font-size:14px;font-weight:800}
+  .dc-cta{flex:0 0 auto;font-size:14px;font-weight:800;background:#fff;color:var(--teal-deep);
+    padding:9px 18px;border-radius:999px}
+  .daily-card.done .dc-cta{background:rgba(255,255,255,.24);color:#fff}
+
+  .sec-label{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:800;
+    letter-spacing:.15em;color:var(--sub);margin:0 2px 12px}
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
   .levels{display:flex;flex-direction:column;gap:14px}
   .level{
     display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
@@ -72,10 +93,15 @@
   .lv-desc{display:block;font-size:12px;color:var(--sub);margin-top:2px}
   .lv-count{font-size:12px;font-weight:800;color:var(--sub);white-space:nowrap}
   .lv-count b{color:var(--ink);font-size:15px}
+  .record-link{display:block;width:100%;text-align:center;margin-top:22px;padding:13px;
+    border-radius:14px;background:var(--card);border:1.5px solid var(--line);
+    font-size:14px;font-weight:800;color:var(--ink)}
   .pool-note{font-size:11px;color:#aab0bc;margin:16px 0 0;text-align:center}
 
   /* ===== クイズ ===== */
-  .qtop{display:flex;justify-content:flex-end;align-items:center;margin:2px 0 16px}
+  .qtop{display:flex;justify-content:space-between;align-items:center;margin:2px 0 16px}
+  .quit{font-size:13px;font-weight:800;color:var(--sub);padding:4px 6px}
+  .quit:hover{color:var(--ink)}
   .dots{display:flex;gap:8px}
   .dot{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
     font-size:11px;font-weight:800;background:#eef0f4;color:#aab0bc;
@@ -143,11 +169,16 @@
   .score-unit{font-size:18px;font-weight:700;color:var(--sub);margin-left:2px}
   #resultSub{margin:2px 0 0;font-size:12px;color:var(--teal-deep);font-weight:700}
   .rank{font-weight:900;font-size:19px;margin:6px 0 2px}
-  .result-msg{color:var(--sub);font-size:13.5px;margin:0 0 6px}
+  .result-msg{color:var(--sub);font-size:13.5px;margin:0 0 4px}
+  .daily-next{background:linear-gradient(135deg,#fff4ec,#ffe9d9);border:1.5px solid #ffd9bd;
+    border-radius:16px;padding:14px 16px;margin:16px auto 0;max-width:360px;
+    font-size:14px;font-weight:800;color:#b45309}
+  .daily-next b{color:var(--fire)}
   .actions{display:flex;flex-direction:column;gap:12px;max-width:340px;margin:22px auto 0}
   .btn-x{background:#111214;color:#fff;font-weight:800;font-size:15px;padding:14px;border-radius:14px}
   .btn-replay{background:var(--card);color:var(--ink);font-weight:800;font-size:15px;padding:14px;
     border-radius:14px;border:1.5px solid var(--line)}
+  .btn-home{background:none;color:var(--sub);font-weight:700;font-size:13.5px;padding:6px}
   .recap-title{font-size:11px;font-weight:800;letter-spacing:.15em;color:var(--sub);
     text-align:left;border-top:1px solid var(--line);padding-top:20px;margin:26px 0 12px}
   .review{display:flex;flex-direction:column;gap:10px;text-align:left}
@@ -164,6 +195,24 @@
   .rev .mk.ok{background:#d9f5ef;color:var(--teal-deep)}
   .rev .mk.ng{background:#eef0f4;color:#9aa0ac}
 
+  /* ===== きろく ===== */
+  #record{text-align:center}
+  .rec-back{display:inline-block;font-size:13px;font-weight:800;color:var(--sub);margin:0 0 14px}
+  .rec-h{font-size:18px;font-weight:900;margin:0 0 18px}
+  .rec-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+  .stat{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px 12px}
+  .stat .v{font-size:30px;font-weight:900;line-height:1;letter-spacing:-.02em}
+  .stat .v small{font-size:14px;font-weight:700;color:var(--sub);margin-left:2px}
+  .stat .k{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.06em;margin-top:6px}
+  .stat.fire .v{color:var(--fire)}
+  .rec-empty{color:var(--sub);font-size:13px;padding:8px 0 4px}
+  .hist{display:flex;flex-direction:column;gap:8px;text-align:left}
+  .hist-row{display:flex;justify-content:space-between;align-items:center;
+    background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px}
+  .hist-row .hl{font-weight:800}
+  .hist-row .hd{color:var(--sub);font-size:11.5px;font-weight:600}
+  .hist-row .hs{font-weight:900}
+
   /* ===== フッター ===== */
   footer.app{width:100%;max-width:480px;text-align:center;color:#a7adba;font-size:11px;
     margin-top:30px;padding-top:18px;border-top:1px solid var(--line)}
@@ -175,7 +224,7 @@
 <div class="wrap">
   <header class="app">
     <div class="brand">
-      <!-- 公式ロゴ(logo.png)を quiz/iro/ に置けば自動で表示。無ければ下のテキストにフォールバック -->
+      <!-- 公式ロゴ(logo.png)を quiz/iro/ に置けば自動で表示。無ければテキストにフォールバック -->
       <img class="brand-logo" src="logo.png" alt="色名MASTER"
            onerror="this.style.display='none';var f=document.getElementById('brandFallback');if(f)f.style.display='block';">
       <div id="brandFallback" class="brand-fallback" style="display:none">
@@ -186,8 +235,8 @@
     <p class="tagline">世界の色の名前クイズ</p>
   </header>
 
-  <!-- 広告枠（ページを開いた瞬間から見える位置＝クイズ冒頭。常時表示） -->
-  <div class="ad-top">
+  <!-- 広告枠（ページを開いた瞬間から見える位置。常時表示） -->
+  <div class="ad-top" id="adTop">
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="ca-pub-6177307831535485"
@@ -196,16 +245,21 @@
          data-full-width-responsive="true"></ins>
   </div>
 
-  <!-- START -->
-  <section id="start">
-    <p class="start-lead">色見本を見て、正しい色名を4つの中から選ぼう。全5問・100点満点。</p>
+  <!-- HOME -->
+  <section id="home">
+    <button class="daily-card" id="dailyCard"></button>
+    <div class="sec-label">レベル別問題</div>
     <div id="levels" class="levels"></div>
+    <button class="record-link" id="toRecord">🔥 きろくを見る</button>
     <p class="pool-note" id="poolInfo"></p>
   </section>
 
   <!-- QUIZ -->
   <section id="quiz" class="hidden">
-    <div class="qtop"><div id="dots" class="dots" aria-label="正解状況"></div></div>
+    <div class="qtop">
+      <button class="quit" id="quitBtn">← やめる</button>
+      <div id="dots" class="dots" aria-label="正解状況"></div>
+    </div>
     <div id="swatch" class="swatch"><span class="hex" id="swatchHex"></span></div>
     <p class="qlabel"><b>Q.</b>この色の名前は？</p>
     <div id="options" class="options"></div>
@@ -240,12 +294,30 @@
     </div>
     <div class="rank" id="rankText"></div>
     <div class="result-msg" id="resultMsg"></div>
+    <div class="daily-next hidden" id="dailyNext"></div>
     <div class="actions">
       <button class="btn-x" id="shareBtn">𝕏 で結果をシェア</button>
       <button class="btn-replay" id="replayBtn">もう一度あそぶ</button>
+      <button class="btn-home" id="homeBtn">ホームにもどる</button>
     </div>
     <h3 class="recap-title">今回の色</h3>
     <div class="review" id="review"></div>
+  </section>
+
+  <!-- きろく -->
+  <section id="record" class="hidden">
+    <button class="rec-back" id="recBack">← ホーム</button>
+    <h2 class="rec-h">あなたのきろく</h2>
+    <div class="rec-stats">
+      <div class="stat fire"><div class="v">🔥<span id="recStreak">0</span><small>日連続</small></div><div class="k">いまの連続</div></div>
+      <div class="stat"><div class="v"><span id="recBest">0</span><small>日</small></div><div class="k">最高連続</div></div>
+      <div class="stat"><div class="v"><span id="recPlays">0</span><small>回</small></div><div class="k">プレイ回数</div></div>
+      <div class="stat"><div class="v"><span id="recAvg">0</span><small>点</small></div><div class="k">平均点</div></div>
+    </div>
+    <h3 class="recap-title">直近にあそんだ色</h3>
+    <div class="review" id="recRecent"></div>
+    <h3 class="recap-title">プレイ履歴</h3>
+    <div class="hist" id="recHistory"></div>
   </section>
 </div>
 
@@ -262,148 +334,218 @@
   var QN = 5, PER = 20;
   var SITE_URL = "https://lachiart.com/quiz/iro/";
   var LETTERS = ['A','B','C','D'];
+  var DAILY_EPOCH = "2026-07-24";      // この日が #1
+  var LS_KEY = "iroMaster_state";       // 端末内保存（ドメイン共有のため接頭辞つき）
 
   var el = function(id){ return document.getElementById(id); };
 
-  function shuffle(a){
+  /* ---------- 乱数（デイリーは日付シードで全員同じ問題に） ---------- */
+  function shuffle(a, rng){
+    rng = rng || Math.random;
     a = a.slice();
-    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(rng()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; }
     return a;
   }
-  // 背景色に応じて文字色（白 or 紺）を選ぶ
-  function textColor(hex){
-    var h = hex.replace('#','');
-    var r=parseInt(h.substr(0,2),16), g=parseInt(h.substr(2,2),16), b=parseInt(h.substr(4,2),16);
-    var lum = 0.299*r + 0.587*g + 0.114*b;
-    return lum > 150 ? '#2b3a55' : '#ffffff';
+  function hashStr(s){
+    var h = 1779033703 ^ s.length;
+    for(var i=0;i<s.length;i++){ h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = (h<<13)|(h>>>19); }
+    return h>>>0;
+  }
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a>>>15), 1 | a);
+      t = (t + Math.imul(t ^ (t>>>7), 61 | t)) ^ t;
+      return ((t ^ (t>>>14)) >>> 0) / 4294967296;
+    };
   }
 
+  /* ---------- 日付ユーティリティ（すべて端末のローカル日付） ---------- */
+  function pad(n){ return (n<10?'0':'')+n; }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function addDaysStr(str, delta){
+    var p=str.split('-'); var d=new Date(+p[0], +p[1]-1, +p[2]); d.setDate(d.getDate()+delta);
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  }
+  function dateVal(str){ var p=str.split('-'); return Date.UTC(+p[0], +p[1]-1, +p[2]); }
+  function dailyNumber(str){ return Math.round((dateVal(str)-dateVal(DAILY_EPOCH))/86400000) + 1; }
+  function jpDate(str){
+    var p=str.split('-'), wd=['日','月','火','水','木','金','土'][new Date(+p[0],+p[1]-1,+p[2]).getDay()];
+    return (+p[1])+'月'+(+p[2])+'日（'+wd+'）';
+  }
+
+  /* ---------- 保存（localStorage・ログイン不要） ---------- */
+  function loadStore(){
+    try{ var s=JSON.parse(localStorage.getItem(LS_KEY)); if(s&&typeof s==='object') return s; }catch(e){}
+    return { streak:0, best:0, lastDaily:null, plays:0, scoreSum:0, daily:{}, recent:[], history:[] };
+  }
+  var store = loadStore();
+  function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch(e){} }
+  function currentStreak(){
+    var t=todayStr();
+    if(store.lastDaily===t || store.lastDaily===addDaysStr(t,-1)) return store.streak||0;
+    return 0;
+  }
+
+  function textColor(hex){
+    var h=hex.replace('#',''); var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+    return (0.299*r+0.587*g+0.114*b) > 150 ? '#2b3a55' : '#ffffff';
+  }
+
+  /* ---------- データ整理 ---------- */
   var byLevel = {};
   COLORS.forEach(function(c){ (byLevel[c.lv]=byLevel[c.lv]||[]).push(c); });
   var levelsInData = Object.keys(byLevel).map(Number).sort(function(a,b){return a-b;});
   var meta = {}; LEVELS.forEach(function(l){ meta[l.lv]=l; });
-
   function stars(n){ return '★★★'.slice(0, n) || '★'; }
+  function pool(levels){ var p=[]; levels.forEach(function(lv){ p=p.concat(byLevel[lv]||[]); }); return p; }
 
+  /* ---------- 出題の組み立て ---------- */
+  // pools: 各問の出題プール配列（デイリーは段階式に組む）／dp: ダミー選択肢の母集団
+  function pickAnswers(pools, rng){
+    var used={}, ans=[];
+    pools.forEach(function(pl){
+      var sh = shuffle(pl, rng);
+      for(var i=0;i<sh.length;i++){ if(!used[sh[i].n]){ used[sh[i].n]=1; ans.push(sh[i]); break; } }
+    });
+    return ans;
+  }
+  function makeQuestion(ans, dp, rng){
+    var sameFam = dp.filter(function(c){ return c.f===ans.f && c.n!==ans.n && c.h!==ans.h; });
+    var picks=[], seen={}; seen[ans.n]=1;
+    shuffle(sameFam, rng).forEach(function(c){ if(picks.length<3 && !seen[c.n]){ seen[c.n]=1; picks.push(c); } });
+    if(picks.length<3){
+      shuffle(dp, rng).forEach(function(c){ if(picks.length<3 && !seen[c.n] && c.h!==ans.h){ seen[c.n]=1; picks.push(c); } });
+    }
+    return { ans:ans, options: shuffle(picks.concat([ans]), rng) };
+  }
+
+  var game = null;
+
+  function startDaily(){
+    var t=todayStr();
+    if(store.daily[t]){ renderRecord(); return; }  // 1日1回
+    var rng = mulberry32(hashStr('iro-'+t));
+    // 段階式：和の色×2 → 世界の色×2 → 全色から1（腕試し）
+    var L1 = byLevel[1]||COLORS, L2 = byLevel[2]||COLORS;
+    var pools = [L1, L1, L2, L2, COLORS];
+    var answers = pickAnswers(pools, rng);
+    var qs = answers.map(function(a){ return makeQuestion(a, COLORS, rng); });
+    game = { mode:'daily', label:'デイリー #'+dailyNumber(t), n:dailyNumber(t), date:t,
+             levels:null, qs:qs, idx:0, score:0, log:[] };
+    show('quiz'); renderQ();
+  }
+  function startLevel(levels, label){
+    var p = pool(levels);
+    var pools = [p,p,p,p,p];
+    var answers = pickAnswers(pools, Math.random);
+    var qs = answers.map(function(a){ return makeQuestion(a, p, Math.random); });
+    game = { mode:'level', label:label, n:null, date:null, levels:levels, qs:qs, idx:0, score:0, log:[] };
+    show('quiz'); renderQ();
+  }
+
+  function show(which){
+    ['home','quiz','result','record'].forEach(function(s){ el(s).classList.toggle('hidden', s!==which); });
+    if(which==='home') renderHome();
+    window.scrollTo(0,0);
+  }
+
+  /* ---------- ホーム ---------- */
+  function renderHome(){
+    var t=todayStr(), n=dailyNumber(t), done=store.daily[t], cur=currentStreak();
+    var card=el('dailyCard');
+    card.className = 'daily-card' + (done?' done':'');
+    card.innerHTML =
+      '<div class="dc-top"><span class="dc-badge">DAILY</span><span class="dc-num">#'+n+'</span></div>'+
+      '<div class="dc-date">'+jpDate(t)+'</div>'+
+      '<div class="dc-title">今日の5色</div>'+
+      (done?'<div class="dc-clear">✓ クリア済み '+done.score+'点</div>':'')+
+      '<div class="dc-foot"><span class="dc-streak">'+
+        (cur>0 ? '🔥 '+cur+'日連続' : '今日から連続記録スタート')+'</span>'+
+      '<span class="dc-cta">'+(done?'きろくを見る':'挑戦する →')+'</span></div>';
+  }
+  el('dailyCard').addEventListener('click', function(){
+    if(store.daily[todayStr()]) renderRecord(); else startDaily();
+  });
+
+  // レベルボタン生成
   var levelsBox = el('levels');
   levelsInData.forEach(function(lv, idx){
     var m = meta[lv] || {name:'レベル'+lv, desc:''};
-    var b = document.createElement('button');
-    b.className='level';
+    var b = document.createElement('button'); b.className='level';
     b.innerHTML =
       '<span class="lv-rank"><span class="lv-kicker">LEVEL</span><span class="lv-stars">'+stars(idx+1)+'</span></span>'+
       '<span class="lv-main"><span class="lv-name">'+m.name+'</span><span class="lv-desc">'+m.desc+'</span></span>'+
       '<span class="lv-count"><b>'+byLevel[lv].length+'</b>色</span>';
-    b.addEventListener('click', function(){ startQuiz([lv]); });
+    b.addEventListener('click', function(){ startLevel([lv], m.name); });
     levelsBox.appendChild(b);
   });
   if(levelsInData.length>1){
-    var mb = document.createElement('button');
-    mb.className='level';
+    var mb = document.createElement('button'); mb.className='level';
     mb.innerHTML =
       '<span class="lv-rank"><span class="lv-kicker">LEVEL</span><span class="lv-stars">★★★</span></span>'+
       '<span class="lv-main"><span class="lv-name">ミックス</span><span class="lv-desc">和も世界もまとめて出題</span></span>'+
       '<span class="lv-count"><b>'+COLORS.length+'</b>色</span>';
-    mb.addEventListener('click', function(){ startQuiz(levelsInData); });
+    mb.addEventListener('click', function(){ startLevel(levelsInData, 'ミックス'); });
     levelsBox.appendChild(mb);
   }
   el('poolInfo').textContent = '出題プール：' + levelsInData.map(function(lv){
     return (meta[lv]?meta[lv].name:('Lv'+lv))+' '+byLevel[lv].length+'色';
   }).join(' ／ ');
 
-  var state = null;
-  function pool(levels){ var p=[]; levels.forEach(function(lv){ p=p.concat(byLevel[lv]||[]); }); return p; }
+  el('toRecord').addEventListener('click', renderRecord);
+  el('quitBtn').addEventListener('click', function(){ show('home'); });
 
-  function buildQuestions(levels){
-    var p = pool(levels);
-    var answers = [], usedNames = {};
-    shuffle(p).forEach(function(c){
-      if(answers.length>=QN || usedNames[c.n]) return;
-      usedNames[c.n]=1; answers.push(c);
-    });
-    return answers.map(function(ans){
-      var sameFam = p.filter(function(c){ return c.f===ans.f && c.n!==ans.n && c.h!==ans.h; });
-      var picks=[], seen={}; seen[ans.n]=1;
-      shuffle(sameFam).forEach(function(c){ if(picks.length<3 && !seen[c.n]){ seen[c.n]=1; picks.push(c); } });
-      if(picks.length<3){
-        shuffle(p).forEach(function(c){ if(picks.length<3 && !seen[c.n] && c.h!==ans.h){ seen[c.n]=1; picks.push(c); } });
-      }
-      return { ans:ans, options:shuffle(picks.concat([ans])) };
-    });
-  }
-
-  function startQuiz(levels){
-    state = { qs:buildQuestions(levels), idx:0, score:0, log:[] };
-    show('quiz'); renderQ();
-  }
-  function show(which){
-    ['start','quiz','result'].forEach(function(s){ el(s).classList.toggle('hidden', s!==which); });
-    window.scrollTo(0,0);
-  }
-
+  /* ---------- 出題 ---------- */
   function renderDots(){
-    var box = el('dots'); box.innerHTML='';
-    var res = state.log;
+    var box=el('dots'); box.innerHTML=''; var res=game.log;
     for(var i=0;i<QN;i++){
-      var d = document.createElement('span');
-      d.className = 'dot' + (i<res.length ? (res[i].ok?' ok':' ng') : (i===res.length?' current':''));
-      d.textContent = i+1;
-      box.appendChild(d);
+      var d=document.createElement('span');
+      d.className='dot' + (i<res.length ? (res[i].ok?' ok':' ng') : (i===res.length?' current':''));
+      d.textContent=i+1; box.appendChild(d);
     }
   }
-
   function renderQ(){
-    var q = state.qs[state.idx];
+    var q=game.qs[game.idx];
     renderDots();
-    var sw = el('swatch');
-    sw.style.background = q.ans.h;
-    sw.classList.remove('reveal');
-    el('swatchHex').textContent = q.ans.h.toUpperCase();
-
-    var box = el('options'); box.innerHTML='';
+    var sw=el('swatch'); sw.style.background=q.ans.h; sw.classList.remove('reveal');
+    el('swatchHex').textContent=q.ans.h.toUpperCase();
+    var box=el('options'); box.innerHTML='';
     q.options.forEach(function(opt, i){
-      var b = document.createElement('button');
-      b.className='opt'; b._opt = opt;
-      b.innerHTML = '<span class="lbadge">'+LETTERS[i]+'</span><span class="lname">'+opt.n+'</span>';
+      var b=document.createElement('button'); b.className='opt'; b._opt=opt;
+      b.innerHTML='<span class="lbadge">'+LETTERS[i]+'</span><span class="lname">'+opt.n+'</span>';
       b.addEventListener('click', function(){ choose(b, opt, q); });
       box.appendChild(b);
     });
     el('feedback').classList.add('hidden');
   }
-
   function choose(btn, opt, q){
-    var buttons = el('options').querySelectorAll('.opt');
+    var buttons=el('options').querySelectorAll('.opt');
     var correct = opt.n===q.ans.n && opt.h===q.ans.h;
     buttons.forEach(function(b){
-      b.disabled = true;
-      var o = b._opt;
-      var badge = b.querySelector('.lbadge');
-      badge.style.background = o.h;
-      badge.style.color = textColor(o.h);
-      badge.classList.add('filled');
+      b.disabled=true; var o=b._opt; var badge=b.querySelector('.lbadge');
+      badge.style.background=o.h; badge.style.color=textColor(o.h); badge.classList.add('filled');
       var isCorrect = (o.n===q.ans.n && o.h===q.ans.h);
-      if(isCorrect){ b.classList.add('correct'); }
-      else if(b===btn){ b.classList.add('chosen'); }
-      else { b.classList.add('wrongdim'); }
+      if(isCorrect) b.classList.add('correct');
+      else if(b===btn) b.classList.add('chosen');
+      else b.classList.add('wrongdim');
     });
     el('swatch').classList.add('reveal');
-    if(correct){ state.score += PER; }
-    state.log.push({ c:q.ans, ok:correct });
+    if(correct) game.score += PER;
+    game.log.push({ c:q.ans, ok:correct });
     renderDots();
-
-    el('fbTag').className = 'fb-tag ' + (correct?'ok':'ng');
-    el('fbTag').textContent = correct ? '◎ 正解！' : '× 残念…';
-    el('fbName').textContent = q.ans.n;
-    el('fbYomi').textContent = q.ans.y;
-    el('fbDesc').textContent = q.ans.d || '';
-    el('fbDesc').style.display = q.ans.d ? '' : 'none';
+    el('fbTag').className='fb-tag '+(correct?'ok':'ng');
+    el('fbTag').textContent=correct?'◎ 正解！':'× 残念…';
+    el('fbName').textContent=q.ans.n;
+    el('fbYomi').textContent=q.ans.y;
+    el('fbDesc').textContent=q.ans.d||'';
+    el('fbDesc').style.display=q.ans.d?'':'none';
     el('feedback').classList.remove('hidden');
-    el('nextBtn').textContent = (state.idx+1<QN) ? '次へ →' : '結果を見る →';
+    el('nextBtn').textContent=(game.idx+1<QN)?'次へ →':'結果を見る →';
   }
-
   el('nextBtn').addEventListener('click', function(){
-    state.idx++;
-    if(state.idx<QN){ renderQ(); } else { renderResult(); }
+    game.idx++;
+    if(game.idx<QN) renderQ(); else renderResult();
   });
 
   function rankOf(score){
@@ -415,46 +557,123 @@
     return ['色の世界へようこそ','まずは一色ずつ覚えていこう。'];
   }
 
+  /* ---------- 記録 ---------- */
+  function recordDaily(dateStr, score, correct){
+    if(store.daily[dateStr]) return;   // 1日1回のみ
+    if(store.lastDaily===addDaysStr(dateStr,-1)) store.streak=(store.streak||0)+1;
+    else store.streak=1;
+    store.best=Math.max(store.best||0, store.streak);
+    store.lastDaily=dateStr;
+    store.daily[dateStr]={ n:dailyNumber(dateStr), score:score, correct:correct };
+    // daily は直近60日ぶんだけ保持
+    var keys=Object.keys(store.daily).sort();
+    while(keys.length>60){ delete store.daily[keys.shift()]; }
+  }
+  function recordPlay(label, score, log){
+    store.plays=(store.plays||0)+1; store.scoreSum=(store.scoreSum||0)+score;
+    store.history=store.history||[];
+    store.history.unshift({ d:todayStr(), label:label, score:score });
+    store.history=store.history.slice(0,200);
+    var qs=log.map(function(x){ return { h:x.c.h, name:x.c.n, y:x.c.y, ok:x.ok }; });
+    store.recent=qs.concat(store.recent||[]).slice(0,10);
+  }
+
   function renderResult(){
     show('result');
-    var correctCount = state.log.filter(function(x){return x.ok;}).length;
-    el('finalScore').textContent = state.score;
-    el('resultSub').textContent = QN+'問中'+correctCount+'問正解';
-    var r = rankOf(state.score);
-    el('rankText').textContent = r[0];
-    el('resultMsg').textContent = r[1];
+    var correctCount=game.log.filter(function(x){return x.ok;}).length;
+    if(game.mode==='daily') recordDaily(game.date, game.score, correctCount);
+    recordPlay(game.label, game.score, game.log);
+    save();
 
-    var arc = el('scoreArc');
-    var circ = 2 * Math.PI * 100;
-    arc.style.strokeDasharray = circ;
-    arc.style.strokeDashoffset = circ;
+    el('finalScore').textContent=game.score;
+    el('resultSub').textContent=QN+'問中'+correctCount+'問正解';
+    var r=rankOf(game.score);
+    el('rankText').textContent=r[0];
+    el('resultMsg').textContent=r[1];
+
+    var arc=el('scoreArc'), circ=2*Math.PI*100;
+    arc.style.strokeDasharray=circ; arc.style.strokeDashoffset=circ;
     arc.getBoundingClientRect();
-    arc.style.strokeDashoffset = circ * (1 - state.score/100);
+    arc.style.strokeDashoffset=circ*(1-game.score/100);
 
-    var rv = el('review'); rv.innerHTML='';
-    state.log.forEach(function(item, i){
-      var d = document.createElement('div');
-      d.className='rev';
-      d.innerHTML =
-        '<span class="num">'+(i+1)+'</span>'+
+    var dn=el('dailyNext');
+    if(game.mode==='daily'){
+      dn.classList.remove('hidden');
+      dn.innerHTML='🔥 '+currentStreak()+'日連続！<br>明日の0時に <b>#'+(game.n+1)+'</b> が届きます';
+      el('replayBtn').textContent='レベル別問題であそぶ';
+    }else{
+      dn.classList.add('hidden');
+      el('replayBtn').textContent='もう一度あそぶ';
+    }
+
+    var rv=el('review'); rv.innerHTML='';
+    game.log.forEach(function(item, i){
+      var d=document.createElement('div'); d.className='rev';
+      d.innerHTML='<span class="num">'+(i+1)+'</span>'+
         '<span class="sw" style="background:'+item.c.h+'"></span>'+
-        '<span class="info"><span class="nm">'+item.c.n+'</span>'+
-        '<span class="ym"> '+item.c.y+'</span></span>'+
+        '<span class="info"><span class="nm">'+item.c.n+'</span><span class="ym"> '+item.c.y+'</span></span>'+
         '<span class="mk '+(item.ok?'ok':'ng')+'">'+(item.ok?'○':'×')+'</span>';
       rv.appendChild(d);
     });
   }
 
-  el('replayBtn').addEventListener('click', function(){ show('start'); });
+  el('replayBtn').addEventListener('click', function(){
+    if(game && game.mode==='level' && game.levels) startLevel(game.levels, game.label);
+    else show('home');
+  });
+  el('homeBtn').addEventListener('click', function(){ show('home'); });
   el('shareBtn').addEventListener('click', function(){
-    var text = '色名MASTERで '+state.score+'点（'+rankOf(state.score)[0]+'）！\n世界の色の名前クイズ、あなたは何点とれる？';
-    var url = SITE_URL+'?v=2';
-    var share = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('色名MASTER,色の名前');
+    var text;
+    if(game.mode==='daily'){
+      text='🎨色名MASTER #'+game.n+' '+game.score+'点 🔥'+currentStreak()+'日連続\n世界の色の名前クイズ';
+    }else{
+      text='色名MASTERで '+game.score+'点（'+rankOf(game.score)[0]+'）！\n世界の色の名前クイズ、あなたは何点とれる？';
+    }
+    var url=SITE_URL+'?v=2';
+    var share='https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('色名MASTER,色の名前');
     window.open(share,'_blank','noopener');
   });
 
-  // 冒頭の広告を読み込む（常時表示の枠なので初回に1回だけ）
+  /* ---------- きろく ---------- */
+  function renderRecord(){
+    show('record');
+    el('recStreak').textContent=currentStreak();
+    el('recBest').textContent=store.best||0;
+    el('recPlays').textContent=store.plays||0;
+    el('recAvg').textContent=store.plays?Math.round(store.scoreSum/store.plays):0;
+
+    var rc=el('recRecent'); rc.innerHTML='';
+    if(!store.recent || !store.recent.length){ rc.innerHTML='<p class="rec-empty">まだ記録がありません。</p>'; }
+    else store.recent.forEach(function(q){
+      var d=document.createElement('div'); d.className='rev';
+      d.innerHTML='<span class="sw" style="background:'+q.h+'"></span>'+
+        '<span class="info"><span class="nm">'+q.name+'</span><span class="ym"> '+q.y+'</span></span>'+
+        '<span class="mk '+(q.ok?'ok':'ng')+'">'+(q.ok?'○':'×')+'</span>';
+      rc.appendChild(d);
+    });
+
+    var hl=el('recHistory'); hl.innerHTML='';
+    if(!store.history || !store.history.length){ hl.innerHTML='<p class="rec-empty">まだプレイ履歴がありません。</p>'; }
+    else store.history.slice(0,20).forEach(function(h){
+      var row=document.createElement('div'); row.className='hist-row';
+      row.innerHTML='<span><span class="hl">'+h.label+'</span> <span class="hd">'+jpDate(h.d)+'</span></span>'+
+        '<span class="hs">'+h.score+'点</span>';
+      hl.appendChild(row);
+    });
+  }
+  el('recBack').addEventListener('click', function(){ show('home'); });
+
+  /* ---------- 起動 ---------- */
+  renderHome();
+
+  // 広告：初回に1回だけ読み込み。埋まらなければ枠ごと畳む（空白防止）
   try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+  setTimeout(function(){
+    var ins=document.querySelector('#adTop .adsbygoogle');
+    if(ins && (ins.getAttribute('data-ad-status')==='unfilled' || ins.offsetHeight<10)){
+      el('adTop').style.display='none';
+    }
+  }, 2600);
 })();
 </script>
 </body>
