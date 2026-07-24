@@ -1095,7 +1095,7 @@ function checkMigrate(){
 }
 
 var STOP={};
-['の','に','は','を','た','が','で','て','と','し','れ','さ','も','な','だ','です','ます','ました','でした','する','した','いる','ある','なる','なった','ない','こと','もの','ものの','よう','それ','これ','あれ','ので','から','けど','でも','また','とても','すごく','すごい','ちょっと','やっぱり','たい','たく','ため','ところ','とき','そう','いう','という','といった','よく','まだ','もう','ずっと','とか','けれど','ほど','くらい','なんか','やはり','ほんと','ほんとに','本当','本当に','本','一冊','読む','読んだ','読み','読める','面白い','面白かった','おもしろい','おもしろかった','良い','良かった','よい','よかった','いい','著者','本書','作品','紹介','解説','出版','刊行','文庫','新書','単行本','シリーズ','など','たち','日本','世界一','小説','物語','作家','描く','描いた','受賞','発売','収録','待望','傑作','名作','話題','デビュー','ページ','長編','短編','ベストセラー','られる','される','ちゃん','さん','くん','大賞','ノミネート','候補','ミリオン','ミリオンセラー','本屋'].forEach(function(w){ STOP[w]=1; });
+['の','に','は','を','た','が','で','て','と','し','れ','さ','も','な','だ','です','ます','ました','でした','する','した','いる','ある','なる','なった','ない','こと','もの','ものの','よう','それ','これ','あれ','ので','から','けど','でも','また','とても','すごく','すごい','ちょっと','やっぱり','たい','たく','ため','ところ','とき','そう','いう','という','といった','よく','まだ','もう','ずっと','とか','けれど','ほど','くらい','なんか','やはり','ほんと','ほんとに','本当','本当に','本','一冊','読む','読んだ','読み','読める','面白い','面白かった','おもしろい','おもしろかった','良い','良かった','よい','よかった','いい','著者','本書','作品','紹介','解説','出版','刊行','文庫','新書','単行本','シリーズ','など','たち','日本','世界一','小説','物語','作家','描く','描いた','受賞','発売','収録','待望','傑作','名作','話題','デビュー','ページ','長編','短編','ベストセラー','られる','される','ちゃん','さん','くん','大賞','ノミネート','候補','ミリオン','ミリオンセラー','本屋','について','における','にとって','という','といった','ながら','あーはいはい','はいはい','こちら','あちら','そちら','とても','かなり','すぎる'].forEach(function(w){ STOP[w]=1; });
 
 function topWords(items, max){
   var freq={};
@@ -1105,7 +1105,20 @@ function topWords(items, max){
     var words=[];
     if(window.Intl&&Intl.Segmenter){
       var seg=new Intl.Segmenter('ja',{granularity:'word'});
-      for(var it of seg.segment(t)){ if(it.isWordLike) words.push(it.segment); }
+      var scriptOf=function(s){
+        if(/^[゠-ヿー・]+$/.test(s)) return 'kana';
+        if(/^[一-龯々〆ヶ]+$/.test(s)) return 'kanji';
+        return '';
+      };
+      var buf='', bufSc='';
+      var flush=function(){ if(buf) words.push(buf); buf=''; bufSc=''; };
+      for(var it of seg.segment(t)){
+        if(!it.isWordLike){ flush(); continue; }
+        var s=it.segment, sc=scriptOf(s);
+        if(buf&&sc&&sc===bufSc){ buf+=s; }
+        else { flush(); buf=s; bufSc=sc; }
+      }
+      flush();
     }else{
       words=t.split(/[\s、。！？!?・「」『』（）()]+/);
     }
@@ -1282,13 +1295,19 @@ function renderSummaryPage(ym, arr, who, mixed, pageNo, total){
   arr.forEach(function(b){ kwItems.push({t:b.note, ex:b.title}); kwItems.push({t:b.note, ex:b.title}); kwItems.push({t:b.desc||'', ex:b.title}); });
   var words=topWords(kwItems, 12).map(function(x){ return x.w; });
   var cols=4, colW=(W-2*M)/cols, rowY=[330,420,510];
-  ctx.fillStyle=IINK; ctx.font='40px '+DISP;
+  ctx.fillStyle=IINK;
+  var maxW=colW-14;
   words.slice(0,12).forEach(function(w,i){
     var col=i%cols, row=Math.floor(i/cols);
     var cx=M+colW*col+colW/2, cy=rowY[row];
-    var t=w; if(ctx.measureText(t).width>colW-16){ while(t.length>1&&ctx.measureText(t+'…').width>colW-16){ t=t.slice(0,-1); } t=t+'…'; }
+    var fs=40;
+    ctx.font=fs+'px '+DISP;
+    while(fs>24&&ctx.measureText(w).width>maxW){ fs-=2; ctx.font=fs+'px '+DISP; }
+    var t=w;
+    if(ctx.measureText(t).width>maxW){ while(t.length>1&&ctx.measureText(t+'…').width>maxW){ t=t.slice(0,-1); } t=t+'…'; }
     ctx.fillText(t, cx, cy);
   });
+  ctx.font='40px '+DISP;
   ctx.textAlign='left';
   // divider
   ctx.strokeStyle=ILINE; ctx.lineWidth=2;
