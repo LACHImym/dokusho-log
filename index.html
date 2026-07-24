@@ -141,6 +141,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 #ed-isbnst{ font-size:11px; color:var(--sub); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #ed-del{ color:var(--faint); background:none; }
 #shot{ width:100%; border-radius:10px; display:block; }
+#shots{ display:none; }
+#shots img{ width:100%; border-radius:10px; display:block; margin-bottom:10px; }
 #sheet .hint{ font-size:12px; color:var(--sub); margin:10px 2px; line-height:1.7; }
 #sheet .row{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
 .mhead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
@@ -239,7 +241,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <div id="overlay" class="modal">
   <div id="sheet">
     <img id="shot" alt="シェア画像">
-    <p class="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
+    <div id="shots"></div>
+    <p class="hint" id="hint">スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。</p>
     <div class="row">
       <button class="btn" id="txtcopy" hidden>テキストをコピー</button>
       <button class="btn" id="share" hidden>共有…</button>
@@ -1156,6 +1159,45 @@ function fontsReady(){
   return (document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
 }
 
+function loadCoverMap(books){
+  return Promise.all(books.map(function(b){
+    if(!b.cover) return Promise.resolve([b.id,null]);
+    return new Promise(function(res){
+      var im=new Image(); im.crossOrigin='anonymous';
+      var to=setTimeout(function(){ res([b.id,null]); }, 6000);
+      im.onload=function(){ clearTimeout(to); res([b.id,im]); };
+      im.onerror=function(){ clearTimeout(to); res([b.id,null]); };
+      im.src='https://images.weserv.nl/?url='+encodeURIComponent(String(b.cover).replace(/^https?:\/\//,''));
+    });
+  })).then(function(pairs){ var m={}; pairs.forEach(function(p){ m[p[0]]=p[1]; }); return m; });
+}
+function last12(ym){
+  var y=+ym.slice(0,4), m=+ym.slice(5,7), out=[];
+  for(var i=11;i>=0;i--){
+    var mm=m-i, yy=y;
+    while(mm<=0){ mm+=12; yy--; }
+    out.push(yy+'-'+String(mm).padStart(2,'0'));
+  }
+  return out;
+}
+function roundRectPath(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); return; }
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function drawShareIcon(ctx,x,y,s){
+  ctx.save();
+  ctx.fillStyle=IPAPER; ctx.strokeStyle=ILINE; ctx.lineWidth=1.5;
+  roundRectPath(ctx,x,y,s,s,s*0.28); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle=IINK; ctx.lineWidth=s*0.09; ctx.lineCap='round'; ctx.lineJoin='round';
+  var cx=x+s/2, top=y+s*0.26, bot=y+s*0.74;
+  ctx.beginPath(); ctx.moveTo(cx,top); ctx.lineTo(cx,bot); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-s*0.16,top+s*0.16); ctx.lineTo(cx,top); ctx.lineTo(cx+s*0.16,top+s*0.16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+s*0.22,y+s*0.52); ctx.lineTo(x+s*0.22,y+s*0.78); ctx.lineTo(x+s*0.78,y+s*0.78); ctx.lineTo(x+s*0.78,y+s*0.52); ctx.stroke();
+  ctx.restore();
+}
+
 function makeImage(ym){
   var arr=state.books.filter(function(b){
     return b.status!=='want'&&b.date.slice(0,7)===ym&&(state.filter==='*'||b.member===state.filter);
@@ -1163,117 +1205,190 @@ function makeImage(ym){
   if(!arr.length){ toast('この月の記録がまだありません。'); return; }
   var who=state.filter==='*'?CLUB:state.filter;
   var mixed=state.filter==='*';
-  Promise.all([loadCovers(arr.map(function(b){ return b.cover; }).filter(Boolean).slice(0,8)), fontsReady()])
-    .then(function(rs){ renderImage(ym, arr, rs[0], who, mixed); });
+  toast('まとめ画像を作成中…');
+  Promise.all([loadCoverMap(arr), fontsReady()])
+    .then(function(rs){ buildSlides(ym, arr, rs[0], who, mixed); })
+    .catch(function(){ buildSlides(ym, arr, {}, who, mixed); });
 }
-function renderImage(ym, arr, imgs, who, mixed){
+function buildSlides(ym, arr, coverMap, who, mixed){
+  var PER=6;
+  var bookPages=Math.ceil(arr.length/PER);
+  var total=1+bookPages;
+  var urls=[];
+  var u1=renderSummaryPage(ym, arr, who, mixed, 1, total);
+  if(u1) urls.push(u1);
+  for(var p=0;p<bookPages;p++){
+    var chunk=arr.slice(p*PER,(p+1)*PER);
+    var u=renderBookPage(ym, chunk, coverMap, mixed, p+2, total);
+    if(u) urls.push(u);
+  }
+  if(!urls.length){ toast('画像を作成できませんでした。'); return; }
+  presentSlides(urls, ym);
+}
+function pageFooter(ctx, W, H, pageNo, total){
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=ISUB; ctx.font='24px '+MONO;
+  ctx.fillText(pageNo+'/'+total, W/2, H-46);
+  ctx.textAlign='left';
+}
+function renderSummaryPage(ym, arr, who, mixed, pageNo, total){
   var W=1080, H=1350, M=90;
   var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   var ctx=cv.getContext('2d');
   ctx.fillStyle=IPAPER; ctx.fillRect(0,0,W,H);
   ctx.textBaseline='alphabetic';
-  ctx.fillStyle=ISUB;
-  ctx.font='24px '+MONO;
-  try{ ctx.letterSpacing='10px'; }catch(e){}
-  ctx.fillText('DOKUSHO LOG', M, 138);
+  // header title
+  ctx.fillStyle=IINK; ctx.font='600 46px '+DISP;
+  ctx.fillText(ymLabel(ym)+' の読書log', M, 96);
+  ctx.fillStyle=IACC; ctx.font='500 24px '+MONO;
+  ctx.fillText(TAG, M, 138);
+  // bento
+  var bw=282, bh=118, bx=W-M-bw, by=54;
+  ctx.fillStyle=IINK; roundRectPath(ctx,bx,by,bw,bh,26); ctx.fill();
+  ctx.fillStyle=IPAPER; ctx.font='600 26px '+DISP;
+  ctx.fillText(mixed?'みんなで':(who||''), bx+26, by+bh/2+9);
+  var num=String(arr.length);
+  ctx.textAlign='right'; ctx.font='600 74px '+DISP;
+  ctx.fillText(num, bx+bw-64, by+bh/2+26);
+  var nW=ctx.measureText(num).width;
+  ctx.textAlign='left'; ctx.font='500 26px '+DISP;
+  ctx.fillText('冊', bx+bw-58, by+bh/2+24);
+  // divider
+  ctx.strokeStyle=ILINE; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(M,190); ctx.lineTo(W-M,190); ctx.stroke();
+  // keyword grid
+  ctx.textAlign='center'; ctx.fillStyle=IACC; ctx.font='500 24px '+MONO;
+  try{ ctx.letterSpacing='4px'; }catch(e){}
+  ctx.fillText('keyword', W/2, 244);
   try{ ctx.letterSpacing='0px'; }catch(e){}
-  ctx.fillStyle=IINK;
-  ctx.font='600 56px '+DISP;
-  ctx.fillText(ymLabel(ym)+'の読書', M, 224);
-  ctx.fillStyle=ISUB;
-  ctx.font='26px '+MONO;
-  ctx.fillText(who||'', M, 274);
-  if(mixed){
-    var bw=250, bh=182, bx=W-M-bw, by=104;
-    ctx.fillStyle=IINK;
-    if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,24); ctx.fill(); }
-    else{ ctx.fillRect(bx,by,bw,bh); }
-    ctx.fillStyle=IPAPER;
-    ctx.globalAlpha=.55;
-    ctx.font='19px '+MONO;
-    try{ ctx.letterSpacing='4px'; }catch(e){}
-    ctx.fillText('BOOKS', bx+26, by+48);
-    try{ ctx.letterSpacing='0px'; }catch(e){}
-    ctx.globalAlpha=1;
-    ctx.font='600 96px '+DISP;
-    ctx.fillText(String(arr.length), bx+22, by+150);
-    var numW=ctx.measureText(String(arr.length)).width;
-    ctx.fillStyle=IACC;
-    ctx.font='600 32px '+DISP;
-    ctx.fillText('冊', bx+22+numW+12, by+148);
-  }
-  ctx.strokeStyle=ILINE;
-  ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(M,330); ctx.lineTo(W-M,330); ctx.stroke();
-  var maxLines=9;
-  var lineH=58, ly=396;
-  var shown=arr.slice(0, arr.length>maxLines?maxLines-1:maxLines);
-  var rightW=mixed?320:140;
-  ctx.font='500 33px '+DISP;
-  shown.forEach(function(b){
-    var maxTW=W-2*M-rightW;
-    var t='『'+b.title+'』';
-    if(ctx.measureText(t).width>maxTW){
-      var base=b.title;
-      while(base.length>1 && ctx.measureText('『'+base+'…』').width>maxTW){ base=base.slice(0,-1); }
-      t='『'+base+'…』';
-    }
-    ctx.fillStyle=IINK;
-    ctx.fillText(t, M, ly);
-    ctx.fillStyle=ISUB;
-    ctx.font='24px '+MONO;
-    ctx.textAlign='right';
-    ctx.fillText((mixed?b.member+'　':'')+md(b.date), W-M, ly-3);
-    ctx.textAlign='left';
-    ctx.font='500 33px '+DISP;
-    ly+=lineH;
-  });
-  if(arr.length>shown.length){
-    ctx.fillStyle=ISUB;
-    ctx.font='28px '+DISP;
-    ctx.fillText(mixed?('ほか '+(arr.length-shown.length)+'冊'):'ほかにも数冊', M, ly);
-  }
-  if(imgs.length){
-    var ch=110, gap=18;
-    var cw=imgs.map(function(im){ return Math.round(ch*im.width/im.height); });
-    var total=cw.reduce(function(a,b){ return a+b; },0)+gap*(cw.length-1);
-    while(total>W-2*M && cw.length>1){
-      imgs=imgs.slice(0,imgs.length-1); cw.pop();
-      total=cw.reduce(function(a,b){ return a+b; },0)+gap*(cw.length-1);
-    }
-    var cx=(W-total)/2, cy=ly+16;
-    imgs.forEach(function(im,i){
-      ctx.drawImage(im, cx, cy, cw[i], ch);
-      ctx.strokeStyle=ILINE; ctx.lineWidth=1;
-      ctx.strokeRect(cx+0.5, cy+0.5, cw[i]-1, ch-1);
-      cx+=cw[i]+gap;
-    });
-    ly=cy+ch+10;
-  }
   var kwItems=[];
-  arr.forEach(function(b){
-    kwItems.push({t:b.note, ex:b.title});
-    kwItems.push({t:b.note, ex:b.title});
-    kwItems.push({t:b.desc||'', ex:b.title});
+  arr.forEach(function(b){ kwItems.push({t:b.note, ex:b.title}); kwItems.push({t:b.note, ex:b.title}); kwItems.push({t:b.desc||'', ex:b.title}); });
+  var words=topWords(kwItems, 12).map(function(x){ return x.w; });
+  var cols=4, colW=(W-2*M)/cols, rowY=[330,420,510];
+  ctx.fillStyle=IINK; ctx.font='40px '+DISP;
+  words.slice(0,12).forEach(function(w,i){
+    var col=i%cols, row=Math.floor(i/cols);
+    var cx=M+colW*col+colW/2, cy=rowY[row];
+    var t=w; if(ctx.measureText(t).width>colW-16){ while(t.length>1&&ctx.measureText(t+'…').width>colW-16){ t=t.slice(0,-1); } t=t+'…'; }
+    ctx.fillText(t, cx, cy);
   });
-  var words=topWords(kwItems, 6);
-  drawKeywords(ctx, W, M, ly+40, 1230, words);
   ctx.textAlign='left';
-  ctx.textBaseline='alphabetic';
+  // divider
+  ctx.strokeStyle=ILINE; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(M,610); ctx.lineTo(W-M,610); ctx.stroke();
+  // past year bar chart
+  ctx.fillStyle=IINK; ctx.font='600 34px '+DISP;
+  ctx.fillText('過去1年の記録', M, 672);
+  var months=last12(ym);
+  var counts=months.map(function(mm){
+    return state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===mm&&(state.filter==='*'||b.member===state.filter); }).length;
+  });
+  var maxC=Math.max.apply(null, counts.concat([1]));
+  var chartTop=760, chartBot=1150, plot=chartBot-chartTop;
+  var slot=(W-2*M)/12, barW=slot*0.5;
+  months.forEach(function(mm,i){
+    var h=Math.round(counts[i]/maxC*plot);
+    if(counts[i]>0&&h<6) h=6;
+    var x=M+slot*i+(slot-barW)/2, y=chartBot-h;
+    ctx.fillStyle=(i===11)?IACC:IINK;
+    roundRectPath(ctx,x,y,barW,h,6); ctx.fill();
+  });
+  ctx.strokeStyle=ILINE; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(M,chartBot); ctx.lineTo(W-M,chartBot); ctx.stroke();
+  ctx.fillStyle=ISUB; ctx.font='22px '+MONO;
+  ctx.textAlign='center';
+  ctx.fillText(ymLabel(months[0]), M+slot*0.5+40, chartBot+40);
   ctx.fillStyle=IACC;
-  ctx.font='500 28px '+MONO;
-  ctx.fillText(TAG, M, 1290);
-  ctx.fillStyle=ISUB;
-  ctx.font='26px '+DISP;
-  ctx.textAlign='right';
-  ctx.fillText('読書log', W-M, 1290);
-  ctx.textAlign='left';
-  var url;
-  try{ url=cv.toDataURL('image/png'); }
-  catch(e){ if(imgs.length){ renderImage(ym, arr, [], who, mixed); } return; }
-  presentImage(url, 'dokusho-'+ym+'.png');
+  ctx.fillText((+ym.slice(5,7))+'月', M+slot*11.5, chartBot+40);
+  ctx.textAlign='left'; ctx.fillStyle=IINK;
+  pageFooter(ctx, W, H, pageNo, total);
+  try{ return cv.toDataURL('image/png'); }catch(e){ return null; }
+}
+function drawBookCard(ctx, b, cover, x, y, cw, mixed){
+  var coverH=Math.round(cw*1.18);
+  // cover
+  ctx.save();
+  roundRectPath(ctx,x,y,cw,coverH,16); ctx.clip();
+  ctx.fillStyle='#ece9e2'; ctx.fillRect(x,y,cw,coverH);
+  if(cover){
+    var scale=Math.min(cw/cover.width,coverH/cover.height);
+    var dw=cover.width*scale, dh=cover.height*scale;
+    ctx.drawImage(cover, x+(cw-dw)/2, y+(coverH-dh)/2, dw, dh);
+  }else{
+    ctx.fillStyle='#b7b3a8'; ctx.textAlign='center'; ctx.font='500 22px '+MONO;
+    ctx.fillText('NO', x+cw/2, y+coverH/2-6);
+    ctx.fillText('IMAGE', x+cw/2, y+coverH/2+24);
+    ctx.textAlign='left';
+  }
+  ctx.restore();
+  ctx.strokeStyle=ILINE; ctx.lineWidth=1; roundRectPath(ctx,x+0.5,y+0.5,cw-1,coverH-1,16); ctx.stroke();
+  drawShareIcon(ctx, x+cw-42, y+12, 30);
+  var ty=y+coverH+34;
+  if(b.genre){ ctx.fillStyle=ISUB; ctx.font='21px '+DISP; ctx.fillText(b.genre, x, ty); ty+=30; }
+  ctx.fillStyle=IINK; ctx.font='600 27px '+DISP;
+  var tl=wrapLines(ctx, '『'+b.title+'』', cw);
+  if(tl.length>2){ tl=tl.slice(0,2); tl[1]=tl[1].slice(0,-1)+'…』'; }
+  tl.forEach(function(l){ ctx.fillText(l, x, ty); ty+=34; });
+  ty+=4;
+  // member pill + date + stars
+  var c=memCol(b.member);
+  ctx.font='500 18px '+MONO;
+  var pw=ctx.measureText(b.member).width+22, ph=26;
+  ctx.fillStyle=c[0]; roundRectPath(ctx,x,ty-19,pw,ph,7); ctx.fill();
+  ctx.fillStyle=c[1]; ctx.fillText(b.member, x+11, ty);
+  var rx=x+pw+12;
+  ctx.fillStyle=ISUB; ctx.font='20px '+MONO;
+  ctx.fillText(md(b.date), rx, ty);
+  rx+=ctx.measureText(md(b.date)).width+12;
+  if(b.rating){ ctx.fillStyle=IACC; ctx.font='20px '+SANS; ctx.fillText('★★★★★'.slice(0,b.rating), rx, ty); }
+  ty+=34;
+  if(b.note){
+    ctx.fillStyle=ISUB; ctx.font='21px '+DISP;
+    var nl=wrapLines(ctx, b.note, cw);
+    if(nl.length>2){ nl=nl.slice(0,2); nl[1]=nl[1].slice(0,-1)+'…'; }
+    nl.forEach(function(l){ ctx.fillText(l, x, ty); ty+=28; });
+  }
+}
+function renderBookPage(ym, books, coverMap, mixed, pageNo, total){
+  var W=1080, H=1350, M=70;
+  var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle=IPAPER; ctx.fillRect(0,0,W,H);
+  ctx.textBaseline='alphabetic';
+  ctx.fillStyle=IINK; ctx.font='600 44px '+DISP;
+  ctx.fillText(ymLabel(ym)+' の読書log', M, 100);
+  var gap=28, cols=3, cw=Math.floor((W-2*M-gap*(cols-1))/cols);
+  var rowH=545, top=150;
+  books.forEach(function(b,i){
+    var col=i%cols, row=Math.floor(i/cols);
+    var x=M+col*(cw+gap), y=top+row*rowH;
+    drawBookCard(ctx, b, coverMap[b.id]||null, x, y, cw, mixed);
+  });
+  pageFooter(ctx, W, H, pageNo, total);
+  try{ return cv.toDataURL('image/png'); }catch(e){ return null; }
+}
+function presentSlides(urls, ym){
+  $('shot').style.display='none';
+  var box=$('shots'); box.style.display='block';
+  box.innerHTML=urls.map(function(u,i){ return '<img src="'+u+'" alt="まとめ '+(i+1)+'枚目">'; }).join('');
+  $('txtcopy').hidden=true; $('share').hidden=true;
+  $('hint').textContent='スマホは各画像を長押しで保存できます。'+(urls.length>1?'（全'+urls.length+'枚）':'');
+  var dl=$('dl');
+  dl.textContent=urls.length>1?('画像を保存（'+urls.length+'枚）'):'画像を保存';
+  dl.onclick=function(){
+    urls.forEach(function(u,i){
+      setTimeout(function(){
+        var a=document.createElement('a'); a.href=u; a.download='dokusho-'+ym+'-'+(i+1)+'.png'; a.click();
+      }, i*450);
+    });
+  };
+  $('overlay').classList.add('on');
 }
 function presentImage(url, fname, book){
+  $('shots').style.display='none'; $('shots').innerHTML='';
+  $('shot').style.display='block';
+  $('hint').textContent='スマホは画像を長押し→「写真に保存」または「コピー」で、そのままMisskeyに貼れます。';
+  $('dl').textContent='画像を保存';
   $('shot').src=url;
   $('overlay').classList.add('on');
   var tc=$('txtcopy');
