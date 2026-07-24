@@ -1256,6 +1256,18 @@ function renderSummaryPage(ym, arr, who, mixed, pageNo, total){
   ctx.fillText(ymLabel(ym)+' の読書log', M, 96);
   ctx.fillStyle=IACC; ctx.font='500 24px '+MONO;
   ctx.fillText(TAG, M, 138);
+  // bento (ALLのまとめのみ「みんなで◯冊」)
+  if(mixed){
+    var bw=282, bh=118, bx=W-M-bw, by=54;
+    ctx.fillStyle=IINK; roundRectPath(ctx,bx,by,bw,bh,26); ctx.fill();
+    ctx.textAlign='left'; ctx.fillStyle=IPAPER; ctx.font='600 26px '+DISP;
+    ctx.fillText('みんなで', bx+26, by+bh/2+9);
+    var num=String(arr.length);
+    ctx.textAlign='right'; ctx.font='600 74px '+DISP;
+    ctx.fillText(num, bx+bw-64, by+bh/2+26);
+    ctx.textAlign='left'; ctx.font='500 26px '+DISP;
+    ctx.fillText('冊', bx+bw-58, by+bh/2+24);
+  }
   // divider
   ctx.strokeStyle=ILINE; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(M,190); ctx.lineTo(W-M,190); ctx.stroke();
