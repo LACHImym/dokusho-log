@@ -1288,6 +1288,15 @@ function renderSummaryPage(ym, arr, who, mixed, pageNo, total){
     ctx.fillText(num, bx+pad, baseY);
     ctx.font='500 '+unitFs+'px '+DISP;
     ctx.fillText('冊', bx+pad+numW+8, baseY);
+  }else if(who){
+    // 個人のまとめ: 右上にその人の名前ピル（本人カラー）
+    ctx.font='600 30px '+DISP;
+    var nmW=ctx.measureText(who).width, padX=26, ph=58;
+    var pw=nmW+2*padX, px=W-M-pw, py=52;
+    var c=memCol(who);
+    ctx.fillStyle=c[0]; roundRectPath(ctx,px,py,pw,ph,ph/2); ctx.fill();
+    ctx.fillStyle=c[1]; ctx.textAlign='left';
+    ctx.fillText(who, px+padX, py+ph/2+11);
   }
   // divider
   ctx.strokeStyle=ILINE; ctx.lineWidth=2;
