@@ -1252,7 +1252,13 @@ function buildSlides(ym, arr, coverMap, who, mixed){
     if(u) urls.push(u);
   }
   if(!urls.length){ toast('画像を作成できませんでした。'); return; }
-  presentSlides(urls, ym);
+  presentSlides(urls, ym, makeMonthText(ym, arr, who, mixed));
+}
+function makeMonthText(ym, arr, who, mixed){
+  var head=ymLabel(ym)+' の読書log';
+  var sub=mixed?('みんなで '+arr.length+'冊'):(who||'');
+  var lines=arr.map(function(b){ return md(b.date)+' 『'+b.title+'』'+(b.author||''); });
+  return head+(sub?('\n'+sub):'')+'\n'+lines.join('\n')+'\n'+TAG+' '+APP_URL;
 }
 function pageFooter(ctx, W, H, pageNo, total){
   ctx.textAlign='center'; ctx.textBaseline='alphabetic';
@@ -1417,7 +1423,7 @@ function renderBookPage(ym, books, coverMap, mixed, pageNo, total){
   pageFooter(ctx, W, H, pageNo, total);
   try{ return cv.toDataURL('image/png'); }catch(e){ return null; }
 }
-function presentSlides(urls, ym){
+function presentSlides(urls, ym, monthText){
   $('shot').style.display='none';
   var wrap=$('shotswrap'), box=$('shots');
   wrap.style.display='block';
@@ -1433,7 +1439,10 @@ function presentSlides(urls, ym){
   box.onscroll=sync;
   $('shotprev').onclick=function(){ box.scrollTo({left:(idx()-1)*box.clientWidth, behavior:'smooth'}); };
   $('shotnext').onclick=function(){ box.scrollTo({left:(idx()+1)*box.clientWidth, behavior:'smooth'}); };
-  $('txtcopy').hidden=true; $('share').hidden=true;
+  $('share').hidden=true;
+  var tc=$('txtcopy');
+  if(monthText){ tc.hidden=false; tc.textContent='テキストでコピー'; tc.onclick=function(){ copyText(monthText); }; }
+  else{ tc.hidden=true; }
   $('hint').textContent=urls.length>1?('‹ ›で切り替え・スマホは各画像を長押しで保存できます。（全'+urls.length+'枚）'):'スマホは画像を長押しで保存できます。';
   var dl=$('dl');
   dl.textContent=urls.length>1?('画像を保存（'+urls.length+'枚）'):'画像を保存';
@@ -1493,93 +1502,61 @@ function makeBookImage(id){
     .then(function(rs){ renderBookImage(b, rs[0][0]||null); });
 }
 function renderBookImage(b, cover){
-  var W=1080, H=1080, M=90;
-  var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  var W=1080, M=80, innerW=W-2*M;
+  var cv=document.createElement('canvas'); cv.width=W; cv.height=200;
   var ctx=cv.getContext('2d');
-  ctx.fillStyle=IPAPER; ctx.fillRect(0,0,W,H);
   ctx.textBaseline='alphabetic';
-  ctx.fillStyle=ISUB;
-  ctx.font='24px '+MONO;
-  try{ ctx.letterSpacing='10px'; }catch(e){}
-  ctx.fillText('DOKUSHO LOG', M, 116);
-  try{ ctx.letterSpacing='0px'; }catch(e){}
-  ctx.textAlign='right';
-  ctx.font='26px '+MONO;
-  if(b.status==='want'){
-    ctx.fillStyle=IACC;
-    ctx.fillText('積読', W-M, 116);
-    ctx.fillStyle=ISUB;
-  }else{
-    var dp=b.date.split('-');
-    ctx.fillText((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' 読了', W-M, 116);
-  }
-  ctx.textAlign='center';
-  var y;
+  // 表紙は大きく（縦は伸びてOK・正方形にこだわらない）
+  var coverW=0, coverH=0;
   if(cover){
-    var maxS=460;
-    var chh=maxS, cww=Math.round(chh*cover.width/cover.height);
-    if(cww>maxS){ cww=maxS; chh=Math.round(cww*cover.height/cover.width); }
-    var cx=(W-cww)/2, cy=170+(maxS-chh)/2;
-    ctx.drawImage(cover, cx, cy, cww, chh);
-    ctx.strokeStyle=ILINE; ctx.lineWidth=1;
-    ctx.strokeRect(cx+0.5, cy+0.5, cww-1, chh-1);
-    y=710;
-  }else{
-    ctx.font='600 60px '+DISP;
-    var estT=wrapLines(ctx, '『'+b.title+'』', W-2*M).slice(0,3);
-    var blockH=estT.length*88+(b.author?50:0)+(b.rating?52:0);
-    if(b.note){
-      ctx.font='44px '+DISP;
-      blockH+=70+Math.min(3, wrapLines(ctx, '「'+b.note+'」', W-2*M).length)*70;
-    }
-    y=Math.max(280, 620-Math.round(blockH/2));
+    var sc=Math.min(innerW/cover.width, 800/cover.height);
+    coverW=Math.round(cover.width*sc); coverH=Math.round(cover.height*sc);
   }
-  var tfs=cover?46:60, tlh=cover?68:88, tmax=cover?2:3;
-  ctx.fillStyle=IINK;
+  var tfs=cover?48:60, tlh=cover?68:86;
   ctx.font='600 '+tfs+'px '+DISP;
-  var tl=wrapLines(ctx, '『'+b.title+'』', W-2*M);
-  if(tl.length>tmax){ tl=tl.slice(0,tmax); tl[tmax-1]=tl[tmax-1].slice(0,-1)+'…』'; }
-  tl.forEach(function(l){ ctx.fillText(l, W/2, y); y+=tlh; });
-  if(b.author){
-    ctx.fillStyle=ISUB;
-    ctx.font='27px '+DISP;
-    y+=6;
-    ctx.fillText(b.author, W/2, y);
-    y+=44;
+  var tl=wrapLines(ctx,'\u300e'+b.title+'\u300f',innerW);
+  if(tl.length>3){ tl=tl.slice(0,3); tl[2]=tl[2].slice(0,-1)+'\u2026\u300f'; }
+  var nfs=cover?36:44, nlh=cover?56:70, nl=[];
+  if(b.note){ ctx.font=nfs+'px '+DISP; nl=wrapLines(ctx,'\u300c'+b.note+'\u300d',innerW); var nmax=cover?2:3; if(nl.length>nmax){ nl=nl.slice(0,nmax); nl[nmax-1]=nl[nmax-1].slice(0,-1)+'\u2026\u300d'; } }
+  var headerBottom=150;
+  var coverBottom=headerBottom+(cover?coverH:0);
+  var gap1=cover?46:56;
+  var H=Math.max(1000, coverBottom+gap1+tl.length*tlh+(b.author?52:0)+(b.rating?58:0)+(nl.length?((cover?34:48)+nl.length*nlh):0)+130);
+  cv.height=H;
+  ctx.textBaseline='alphabetic';
+  ctx.fillStyle=IPAPER; ctx.fillRect(0,0,W,H);
+  // header
+  ctx.fillStyle=ISUB; ctx.textAlign='left'; ctx.font='24px '+MONO;
+  try{ ctx.letterSpacing='10px'; }catch(e){} ctx.fillText('DOKUSHO LOG', M, 100); try{ ctx.letterSpacing='0px'; }catch(e){}
+  ctx.textAlign='right'; ctx.font='26px '+MONO;
+  if(b.status==='want'){ ctx.fillStyle=IACC; ctx.fillText('\u7a4d\u8aad', W-M, 100); ctx.fillStyle=ISUB; }
+  else{ var dp=b.date.split('-'); ctx.fillText((+dp[0])+'.'+(+dp[1])+'.'+(+dp[2])+' \u8aad\u4e86', W-M, 100); }
+  // cover（大きく中央）
+  if(cover){
+    var cx=(W-coverW)/2;
+    ctx.drawImage(cover, cx, headerBottom, coverW, coverH);
+    ctx.strokeStyle=ILINE; ctx.lineWidth=1; ctx.strokeRect(cx+0.5, headerBottom+0.5, coverW-1, coverH-1);
   }
+  // 本文（中央）
+  ctx.textAlign='center';
+  var y=coverBottom+gap1;
+  ctx.fillStyle=IINK; ctx.font='600 '+tfs+'px '+DISP;
+  tl.forEach(function(l){ y+=tlh*0.78; ctx.fillText(l,W/2,y); y+=tlh*0.22; });
+  if(b.author){ ctx.fillStyle=ISUB; ctx.font='28px '+DISP; y+=42; ctx.fillText(b.author,W/2,y); y+=10; }
   if(b.rating){
-    var sf='★★★★★'.slice(0,b.rating), se='☆☆☆☆☆'.slice(0,5-b.rating);
-    ctx.font='34px '+SANS;
-    var w1=ctx.measureText(sf).width, w2=ctx.measureText(se).width;
-    var sx0=(W-(w1+w2))/2;
-    ctx.textAlign='left';
-    ctx.fillStyle=IACC;
-    ctx.fillText(sf, sx0, y+6);
-    ctx.fillStyle='#d8d5cb';
-    ctx.fillText(se, sx0+w1, y+6);
-    ctx.textAlign='center';
-    y+=52;
+    var sf='\u2605\u2605\u2605\u2605\u2605'.slice(0,b.rating), se='\u2606\u2606\u2606\u2606\u2606'.slice(0,5-b.rating);
+    ctx.font='36px '+SANS; var w1=ctx.measureText(sf).width, w2=ctx.measureText(se).width; var sx=(W-(w1+w2))/2;
+    y+=48; ctx.textAlign='left'; ctx.fillStyle=IACC; ctx.fillText(sf,sx,y); ctx.fillStyle='#d8d5cb'; ctx.fillText(se,sx+w1,y); ctx.textAlign='center';
   }
-  if(b.note){
-    ctx.fillStyle=IINK;
-    var nfs=cover?38:44, nlh=cover?60:70;
-    ctx.font=nfs+'px '+DISP;
-    var nl=wrapLines(ctx, '「'+b.note+'」', W-2*M);
-    if(nl.length>3){ nl=nl.slice(0,3); nl[2]=nl[2].slice(0,-1)+'…」'; }
-    y+=cover?46:70;
-    nl.forEach(function(l){
-      if(y>960) return;
-      ctx.fillText(l, W/2, y); y+=nlh;
-    });
+  if(nl.length){
+    ctx.fillStyle=IINK; ctx.font=nfs+'px '+DISP; y+=cover?34:48;
+    nl.forEach(function(l){ y+=nlh*0.78; ctx.fillText(l,W/2,y); y+=nlh*0.22; });
   }
-  ctx.textAlign='left';
-  ctx.fillStyle=IACC;
-  ctx.font='500 28px '+MONO;
-  ctx.fillText(TAG, M, 1010);
-  ctx.fillStyle=ISUB;
-  ctx.font='26px '+DISP;
-  ctx.textAlign='right';
-  ctx.fillText(b.member||'読書log', W-M, 1010);
+  // footer
+  ctx.textAlign='left'; ctx.fillStyle=IACC; ctx.font='500 28px '+MONO;
+  ctx.fillText(TAG, M, H-46);
+  ctx.fillStyle=ISUB; ctx.font='26px '+DISP; ctx.textAlign='right';
+  ctx.fillText(b.member||'\u8aad\u66f8log', W-M, H-46);
   ctx.textAlign='left';
   var url;
   try{ url=cv.toDataURL('image/png'); }
