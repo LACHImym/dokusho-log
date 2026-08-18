@@ -69,6 +69,24 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .bnum{ display:flex; align-items:baseline; gap:3px; }
 .bbig{ font-size:34px; font-weight:700; letter-spacing:-0.03em; line-height:1; }
 .bunit{ font-size:13px; font-weight:500; opacity:.85; }
+#assignwrap{ margin-bottom:10px; }
+.acard{ background:var(--accent); border-radius:16px; padding:14px 16px; display:flex; gap:14px; align-items:center; }
+.acard .alabel{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:var(--on-accent); opacity:.85; }
+.acard .cv{ width:52px; border-radius:5px; border:1px solid rgba(0,0,0,.12); flex:none; display:block; }
+.acard .noimg{ width:52px; height:74px; border-radius:5px; background:rgba(255,255,255,.35); color:var(--on-accent); font-family:var(--mono); font-size:8px; display:flex; align-items:center; justify-content:center; text-align:center; flex:none; opacity:.8; }
+.acard .abody{ flex:1; min-width:0; color:var(--on-accent); }
+.acard .at{ font-size:15px; font-weight:600; line-height:1.4; margin-top:3px; }
+.acard .aauthor{ font-size:12px; opacity:.85; margin-top:2px; }
+.acard .anote{ font-size:12px; opacity:.9; margin-top:4px; line-height:1.5; }
+.acard .aedit{ flex:none; align-self:flex-start; background:rgba(255,255,255,.25); border:none; color:var(--on-accent); border-radius:8px; padding:5px 11px; font-size:12px; font-weight:600; font-family:var(--sans); cursor:pointer; }
+.acard .aedit:active{ transform:scale(.96); }
+#a-set{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:none; border:1px dashed var(--border-strong,rgba(19,19,17,.25)); border-color:var(--line); color:var(--sub); border-radius:14px; padding:13px; font-size:13px; font-weight:600; font-family:var(--sans); cursor:pointer; }
+#a-set:active{ transform:scale(.99); }
+#asheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
+#asheet input#a-title{ font-size:16px; font-weight:500; }
+#asheet .isbnrow{ display:block; }
+#asheet input#a-isbn{ width:100%; font-family:var(--mono); font-size:13px; }
+#a-isbnst{ font-size:11px; color:var(--sub); display:block; margin-top:4px; }
 #recbtn{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--muted); border:none; color:var(--ink); border-radius:16px; padding:16px; font-size:15px; font-weight:600; font-family:var(--sans); cursor:pointer; margin-bottom:4px; }
 #recbtn:active{ transform:scale(.99); }
 #recbtn .plus{ width:24px; height:24px; border-radius:50%; background:var(--ink); color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:16px; }
@@ -226,6 +244,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 
 <div id="bento"></div>
 
+<div id="assignwrap"></div>
+
 <button id="recbtn"><span class="plus">＋</span>記録する</button>
 
 <div id="postbox"></div>
@@ -287,6 +307,22 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
         <button id="want">積読</button>
         <button id="add">読了</button>
       </span>
+    </div>
+  </div>
+</div>
+
+<div id="assignmodal" class="modal">
+  <div id="asheet">
+    <div class="mhead"><span>今月の課題図書</span><button class="xbtn" id="aclose">✕</button></div>
+    <input type="text" id="a-title" placeholder="*本のタイトル" autocomplete="off">
+    <div class="isbnrow">
+      <input type="text" id="a-isbn" placeholder="ISBN（入れると表紙・著者を取得）" inputmode="numeric" autocomplete="off">
+      <span id="a-isbnst"></span>
+    </div>
+    <input type="text" id="a-note" placeholder="ひとこと（課題図書の紹介・任意）" maxlength="80" autocomplete="off">
+    <div class="datebtns">
+      <button class="btn" id="a-clear" hidden>解除</button>
+      <button class="btn save" id="a-save" style="margin-left:auto;">設定</button>
     </div>
   </div>
 </div>
@@ -359,7 +395,7 @@ var SANS="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
 var MONO="'IBM Plex Mono','Hiragino Kaku Gothic ProN',monospace";
 var NOTE_MAX=80;
 
-var state={me:'', members:[], books:[], editing:null, filter:'*', viewMonth:null};
+var state={me:'', members:[], books:[], editing:null, filter:'*', viewMonth:null, assigns:{}};
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -406,11 +442,14 @@ function normBook(b){ b.desc=b.description||''; b.status=b.status||'read'; b.rat
 function loadAll(){
   return Promise.all([
     api('members?select=name&order=name.asc'),
-    api('books?select=*&order=date.desc,created_at.desc&limit=2000')
+    api('books?select=*&order=date.desc,created_at.desc&limit=2000'),
+    api('assignments?select=*').catch(function(){ return []; })
   ]).then(function(rs){
     state.members=rs[0].map(function(m){ return m.name; });
     state.books=rs[1].map(normBook);
-    lsSet('yonda-cache-v1', JSON.stringify({members:state.members, books:state.books}));
+    state.assigns={};
+    (rs[2]||[]).forEach(function(a){ state.assigns[a.ym]=a; });
+    lsSet('yonda-cache-v1', JSON.stringify({members:state.members, books:state.books, assigns:state.assigns}));
     $('net').classList.remove('on');
   });
 }
@@ -446,6 +485,45 @@ function cardHtml(b){
     '</div>';
 }
 
+function renderAssign(){
+  var nowYm=today().slice(0,7);
+  var targetYm=state.viewMonth||nowYm;
+  var a=state.assigns[targetYm];
+  var isCurrent=targetYm===nowYm;
+  var box=$('assignwrap');
+  if(a&&a.title){
+    var canEdit=isCurrent&&!!state.me;
+    box.innerHTML='<div class="acard">'+
+      (a.cover?'<img class="cv" src="'+esc(a.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
+      '<div class="abody"><div class="alabel">'+(isCurrent?'今月の課題図書':ymLabel(targetYm)+'の課題図書')+'</div>'+
+      '<div class="at">『'+esc(a.title)+'』</div>'+
+      (a.author?'<div class="aauthor">'+esc(a.author)+'</div>':'')+
+      (a.note?'<div class="anote">'+esc(a.note)+'</div>':'')+
+      '</div>'+
+      (canEdit?'<button class="aedit" id="a-edit">変更</button>':'')+
+    '</div>';
+    if(canEdit) $('a-edit').onclick=function(){ openAssign(); };
+  }else if(isCurrent&&state.me){
+    box.innerHTML='<button id="a-set"><span style="font-size:16px;">＋</span>今月の課題図書を設定</button>';
+    $('a-set').onclick=function(){ openAssign(); };
+  }else{
+    box.innerHTML='';
+  }
+}
+function openAssign(){
+  if(!state.me){ openPick('設定するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+  var a=state.assigns[today().slice(0,7)]||{};
+  $('a-title').value=a.title||'';
+  $('a-isbn').value=a.isbn||'';
+  $('a-note').value=a.note||'';
+  $('a-isbnst').textContent='';
+  apending=a.title?{isbn:a.isbn||'',author:a.author||'',cover:a.cover||'',genre:a.genre||'',desc:a.description||''}:null;
+  $('a-clear').hidden=!(a&&a.title);
+  $('assignmodal').classList.add('on');
+  setTimeout(function(){ $('a-title').focus(); }, 50);
+}
+function closeAssign(){ $('assignmodal').classList.remove('on'); }
+
 function render(){
   var nowYm=today().slice(0,7), nowY=today().slice(0,4);
   var clubM=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===nowYm; }).length;
@@ -453,6 +531,8 @@ function render(){
   $('bento').innerHTML=
     '<div class="bcard dark"><span class="blabel">今月<br><small>みんなで</small></span><span class="bnum"><span class="bbig">'+clubM+'</span><span class="bunit">冊</span></span></div>'+
     '<div class="bcard hot"><span class="blabel">今年<br><small>みんなで</small></span><span class="bnum"><span class="bbig">'+clubY+'</span><span class="bunit">冊</span></span></div>';
+
+  renderAssign();
 
   var f=$('filter');
   if(state.members.length){
@@ -574,6 +654,53 @@ function closeEntry(){ $('entrymodal').classList.remove('on'); hideSugg(); }
 $('recbtn').addEventListener('click', openEntry);
 $('ecancel').addEventListener('click', closeEntry);
 $('entrymodal').addEventListener('click', function(e){ if(e.target===$('entrymodal')) closeEntry(); });
+
+// 今月の課題図書モーダル
+var apending=null, aisbnTimer=null;
+$('aclose').addEventListener('click', closeAssign);
+$('assignmodal').addEventListener('click', function(e){ if(e.target===$('assignmodal')) closeAssign(); });
+$('a-title').addEventListener('input', function(){ apending=null; $('a-isbnst').textContent=''; });
+$('a-isbn').addEventListener('input', function(){
+  var v=this.value.replace(/[^0-9Xx]/g,'');
+  clearTimeout(aisbnTimer);
+  if(v.length!==10&&v.length!==13){ $('a-isbnst').textContent=v.length?'…':''; apending=null; return; }
+  $('a-isbnst').textContent='検索中…';
+  aisbnTimer=setTimeout(function(){
+    fetchBookFull(v).then(function(info){
+      if(!info){ $('a-isbnst').textContent='見つかりませんでした（手入力でOK）'; apending=null; return; }
+      apending={ isbn:v, author:info.author||'', cover:info.cover||'', genre:info.genre||'', desc:info.desc||'' };
+      if(info.title) $('a-title').value=info.title;
+      $('a-isbnst').textContent='✓ '+info.title+(info.author?'（'+info.author+'）':'');
+    }).catch(function(){ $('a-isbnst').textContent='通信できませんでした（手入力でOK）'; apending=null; });
+  }, 300);
+});
+$('a-save').addEventListener('click', function(){
+  var t=$('a-title').value.trim();
+  if(!t){ $('a-title').focus(); return; }
+  if(!state.me){ closeAssign(); openPick(); return; }
+  var ym=today().slice(0,7);
+  var row={ ym:ym, title:t, note:$('a-note').value.trim(),
+    isbn:apending?apending.isbn:'', author:apending?apending.author:'',
+    cover:apending?apending.cover:'', genre:apending?apending.genre:'', description:apending?apending.desc:'',
+    set_by:state.me };
+  $('a-save').disabled=true;
+  api('assignments', {method:'POST', headers:{'Prefer':'resolution=merge-duplicates,return=representation'}, body:JSON.stringify(row)})
+    .then(function(rs){
+      var saved=(rs&&rs[0])||row;
+      state.assigns[ym]=saved;
+      closeAssign(); render();
+      toast('今月の課題図書を設定しました。');
+    })
+    .catch(function(){ toast('設定できませんでした。電波を確認してもう一度お試しください。'); })
+    .then(function(){ $('a-save').disabled=false; });
+});
+$('a-clear').addEventListener('click', function(){
+  var ym=today().slice(0,7);
+  if(!confirm('今月の課題図書を解除しますか？')) return;
+  api('assignments?ym=eq.'+ym, {method:'DELETE'})
+    .then(function(){ delete state.assigns[ym]; closeAssign(); render(); toast('解除しました。'); })
+    .catch(function(){ toast('解除できませんでした。電波を確認してもう一度お試しください。'); });
+});
 
 function renderPick(){
   var box=$('members');
@@ -1569,7 +1696,7 @@ $('overlay').addEventListener('click', function(e){ if(e.target===$('overlay')) 
 state.me=lsGet('yonda-me')||'';
 try{
   var cache=JSON.parse(lsGet('yonda-cache-v1'));
-  if(cache){ state.members=cache.members||[]; state.books=(cache.books||[]).map(normBook); }
+  if(cache){ state.members=cache.members||[]; state.books=(cache.books||[]).map(normBook); state.assigns=cache.assigns||{}; }
 }catch(e){}
 render();
 loadAll()
