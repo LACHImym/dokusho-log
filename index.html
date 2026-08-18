@@ -27,6 +27,7 @@
   --paper:#f4f3ef; --card:#fbfaf6; --muted:#ebe9e2; --ink:#131311; --sub:#6b6b66; --faint:#9a988f;
   --line:rgba(19,19,17,.08); --line-soft:rgba(19,19,17,.06);
   --accent:#ff5a36; --on-accent:#ffffff;
+  --assign:#f5c53b; --on-assign:#131311; --assign-line:#caa019;
   --sans:'Inter',-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
   --mono:'IBM Plex Mono',"Hiragino Kaku Gothic ProN",ui-monospace,monospace;
 }
@@ -70,18 +71,33 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .bbig{ font-size:34px; font-weight:700; letter-spacing:-0.03em; line-height:1; }
 .bunit{ font-size:13px; font-weight:500; opacity:.85; }
 #assignwrap{ margin-bottom:10px; }
-.acard{ background:var(--accent); border-radius:16px; padding:14px 16px; display:flex; gap:14px; align-items:center; }
-.acard .alabel{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:var(--on-accent); opacity:.85; }
-.acard .cv{ width:52px; border-radius:5px; border:1px solid rgba(0,0,0,.12); flex:none; display:block; }
-.acard .noimg{ width:52px; height:74px; border-radius:5px; background:rgba(255,255,255,.35); color:var(--on-accent); font-family:var(--mono); font-size:8px; display:flex; align-items:center; justify-content:center; text-align:center; flex:none; opacity:.8; }
-.acard .abody{ flex:1; min-width:0; color:var(--on-accent); }
-.acard .at{ font-size:15px; font-weight:600; line-height:1.4; margin-top:3px; }
-.acard .aauthor{ font-size:12px; opacity:.85; margin-top:2px; }
-.acard .anote{ font-size:12px; opacity:.9; margin-top:4px; line-height:1.5; }
-.acard .aedit{ flex:none; align-self:flex-start; background:rgba(255,255,255,.25); border:none; color:var(--on-accent); border-radius:8px; padding:5px 11px; font-size:12px; font-weight:600; font-family:var(--sans); cursor:pointer; }
+.acard{ background:var(--assign); border-radius:16px; padding:16px; color:var(--on-assign); cursor:pointer; }
+.acard .atop{ display:flex; gap:16px; align-items:flex-start; }
+.acard .alabel{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:var(--on-assign); opacity:.75; }
+.acard .cv{ width:96px; border-radius:6px; border:1px solid rgba(0,0,0,.14); flex:none; display:block; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+.acard .noimg{ width:96px; height:136px; border-radius:6px; background:rgba(0,0,0,.08); color:var(--on-assign); font-family:var(--mono); font-size:10px; display:flex; align-items:center; justify-content:center; text-align:center; flex:none; opacity:.6; }
+.acard .abody{ flex:1; min-width:0; }
+.acard .at{ font-size:17px; font-weight:600; line-height:1.35; margin-top:4px; }
+.acard .aauthor{ font-size:12.5px; opacity:.8; margin-top:3px; }
+.acard .anote{ font-size:12.5px; opacity:.9; margin-top:6px; line-height:1.6; }
+.acard .ameta{ font-family:var(--mono); font-size:11px; opacity:.85; margin-top:8px; }
+.acard .aactions{ display:flex; gap:8px; margin-top:14px; }
+.acard .arec{ flex:1; background:var(--on-assign); color:var(--assign); border:none; border-radius:10px; padding:11px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; }
+.acard .arec:active{ transform:scale(.98); }
+.acard .aedit{ flex:none; background:rgba(0,0,0,.1); border:none; color:var(--on-assign); border-radius:10px; padding:11px 16px; font-size:13px; font-weight:600; font-family:var(--sans); cursor:pointer; }
 .acard .aedit:active{ transform:scale(.96); }
-#a-set{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:none; border:1px dashed var(--border-strong,rgba(19,19,17,.25)); border-color:var(--line); color:var(--sub); border-radius:14px; padding:13px; font-size:13px; font-weight:600; font-family:var(--sans); cursor:pointer; }
+#a-set{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--assign); border:none; color:var(--on-assign); border-radius:14px; padding:14px; font-size:13.5px; font-weight:600; font-family:var(--sans); cursor:pointer; }
 #a-set:active{ transform:scale(.99); }
+/* 課題図書レビュー ポップアップ */
+#reviewsheet h2{ font-size:16px; font-weight:600; letter-spacing:-0.02em; margin:4px 4px 2px; }
+#reviewsheet .rsub{ font-family:var(--mono); font-size:11px; color:var(--sub); margin:0 4px 14px; }
+#rlist{ display:flex; flex-direction:column; gap:2px; }
+.rrow{ padding:11px 4px; border-top:1px solid var(--line-soft); }
+.rrow:first-child{ border-top:none; }
+.rrow .rhead{ display:flex; align-items:center; gap:8px; }
+.rrow .rstars{ color:var(--accent); font-size:12px; letter-spacing:1px; }
+.rrow .rnote{ font-size:13px; color:var(--sub); margin-top:5px; line-height:1.6; }
+#reviewsheet .rempty{ text-align:center; color:var(--sub); font-size:13px; padding:30px 10px; line-height:1.9; }
 #asheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
 #asheet input#a-title{ font-size:16px; font-weight:500; }
 #asheet .isbnrow{ display:block; }
@@ -112,6 +128,8 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .gcard{ min-width:0; }
 .gcard.mine .cvwrap{ cursor:pointer; }
 .cvwrap{ position:relative; aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:var(--muted); border:1px solid var(--line); }
+.gcard.assign .cvwrap{ border:3px solid var(--assign); }
+.abadge{ display:inline-block; background:var(--assign); color:var(--on-assign); font-family:var(--mono); font-size:8px; font-weight:500; letter-spacing:.05em; padding:2px 6px; border-radius:4px; margin-right:6px; vertical-align:1px; }
 .cvwrap img{ width:100%; height:100%; object-fit:contain; display:block; }
 .cvwrap .noimg{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--faint); font-family:var(--mono); font-size:15px; font-weight:500; letter-spacing:.1em; text-align:center; line-height:1.5; }
 .sharebtn{ position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:9px; background:rgba(251,250,246,.92); border:1px solid var(--line); color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
@@ -149,8 +167,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 /* modals */
 .modal{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; z-index:30; }
 .modal.on{ display:flex; }
-#overlay, #pick, #entrymodal, #editmodal{ align-items:center; justify-content:center; padding:20px; }
-#sheet, #picksheet, #esheet, #edsheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#overlay, #pick, #entrymodal, #editmodal, #assignmodal, #reviewmodal{ align-items:center; justify-content:center; padding:20px; }
+#sheet, #picksheet, #esheet, #edsheet, #asheet, #reviewsheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
 #edsheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
 #edsheet input[type="text"]:focus{ border-bottom-color:var(--accent); }
 #edsheet input#ed-title{ font-size:16px; font-weight:500; }
@@ -285,6 +303,15 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
       <button class="btn save" id="dl">画像を保存</button>
       <button class="btn" id="close">閉じる</button>
     </div>
+  </div>
+</div>
+
+<div id="reviewmodal" class="modal">
+  <div id="reviewsheet">
+    <div class="mhead"><span>課題図書 みんなの声</span><button class="xbtn" id="rvclose">✕</button></div>
+    <h2 id="rv-title"></h2>
+    <p class="rsub" id="rv-sub"></p>
+    <div id="rlist"></div>
   </div>
 </div>
 
@@ -458,6 +485,19 @@ function netFail(){
   $('net').classList.add('on');
 }
 
+function matchesAssign(b, a){
+  if(!a||!a.title) return false;
+  if(a.isbn&&b.isbn) return a.isbn===b.isbn;
+  return a.title===b.title;
+}
+function isAssignBook(b){
+  if(b.status==='want') return false;
+  return matchesAssign(b, state.assigns[b.date.slice(0,7)]);
+}
+function assignRecords(ym){
+  var a=state.assigns[ym]; if(!a) return [];
+  return state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===ym&&matchesAssign(b,a); });
+}
 function starsHtml(v){
   var h='';
   for(var i=1;i<=5;i++){ h+='<button type="button" class="estar'+(i<=v?' on':'')+'" data-n="'+i+'">★</button>'; }
@@ -468,13 +508,14 @@ function cardHtml(b){
   var mine=b.member===state.me;
   var c=memCol(b.member);
   var isWant=b.status==='want';
+  var isAssign=isAssignBook(b);
   var shareSvg='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/></svg>';
-  return '<div class="gcard'+(mine?' mine':'')+'" data-id="'+b.id+'">'+
+  return '<div class="gcard'+(mine?' mine':'')+(isAssign?' assign':'')+'" data-id="'+b.id+'">'+
     '<div class="cvwrap">'+
       (b.cover?'<img class="cv" src="'+esc(b.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
       '<button class="sharebtn" aria-label="シェア">'+shareSvg+'</button>'+
     '</div>'+
-    (b.genre?'<div class="gg">'+esc(b.genre)+'</div>':'')+
+    ((isAssign||b.genre)?'<div class="gg">'+(isAssign?'<span class="abadge">課題図書</span>':'')+esc(b.genre||'')+'</div>':'')+
     '<div class="gt">'+esc(b.title)+'</div>'+
     '<div class="gm"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
     (isWant?'':'<span class="d">'+md(b.date)+'</span>')+
@@ -493,16 +534,21 @@ function renderAssign(){
   var box=$('assignwrap');
   if(a&&a.title){
     var canEdit=isCurrent&&!!state.me;
-    box.innerHTML='<div class="acard">'+
+    var recs=assignRecords(targetYm);
+    var rated=recs.filter(function(r){ return r.rating; });
+    var avg=rated.length?(rated.reduce(function(s,r){ return s+r.rating; },0)/rated.length):0;
+    var meta=recs.length?(recs.length+'人が読了'+(avg?('　平均★'+avg.toFixed(1)):'')+'　▸ みんなの声'):'まだ読了なし　▸ みんなの声';
+    box.innerHTML='<div class="acard" data-ym="'+targetYm+'">'+
+      '<div class="atop">'+
       (a.cover?'<img class="cv" src="'+esc(a.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>')+
       '<div class="abody"><div class="alabel">'+(isCurrent?'今月の課題図書':ymLabel(targetYm)+'の課題図書')+'</div>'+
       '<div class="at">『'+esc(a.title)+'』</div>'+
       (a.author?'<div class="aauthor">'+esc(a.author)+'</div>':'')+
       (a.note?'<div class="anote">'+esc(a.note)+'</div>':'')+
-      '</div>'+
-      (canEdit?'<button class="aedit" id="a-edit">変更</button>':'')+
+      '<div class="ameta">'+meta+'</div>'+
+      '</div></div>'+
+      (canEdit?'<div class="aactions"><button class="arec" data-act="rec">記録する</button><button class="aedit" data-act="edit">変更</button></div>':'')+
     '</div>';
-    if(canEdit) $('a-edit').onclick=function(){ openAssign(); };
   }else if(isCurrent&&state.me){
     box.innerHTML='<button id="a-set"><span style="font-size:16px;">＋</span>今月の課題図書を設定</button>';
     $('a-set').onclick=function(){ openAssign(); };
@@ -510,6 +556,50 @@ function renderAssign(){
     box.innerHTML='';
   }
 }
+$('assignwrap').addEventListener('click', function(e){
+  var card=e.target.closest('.acard');
+  if(!card) return;
+  var act=e.target.getAttribute('data-act');
+  var ym=card.getAttribute('data-ym');
+  if(act==='rec'){ var a=state.assigns[ym]; if(a) openEntryFor(a); return; }
+  if(act==='edit'){ openAssign(); return; }
+  openAssignReviews(ym);
+});
+function openEntryFor(a){
+  if(!state.me){ openPick('記録するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+  $('note').value=''; $('ncount').textContent='0'; $('link').value='';
+  $('stars').setAttribute('data-v','0'); $('stars').innerHTML=starsHtml(0);
+  $('fin').value=today();
+  hideSugg();
+  $('title').value=a.title||'';
+  pending={ isbn:a.isbn||'', author:a.author||'', cover:a.cover||'', genre:a.genre||'', desc:a.description||'' };
+  $('isbn').value=a.isbn||'';
+  $('isbnst').textContent='✓ 今月の課題図書';
+  $('entrymodal').classList.add('on');
+  setTimeout(function(){ $('note').focus(); }, 50);
+}
+function openAssignReviews(ym){
+  var a=state.assigns[ym]; if(!a) return;
+  var recs=assignRecords(ym).sort(function(x,y){ return (y.rating||0)-(x.rating||0); });
+  $('rv-title').textContent='『'+a.title+'』';
+  var rated=recs.filter(function(r){ return r.rating; });
+  var avg=rated.length?(rated.reduce(function(s,r){ return s+r.rating; },0)/rated.length):0;
+  $('rv-sub').textContent=recs.length?(recs.length+'人が読了'+(avg?('　平均 ★'+avg.toFixed(1)):'')):'';
+  if(recs.length){
+    $('rlist').innerHTML=recs.map(function(b){
+      var c=memCol(b.member);
+      return '<div class="rrow"><div class="rhead"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(b.member)+'</span>'+
+        (b.rating?'<span class="rstars">'+'★★★★★'.slice(0,b.rating)+'☆☆☆☆☆'.slice(0,5-b.rating)+'</span>':'')+
+        '<span class="d" style="font-family:var(--mono);font-size:10px;color:var(--faint);">'+md(b.date)+'</span></div>'+
+        (b.note?'<div class="rnote">「'+esc(b.note)+'」</div>':'')+'</div>';
+    }).join('');
+  }else{
+    $('rlist').innerHTML='<div class="rempty">まだ誰も記録していません。<br>「記録する」から登録してみましょう。</div>';
+  }
+  $('reviewmodal').classList.add('on');
+}
+$('rvclose').addEventListener('click', function(){ $('reviewmodal').classList.remove('on'); });
+$('reviewmodal').addEventListener('click', function(e){ if(e.target===$('reviewmodal')) $('reviewmodal').classList.remove('on'); });
 function openAssign(){
   if(!state.me){ openPick('設定するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
   var a=state.assigns[today().slice(0,7)]||{};
