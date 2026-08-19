@@ -98,6 +98,11 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .rrow .rstars{ color:var(--accent); font-size:12px; letter-spacing:1px; }
 .rrow .rnote{ font-size:13px; color:var(--sub); margin-top:5px; line-height:1.6; }
 #reviewsheet .rempty{ text-align:center; color:var(--sub); font-size:13px; padding:30px 10px; line-height:1.9; }
+/* 記録画面の「課題図書を選ぶ」チップ */
+#assignchip{ margin:4px 0 2px; }
+#assignchip button{ width:100%; text-align:left; background:var(--assign); color:var(--on-assign); border:2px solid transparent; border-radius:11px; padding:11px 13px; font-size:13px; font-weight:600; font-family:var(--sans); cursor:pointer; line-height:1.4; }
+#assignchip button:active{ transform:scale(.99); }
+#assignchip.picked button{ background:transparent; border-color:var(--assign); color:var(--ink); }
 #asheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
 #asheet input#a-title{ font-size:16px; font-weight:500; }
 #asheet .isbnrow{ display:block; }
@@ -318,6 +323,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <div id="entrymodal" class="modal">
   <div id="esheet">
     <div class="mhead"><span>記録する</span><button class="xbtn" id="ecancel">✕</button></div>
+    <div id="assignchip" hidden></div>
     <input type="text" id="title" placeholder="*本のタイトル" autocomplete="off">
     <div id="sugg"></div>
     <input type="text" id="note" placeholder="ひとこと" maxlength="80" autocomplete="off">
@@ -575,6 +581,8 @@ function openEntryFor(a){
   pending={ isbn:a.isbn||'', author:a.author||'', cover:a.cover||'', genre:a.genre||'', desc:a.description||'' };
   $('isbn').value=a.isbn||'';
   $('isbnst').textContent='✓ 今月の課題図書';
+  renderEntryChip(true);
+  var cb=$('assignchip').querySelector('button'); if(cb) cb.textContent='✓ 今月の課題図書『'+a.title+'』';
   $('entrymodal').classList.add('on');
   setTimeout(function(){ $('note').focus(); }, 50);
 }
@@ -735,8 +743,31 @@ $('filter').addEventListener('click', function(e){
 });
 
 /* record modal */
+function renderEntryChip(picked){
+  var a=state.assigns[today().slice(0,7)];
+  var chip=$('assignchip');
+  chip.classList.remove('picked');
+  if(a&&a.title){
+    chip.innerHTML='<button type="button" id="pickassign">📗 今月の課題図書『'+esc(a.title)+'』を記録する</button>';
+    chip.hidden=false;
+    $('pickassign').onclick=selectAssignInEntry;
+    if(picked) chip.classList.add('picked');
+  }else{ chip.hidden=true; chip.innerHTML=''; }
+}
+function selectAssignInEntry(){
+  var a=state.assigns[today().slice(0,7)]; if(!a||!a.title) return;
+  $('title').value=a.title||'';
+  pending={ isbn:a.isbn||'', author:a.author||'', cover:a.cover||'', genre:a.genre||'', desc:a.description||'' };
+  $('isbn').value=a.isbn||'';
+  $('isbnst').textContent='✓ 今月の課題図書';
+  hideSugg();
+  $('assignchip').classList.add('picked');
+  $('assignchip').querySelector('button').textContent='✓ 今月の課題図書『'+a.title+'』';
+  $('note').focus();
+}
 function openEntry(){
   if(!state.me){ openPick('記録するには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+  renderEntryChip(false);
   $('entrymodal').classList.add('on');
   setTimeout(function(){ $('title').focus(); }, 50);
 }
