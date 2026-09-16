@@ -24,11 +24,13 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6177307831535485" crossorigin="anonymous"></script>
 <style>
   :root{
-    /* 白背景・フラット。ブランド色（キュビコンの赤/青/黄/紺）由来のアクセント */
-    --bg:#ffffff; --ink:#2b3a55; --sub:#8b93a3; --line:#e9ecf1;
-    --badge:#eceef3; --teal:#2dd4bf; --teal-deep:#0d9488;
-    --star:#0d9488; --pink:#e4007f; --ng:#c4c8d0;
-    --card:#f7f8fb; --fire:#f97316;
+    /* サイト配色：ピンク#ee4d7f／薄ピンク#ffcacb／青#4f80ff／グレー#ebe6df／濃グレー#333333 */
+    --bg:#ffffff; --ink:#333333; --sub:#8f887c; --line:#e2dccf;
+    --card:#ebe6df; --badge:#ece7df;
+    --pink:#ee4d7f; --pink-soft:#ffcacb; --pink-deep:#d63368;
+    --blue:#4f80ff; --blue-deep:#3a63d8; --ng:#c9c1b3; --fire:#ee4d7f;
+    /* 後方互換エイリアス（ブランド＝ピンク） */
+    --teal:#ee4d7f; --teal-deep:#d63368; --star:#ee4d7f;
     --radius:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -50,7 +52,7 @@
   .brand-kicker{font-size:11px;font-weight:800;letter-spacing:.35em;color:var(--sub);margin-bottom:2px}
   .brand-title{font-size:40px;font-weight:900;letter-spacing:.02em;color:var(--ink)}
   .brand-title .m{display:block;font-size:26px;letter-spacing:.06em;margin-top:-2px}
-  .brand-title .c1{color:var(--pink)} .brand-title .c2{color:#0068b7}
+  .brand-title .c1{color:var(--pink)} .brand-title .c2{color:var(--blue)}
   .tagline{margin:10px 0 0;color:var(--sub);font-size:14px;font-weight:600;letter-spacing:.02em}
 
   /* ===== 共通 ===== */
@@ -63,8 +65,8 @@
 
   /* ===== ホーム：今日の5色（デイリーカード） ===== */
   .daily-card{display:block;width:100%;text-align:left;border-radius:22px;padding:20px 20px 18px;
-    color:#fff;background:linear-gradient(135deg,#2dd4bf,#0d9488);
-    box-shadow:0 12px 26px -8px rgba(13,148,136,.55);margin-bottom:26px;
+    color:#fff;background:linear-gradient(135deg,#ee4d7f,#d63368);
+    box-shadow:0 12px 26px -8px rgba(238,77,127,.45);margin-bottom:26px;
     transition:transform .1s, box-shadow .15s}
   .daily-card:active{transform:translateY(1px)}
   .dc-top{display:flex;justify-content:space-between;align-items:center}
@@ -91,7 +93,7 @@
     width:100%;text-align:left;padding:16px 18px;border-radius:var(--radius);
     background:var(--card);border:1.5px solid var(--line);
     transition:transform .1s, border-color .15s, box-shadow .15s}
-  .level:hover{border-color:#dfe3ea;box-shadow:0 6px 18px rgba(43,58,85,.06)}
+  .level:hover{border-color:#d8d0c2;box-shadow:0 6px 18px rgba(51,51,51,.06)}
   .level:active{transform:translateY(1px)}
   .lv-rank{text-align:center;min-width:56px}
   .lv-kicker{display:block;font-size:9px;font-weight:800;letter-spacing:.18em;color:var(--star)}
@@ -104,7 +106,7 @@
   .record-link{display:block;width:100%;text-align:center;margin-top:22px;padding:13px;
     border-radius:14px;background:var(--card);border:1.5px solid var(--line);
     font-size:14px;font-weight:800;color:var(--ink)}
-  .pool-note{font-size:11px;color:#aab0bc;margin:16px 0 0;text-align:center}
+  .pool-note{font-size:11px;color:#b0a89b;margin:16px 0 0;text-align:center}
 
   /* ===== クイズ ===== */
   .qtop{display:flex;justify-content:space-between;align-items:center;margin:2px 0 16px}
@@ -112,15 +114,15 @@
   .quit:hover{color:var(--ink)}
   .dots{display:flex;gap:8px}
   .dot{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
-    font-size:11px;font-weight:800;background:#eef0f4;color:#aab0bc;
+    font-size:11px;font-weight:800;background:#ece7df;color:#b0a89b;
     transition:background .2s,color .2s}
-  .dot.current{background:var(--teal);color:#fff}
-  .dot.ok{background:var(--teal);color:#fff}
+  .dot.current{background:var(--pink);color:#fff}
+  .dot.ok{background:var(--blue);color:#fff}
   .dot.ng{background:var(--ng);color:#fff}
 
   .swatch{
     height:210px;border-radius:22px;margin:0 0 22px;
-    box-shadow:0 10px 26px rgba(43,58,85,.10), inset 0 0 0 1px rgba(0,0,0,.05);
+    box-shadow:0 10px 26px rgba(51,51,51,.12), inset 0 0 0 1px rgba(0,0,0,.05);
     display:flex;align-items:flex-end;justify-content:flex-end;padding:10px}
   .swatch .hex{font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
     background:rgba(255,255,255,.82);color:#333;padding:2px 8px;border-radius:6px;
@@ -141,26 +143,26 @@
   .lbadge{width:48px;height:48px;border-radius:50%;flex:0 0 auto;
     display:grid;place-items:center;font-size:19px;font-weight:800;
     background:var(--badge);color:var(--ink);
-    box-shadow:inset 0 0 0 1px rgba(43,58,85,.08);
+    box-shadow:inset 0 0 0 1px rgba(51,51,51,.10);
     transition:background .2s, color .2s, box-shadow .2s}
   .lbadge.filled{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
   .lname{font-size:15.5px;font-weight:700;color:var(--ink);transition:color .15s}
-  .opt.correct{border-color:var(--pink)}
-  .opt.correct .lname{color:var(--pink);font-weight:800}
+  .opt.correct{border-color:var(--blue)}
+  .opt.correct .lname{color:var(--blue-deep);font-weight:800}
   .opt.chosen .lname{text-decoration:line-through;text-decoration-thickness:2px}
   .opt.wrongdim .lname{color:var(--sub)}
 
   .feedback{margin-top:22px}
   .fb-card{border-radius:16px;padding:16px 16px;background:var(--card);border:1.5px solid var(--line)}
   .fb-tag{display:inline-block;font-size:12px;font-weight:800;padding:3px 12px;border-radius:999px;margin-bottom:8px}
-  .fb-tag.ok{background:#d9f5ef;color:var(--teal-deep)}
-  .fb-tag.ng{background:#f6e0ee;color:var(--pink)}
+  .fb-tag.ok{background:#e3ecff;color:var(--blue-deep)}
+  .fb-tag.ng{background:#efe9e0;color:var(--sub)}
   .fb-name{font-size:16px;font-weight:800}
   .fb-name .yomi{font-size:12.5px;font-weight:600;color:var(--sub);margin-left:6px}
-  .fb-desc{font-size:13.5px;color:#4b5568;margin-top:6px}
+  .fb-desc{font-size:13.5px;color:#55504a;margin-top:6px}
   .next{margin-top:16px;text-align:center}
-  .btn-next{background:var(--teal);color:#fff;font-weight:800;font-size:15px;
-    padding:13px 40px;border-radius:999px;box-shadow:0 8px 18px -4px rgba(45,212,191,.5);
+  .btn-next{background:var(--pink);color:#fff;font-weight:800;font-size:15px;
+    padding:13px 40px;border-radius:999px;box-shadow:0 8px 18px -4px rgba(238,77,127,.45);
     transition:transform .1s}
   .btn-next:active{transform:translateY(1px)}
 
@@ -168,22 +170,22 @@
   #result{text-align:center}
   .score-dial{position:relative;width:224px;height:224px;margin:2px auto 16px}
   .score-dial svg{position:absolute;inset:0;width:100%;height:100%}
-  .ring-guide{fill:none;stroke:#eceef3;stroke-width:12}
+  .ring-guide{fill:none;stroke:#e2dccf;stroke-width:12}
   .ring-arc{fill:none;stroke:url(#scoreGrad);stroke-width:12;stroke-linecap:round;
     transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .9s ease}
   .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .score-label{margin:0;font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--sub)}
   #resultScore{margin:2px 0 0;font-size:58px;font-weight:800;line-height:1;color:var(--ink);letter-spacing:-.03em}
   .score-unit{font-size:18px;font-weight:700;color:var(--sub);margin-left:2px}
-  #resultSub{margin:2px 0 0;font-size:12px;color:var(--teal-deep);font-weight:700}
+  #resultSub{margin:2px 0 0;font-size:12px;color:var(--blue-deep);font-weight:700}
   .rank{font-weight:900;font-size:19px;margin:6px 0 2px}
   .result-msg{color:var(--sub);font-size:13.5px;margin:0 0 4px}
-  .daily-next{background:linear-gradient(135deg,#fff4ec,#ffe9d9);border:1.5px solid #ffd9bd;
+  .daily-next{background:linear-gradient(135deg,#ffe8ec,#ffcacb);border:1.5px solid #ffb3bd;
     border-radius:16px;padding:14px 16px;margin:16px auto 0;max-width:360px;
-    font-size:14px;font-weight:800;color:#b45309}
-  .daily-next b{color:var(--fire)}
+    font-size:14px;font-weight:800;color:var(--pink-deep)}
+  .daily-next b{color:var(--pink)}
   .actions{display:flex;flex-direction:column;gap:12px;max-width:340px;margin:22px auto 0}
-  .btn-x{background:#111214;color:#fff;font-weight:800;font-size:15px;padding:14px;border-radius:14px}
+  .btn-x{background:#333333;color:#fff;font-weight:800;font-size:15px;padding:14px;border-radius:14px}
   .btn-replay{background:var(--card);color:var(--ink);font-weight:800;font-size:15px;padding:14px;
     border-radius:14px;border:1.5px solid var(--line)}
   .btn-home{background:none;color:var(--sub);font-weight:700;font-size:13.5px;padding:6px}
@@ -200,8 +202,8 @@
   .rev .ym{color:var(--sub);font-size:11.5px}
   .rev .mk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
     font-size:14px;font-weight:800;flex:0 0 auto}
-  .rev .mk.ok{background:#d9f5ef;color:var(--teal-deep)}
-  .rev .mk.ng{background:#eef0f4;color:#9aa0ac}
+  .rev .mk.ok{background:#e3ecff;color:var(--blue-deep)}
+  .rev .mk.ng{background:#efe9e0;color:#9a938a}
 
   /* ===== きろく ===== */
   #record{text-align:center}
@@ -287,8 +289,8 @@
       <svg viewBox="0 0 224 224" aria-hidden="true">
         <defs>
           <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#2dd4bf"/>
-            <stop offset="100%" stop-color="#0068b7"/>
+            <stop offset="0%" stop-color="#ee4d7f"/>
+            <stop offset="100%" stop-color="#4f80ff"/>
           </linearGradient>
         </defs>
         <circle class="ring-guide" cx="112" cy="112" r="100"/>
@@ -397,7 +399,7 @@
 
   function textColor(hex){
     var h=hex.replace('#',''); var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
-    return (0.299*r+0.587*g+0.114*b) > 150 ? '#2b3a55' : '#ffffff';
+    return (0.299*r+0.587*g+0.114*b) > 150 ? '#333333' : '#ffffff';
   }
 
   /* ---------- データ整理 ---------- */
