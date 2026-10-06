@@ -274,14 +274,26 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 #dlogout{ width:100%; background:none; border:none; color:var(--faint); font-size:12px; font-family:var(--sans); cursor:pointer; text-align:left; padding:10px 8px 0; }
 /* drawer */
 #drawer{ justify-content:flex-end; }
-#dsheet{ background:var(--card); width:82%; max-width:340px; height:100%; padding:18px 16px; overflow:auto; }
+#dsheet{ background:var(--card); width:82%; max-width:340px; height:100%; padding:18px 16px; overflow:hidden; position:relative; }
+.dmenu{ display:flex; flex-direction:column; gap:8px; }
+.dchev{ color:var(--faint); }
+.dnav-r{ display:flex; align-items:center; gap:8px; }
+.dacc-name{ font-size:12px; color:var(--sub); font-weight:500; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dpanel.sub{ position:absolute; inset:0; background:var(--card); transform:translateX(100%); transition:transform .25s ease; padding:18px 16px; overflow-y:auto; display:flex; flex-direction:column; }
+.dpanel.sub.on{ transform:translateX(0); }
+.subhead{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.subback{ width:34px; height:34px; border-radius:9px; background:var(--muted); border:none; color:var(--ink); font-size:20px; line-height:1; cursor:pointer; flex:none; }
+.subback:active{ transform:scale(.96); }
+.subhead span{ font-size:16px; font-weight:600; }
+.accrow{ display:flex; align-items:center; gap:9px; font-size:17px; font-weight:600; padding:4px 2px; }
+.accsub{ font-size:12px; color:var(--sub); margin:8px 2px 0; line-height:1.6; }
+#daccount .btn{ margin-top:16px; }
 #drawer .mhead{ margin-bottom:14px; }
 #drec{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--ink); color:var(--paper); border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:600; font-family:var(--sans); cursor:pointer; margin-bottom:20px; }
 #drec:active{ transform:scale(.99); }
 #drec .plus{ width:22px; height:22px; border-radius:50%; background:var(--paper); color:var(--ink); display:flex; align-items:center; justify-content:center; font-size:15px; }
 .dsect{ margin-bottom:22px; }
 .dlabel{ font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--faint); margin-bottom:8px; }
-#dwho{ display:flex; align-items:center; gap:9px; width:100%; background:var(--paper); border:1px solid var(--line); color:var(--ink); border-radius:12px; padding:12px 14px; font-size:14px; font-weight:500; font-family:var(--sans); cursor:pointer; text-align:left; }
 #dmonths{ display:flex; flex-direction:column; gap:2px; }
 .mrow{ display:flex; align-items:center; justify-content:space-between; width:100%; background:none; border:none; color:var(--ink); border-radius:10px; padding:11px 8px; font-size:14px; font-family:var(--sans); cursor:pointer; text-align:left; border-bottom:1px solid var(--line-soft); }
 .mrow:last-child{ border-bottom:none; }
@@ -445,21 +457,25 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
   <div id="dsheet">
     <div class="mhead"><span>メニュー</span><button class="xbtn" id="dclose">✕</button></div>
     <button id="drec"><span class="plus">＋</span>記録する</button>
-    <div class="dsect">
-      <button class="dnav" id="dmypage"><span>👤 マイページ</span><span style="color:var(--faint)">›</span></button>
-      <button class="dnav" id="dpopular"><span>★ 人気図書</span><span style="color:var(--faint)">›</span></button>
+    <div class="dmenu">
+      <button class="dnav" id="dmypage"><span>👤 マイページ</span><span class="dchev">›</span></button>
+      <button class="dnav" id="dpopular"><span>★ 人気図書</span><span class="dchev">›</span></button>
+      <button class="dnav" id="dgo-shelf"><span>📚 みんなの本棚</span><span class="dchev">›</span></button>
+      <button class="dnav" id="dgo-months"><span>🗓 月間</span><span class="dchev">›</span></button>
+      <button class="dnav" id="dgo-account"><span>🔑 ログイン情報</span><span class="dnav-r"><span class="dacc-name" id="dacc-name"></span><span class="dchev">›</span></span></button>
     </div>
-    <div class="dsect">
-      <div class="dlabel">みんなの本棚</div>
+
+    <div class="dpanel sub" id="dp-shelf">
+      <div class="subhead"><button class="subback" aria-label="戻る">‹</button><span>みんなの本棚</span></div>
       <div id="dfilter"></div>
     </div>
-    <div class="dsect">
-      <div class="dlabel">過去の月</div>
+    <div class="dpanel sub" id="dp-months">
+      <div class="subhead"><button class="subback" aria-label="戻る">‹</button><span>月間</span></div>
       <div id="dmonths"></div>
     </div>
-    <div class="dsect">
-      <div class="dlabel">あなた</div>
-      <button id="dwho"></button>
+    <div class="dpanel sub" id="dp-account">
+      <div class="subhead"><button class="subback" aria-label="戻る">‹</button><span>ログイン情報</span></div>
+      <div id="daccount"></div>
       <button id="dlogout" hidden>ログアウト</button>
     </div>
   </div>
@@ -753,11 +769,8 @@ function render(){
 }
 
 function fmtDrawer(){
-  var who=state.me||'ゲスト（見るだけ）';
-  var c=memCol(state.me);
-  var sw=waOn()?'ログイン中':'切替 ▾';
-  $('dwho').innerHTML=(state.me?'<span class="dot" style="background:'+c[0]+'"></span>':'')+esc(who)+'　<span style="color:var(--faint);margin-left:auto">'+sw+'</span>';
-  $('dlogout').hidden=!waOn();
+  $('dacc-name').textContent=state.me||'ゲスト';
+  renderAccount();
   // みんなの本棚（フィルタ＝だれの本を見るか）。各メンバーの通算読了数つき
   var noView=!state.view;
   var readCnt={}, wantCnt=0, totalRead=0;
@@ -784,12 +797,29 @@ function fmtDrawer(){
   });
   $('dmonths').innerHTML=html;
 }
-function openDrawer(){ fmtDrawer(); $('drawer').classList.add('on'); }
+function renderAccount(){
+  var html='';
+  if(state.me){
+    var c=memCol(state.me);
+    html+='<div class="accrow"><span class="dot" style="background:'+c[0]+'"></span>'+esc(state.me)+'</div>';
+    html+='<div class="accsub">'+(waOn()?'AERUでログイン中です。':'名前モードで表示中です。')+'</div>';
+  }else{
+    html+='<div class="accrow">ゲスト（見るだけ）</div>';
+    html+='<div class="accsub">'+(waConfigured()?'記録するにはAERUでログインしてください。':'記録するには名前が必要です。')+'</div>';
+    html+='<button class="btn save" id="dacc-login" style="margin-top:14px;">'+(waConfigured()?'AERUでログイン':'名前を選ぶ')+'</button>';
+  }
+  $('daccount').innerHTML=html;
+  $('dlogout').hidden=!waOn();
+}
+function closeSub(){ var ps=$('dsheet').querySelectorAll('.dpanel.sub.on'); for(var i=0;i<ps.length;i++) ps[i].classList.remove('on'); }
+function openSub(id){ closeSub(); var p=$(id); if(p) p.classList.add('on'); }
+function openDrawer(){ closeSub(); fmtDrawer(); $('drawer').classList.add('on'); }
 $('menu').addEventListener('click', openDrawer);
 $('dclose').addEventListener('click', function(){ $('drawer').classList.remove('on'); });
 $('drec').addEventListener('click', function(){ $('drawer').classList.remove('on'); openEntry(); });
 $('drawer').addEventListener('click', function(e){
   if(e.target===$('drawer')){ $('drawer').classList.remove('on'); return; }
+  if(e.target.closest('.subback')){ closeSub(); return; }
   var fc=e.target.closest('.dfrow');
   if(fc){
     state.filter=fc.getAttribute('data-f');
@@ -810,12 +840,15 @@ $('drawer').addEventListener('click', function(e){
     return;
   }
   if(e.target.closest('#dmypage')){
-    if(!state.me){ $('drawer').classList.remove('on'); openPick('マイページを見るには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+    if(!state.me){ $('drawer').classList.remove('on'); openPick(waConfigured()?'':'マイページを見るには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
     state.view='mypage'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return;
   }
   if(e.target.closest('#dpopular')){ state.view='popular'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return; }
+  if(e.target.closest('#dgo-shelf')){ openSub('dp-shelf'); return; }
+  if(e.target.closest('#dgo-months')){ openSub('dp-months'); return; }
+  if(e.target.closest('#dgo-account')){ openSub('dp-account'); return; }
+  if(e.target.closest('#dacc-login')){ $('drawer').classList.remove('on'); openPick(); return; }
   if(e.target.closest('#dlogout')){ return; }
-  if(e.target.closest('#dwho')){ if(waOn()) return; $('drawer').classList.remove('on'); openPick(); }
 });
 $('tonow').addEventListener('click', function(){ state.viewMonth=null; state.view=null; render(); });
 
