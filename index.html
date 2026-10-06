@@ -199,8 +199,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 /* modals */
 .modal{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; z-index:30; }
 .modal.on{ display:flex; }
-#overlay, #pick, #entrymodal, #editmodal, #assignmodal, #reviewmodal{ align-items:center; justify-content:center; padding:20px; }
-#sheet, #picksheet, #esheet, #edsheet, #asheet, #reviewsheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#overlay, #pick, #entrymodal, #editmodal, #assignmodal, #reviewmodal, #linkmodal{ align-items:center; justify-content:center; padding:20px; }
+#sheet, #picksheet, #esheet, #edsheet, #asheet, #reviewsheet, #linksheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
 #edsheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
 #edsheet input[type="text"]:focus{ border-bottom-color:var(--accent); }
 #edsheet input#ed-title{ font-size:16px; font-weight:500; }
@@ -263,6 +263,15 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 #newname{ flex:1; min-width:0; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:8px 2px; font-size:14px; font-family:var(--sans); outline:none; border-radius:0; }
 #picksheet .foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
 #pickmsg{ font-size:12px; color:var(--accent); margin:0 4px 12px; }
+/* AERUログイン・引き継ぎ */
+#wabox{ margin-bottom:6px; }
+.walogin{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:14px; font-size:15px; border-radius:14px; }
+#picksheet .lead.sm{ font-size:11.5px; margin-top:8px; line-height:1.7; }
+#linksheet h2{ font-size:17px; font-weight:600; letter-spacing:-0.02em; margin:6px 4px 4px; }
+#linksheet .lead{ font-size:12px; color:var(--sub); margin:0 4px 12px; line-height:1.7; }
+#linksheet .foot{ display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+#lk-members{ display:flex; flex-direction:column; gap:8px; }
+#dlogout{ width:100%; background:none; border:none; color:var(--faint); font-size:12px; font-family:var(--sans); cursor:pointer; text-align:left; padding:10px 8px 0; }
 /* drawer */
 #drawer{ justify-content:flex-end; }
 #dsheet{ background:var(--card); width:82%; max-width:340px; height:100%; padding:18px 16px; overflow:auto; }
@@ -406,15 +415,29 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 
 <div id="pick" class="modal">
   <div id="picksheet">
-    <h2>あなたはだれ？</h2>
-    <p class="lead">名前を選ぶと、その人の本棚として記録されます。</p>
+    <h2>ようこそ</h2>
+    <p class="lead" id="picklead">名前を選ぶと、その人の本棚として記録されます。</p>
     <p id="pickmsg" hidden></p>
+    <div id="wabox" hidden>
+      <button class="btn save walogin" id="walogin">AERUでログイン</button>
+      <p class="lead sm">AERUにログイン中ならそのまま戻ってきます。記録はあなた本人のものとして保存されます。</p>
+    </div>
     <div id="members"></div>
     <div class="newrow">
       <input type="text" id="newname" placeholder="新しい部員の名前" autocomplete="off">
       <button class="btn save" id="addmem">追加</button>
     </div>
     <div class="foot"><button class="btn" id="guest" hidden>ゲストのまま見る</button><button class="btn" id="pickclose" hidden>閉じる</button></div>
+  </div>
+</div>
+
+<div id="linkmodal" class="modal">
+  <div id="linksheet">
+    <h2>はじめまして</h2>
+    <p class="lead"><b id="lk-who"></b> さんとしてログインしました。</p>
+    <p class="lead">これまでに読書logを使っていた方は、ご自分の名前を選んでください。<b>これまでの記録がそのまま引き継がれます。</b></p>
+    <div id="lk-members"></div>
+    <div class="foot"><button class="btn save" id="lk-new">はじめて使います（新しく作る）</button></div>
   </div>
 </div>
 
@@ -437,6 +460,7 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <div class="dsect">
       <div class="dlabel">あなた</div>
       <button id="dwho"></button>
+      <button id="dlogout" hidden>ログアウト</button>
     </div>
   </div>
 </div>
@@ -444,11 +468,15 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <input type="file" id="file" accept=".json,application/json" hidden>
 <div id="toast"></div>
 
+<script src="https://wa-community.net/sdk/v1/wa-sdk.js"></script>
 <script>
 (function(){
 'use strict';
 var DB_URL='https://lkctqbrpifyyofkcippj.supabase.co';
 var DB_KEY='sb_publishable_YLr0hTxmAOmE6ebF6-rS7A_LUKzdr7z';
+var WA_CLIENT_ID='76e25f45-2171-4a0b-a429-691109e8ca4c';
+var WA_SCOPE='profile:read';
+var WA_CANON='https://lachimym.github.io/dokusho-log/';
 var TAG='#wa読書部';
 var CLUB='あえる読書部';
 var APP_URL='https://lachimym.github.io/dokusho-log/?v=3';
@@ -457,7 +485,7 @@ var SANS="'Inter','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif";
 var MONO="'IBM Plex Mono','Hiragino Kaku Gothic ProN',monospace";
 var NOTE_MAX=80;
 
-var state={me:'', members:[], books:[], editing:null, filter:'*', viewMonth:null, assigns:{}};
+var state={me:'', members:[], memberRows:[], books:[], editing:null, filter:'*', viewMonth:null, assigns:{}, view:null};
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -503,15 +531,17 @@ function api(path, opts){
 function normBook(b){ b.desc=b.description||''; b.status=b.status||'read'; b.rating=+(b.rating||0); b.link=b.link||''; b.genre=b.genre||''; return b; }
 function loadAll(){
   return Promise.all([
-    api('members?select=name&order=name.asc'),
+    /* select=* で wa_id 列も取得（列が無い環境でもエラーにならない） */
+    api('members?select=*&order=name.asc'),
     api('books?select=*&order=date.desc,created_at.desc&limit=2000'),
     api('assignments?select=*').catch(function(){ return []; })
   ]).then(function(rs){
-    state.members=rs[0].map(function(m){ return m.name; });
+    state.memberRows=rs[0]||[];
+    state.members=state.memberRows.map(function(m){ return m.name; });
     state.books=rs[1].map(normBook);
     state.assigns={};
     (rs[2]||[]).forEach(function(a){ state.assigns[a.ym]=a; });
-    lsSet('yonda-cache-v1', JSON.stringify({members:state.members, books:state.books, assigns:state.assigns}));
+    lsSet('yonda-cache-v1', JSON.stringify({members:state.members, memberRows:state.memberRows, books:state.books, assigns:state.assigns}));
     $('net').classList.remove('on');
   });
 }
@@ -725,7 +755,9 @@ function render(){
 function fmtDrawer(){
   var who=state.me||'ゲスト（見るだけ）';
   var c=memCol(state.me);
-  $('dwho').innerHTML=(state.me?'<span class="dot" style="background:'+c[0]+'"></span>':'')+esc(who)+'　<span style="color:var(--faint);margin-left:auto">切替 ▾</span>';
+  var sw=waOn()?'ログイン中':'切替 ▾';
+  $('dwho').innerHTML=(state.me?'<span class="dot" style="background:'+c[0]+'"></span>':'')+esc(who)+'　<span style="color:var(--faint);margin-left:auto">'+sw+'</span>';
+  $('dlogout').hidden=!waOn();
   // みんなの本棚（フィルタ＝だれの本を見るか）。各メンバーの通算読了数つき
   var noView=!state.view;
   var readCnt={}, wantCnt=0, totalRead=0;
@@ -782,7 +814,8 @@ $('drawer').addEventListener('click', function(e){
     state.view='mypage'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return;
   }
   if(e.target.closest('#dpopular')){ state.view='popular'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return; }
-  if(e.target.closest('#dwho')){ $('drawer').classList.remove('on'); openPick(); }
+  if(e.target.closest('#dlogout')){ return; }
+  if(e.target.closest('#dwho')){ if(waOn()) return; $('drawer').classList.remove('on'); openPick(); }
 });
 $('tonow').addEventListener('click', function(){ state.viewMonth=null; state.view=null; render(); });
 
@@ -932,11 +965,22 @@ $('a-clear').addEventListener('click', function(){
 });
 
 function renderPick(){
-  var box=$('members');
-  box.innerHTML=state.members.map(function(m){
-    var c=memCol(m);
-    return '<button class="mem" data-m="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+(m===state.me?'　✓':'')+'</button>';
-  }).join('')||'<div style="font-size:13px;color:var(--sub);">まだ部員がいません。下で最初の部員を追加してください。</div>';
+  var byWa=waConfigured();
+  /* AERU連携がオンなら、名前選択は隠して「AERUでログイン」だけにする */
+  $('wabox').hidden=!byWa;
+  $('members').hidden=byWa;
+  $('picksheet').querySelector('.newrow').hidden=byWa;
+  $('picklead').textContent=byWa
+    ? 'AERUアカウントでログインすると、あなた本人の本棚として記録されます。'
+    : '名前を選ぶと、その人の本棚として記録されます。';
+  $('walogin').disabled=false;
+  if(!byWa){
+    var box=$('members');
+    box.innerHTML=state.members.map(function(m){
+      var c=memCol(m);
+      return '<button class="mem" data-m="'+esc(m)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m)+(m===state.me?'　✓':'')+'</button>';
+    }).join('')||'<div style="font-size:13px;color:var(--sub);">まだ部員がいません。下で最初の部員を追加してください。</div>';
+  }
   $('pickclose').hidden=!state.me;
   $('guest').hidden=!!state.me;
 }
@@ -1922,18 +1966,125 @@ function renderBookImage(b, cover){
 $('close').addEventListener('click', function(){ $('overlay').classList.remove('on'); });
 $('overlay').addEventListener('click', function(e){ if(e.target===$('overlay')) $('overlay').classList.remove('on'); });
 
+/* ========== AERU(WA)連携：ログイン ========== */
+var wa=null, waUser=null;
+function waConfigured(){ return WA_CLIENT_ID.indexOf('YOUR_')!==0 && typeof WA!=='undefined'; }
+function waOn(){ return !!(wa&&waUser); }
+function waRedirectUri(){
+  if(location.hostname==='lachimym.github.io') return WA_CANON;
+  return location.origin+location.pathname;
+}
+function waInit(){
+  if(!waConfigured()) return Promise.resolve(null);
+  try{ wa=new WA({ clientId:WA_CLIENT_ID, redirectUri:waRedirectUri(), scope:WA_SCOPE }); }
+  catch(e){ wa=null; return Promise.resolve(null); }
+  return wa.auth.handleCallback()
+    .catch(function(e){
+      toast(e&&e.code==='AUTH_DENIED'?'ログインをキャンセルしました。':'ログインできませんでした。もう一度お試しください。');
+      return null;
+    })
+    .then(function(){
+      if(!wa.auth.isAuthenticated()) return null;
+      /* 期限切れは SDK が認可画面へ往復（＝WAからログアウトすると連動してログアウト） */
+      return wa.user.me().catch(function(){ var s=wa.auth.session(); return s&&s.user?s.user:null; });
+    })
+    .then(function(u){ waUser=u||null; return waUser; });
+}
+function waRowByName(name){
+  for(var i=0;i<state.memberRows.length;i++){ if(state.memberRows[i].name===name) return state.memberRows[i]; }
+  return null;
+}
+function waMemberRow(){
+  if(!waUser) return null;
+  var id=String(waUser.id);
+  for(var i=0;i<state.memberRows.length;i++){ if(String(state.memberRows[i].wa_id||'')===id) return state.memberRows[i]; }
+  return null;
+}
+function setMe(name){
+  state.me=name; lsSet('yonda-me', name); lsSet('yonda-guest','');
+  $('pick').classList.remove('on'); $('linkmodal').classList.remove('on');
+  render(); checkMigrate();
+}
+function waAfterLogin(){
+  var row=waMemberRow();
+  if(row){ setMe(row.name); return; }
+  openLink();
+}
+function openLink(){
+  $('lk-who').textContent=(waUser&&waUser.name)||'あなた';
+  var free=state.memberRows.filter(function(m){ return !m.wa_id; });
+  $('lk-members').innerHTML=free.map(function(m){
+    var c=memCol(m.name);
+    return '<button class="mem" data-m="'+esc(m.name)+'"><span class="dot" style="background:'+c[0]+'"></span>'+esc(m.name)+'</button>';
+  }).join('')||'<div style="font-size:12px;color:var(--sub);padding:4px;">引き継げる名前はありません。下のボタンで新しく始めてください。</div>';
+  $('pick').classList.remove('on');
+  $('linkmodal').classList.add('on');
+}
+function linkTo(name, btn){
+  if(btn) btn.disabled=true;
+  api('members?name=eq.'+encodeURIComponent(name), {method:'PATCH', body:JSON.stringify({wa_id:String(waUser.id)})})
+    .then(function(){
+      var row=waRowByName(name); if(row) row.wa_id=String(waUser.id);
+      setMe(name); toast('これまでの記録を引き継ぎました。');
+    })
+    .catch(function(){ toast('引き継げませんでした。電波を確認してもう一度お試しください。'); })
+    .then(function(){ if(btn) btn.disabled=false; });
+}
+$('linkmodal').addEventListener('click', function(e){
+  var mb=e.target.closest('.mem');
+  if(mb) linkTo(mb.getAttribute('data-m'), mb);
+});
+$('lk-new').addEventListener('click', function(){
+  if(!waUser) return;
+  var base=(waUser.name||'名無し').slice(0,40), name=base, n=2;
+  while(state.members.indexOf(name)>=0){ name=base+n; n++; }
+  var btn=this; btn.disabled=true;
+  api('members', {method:'POST', body:JSON.stringify({name:name, wa_id:String(waUser.id)})})
+    .then(function(rs){
+      var row=(rs&&rs[0])||{name:name, wa_id:String(waUser.id)};
+      state.memberRows.push(row); state.members.push(name); state.members.sort();
+      setMe(name);
+    })
+    .catch(function(){ toast('作成できませんでした。電波を確認してもう一度お試しください。'); })
+    .then(function(){ btn.disabled=false; });
+});
+$('walogin').addEventListener('click', function(){
+  if(!wa){ toast('いま準備中です。少し待ってからもう一度お試しください。'); return; }
+  var btn=this; btn.disabled=true;
+  Promise.resolve(wa.auth.login()).catch(function(){ toast('ログイン画面を開けませんでした。'); btn.disabled=false; });
+});
+$('dlogout').addEventListener('click', function(){
+  if(wa) wa.auth.logout();
+  waUser=null; state.me=''; lsSet('yonda-me','');
+  $('drawer').classList.remove('on');
+  render(); openPick();
+});
+
 state.me=lsGet('yonda-me')||'';
 try{
   var cache=JSON.parse(lsGet('yonda-cache-v1'));
-  if(cache){ state.members=cache.members||[]; state.books=(cache.books||[]).map(normBook); state.assigns=cache.assigns||{}; }
+  if(cache){ state.members=cache.members||[]; state.memberRows=cache.memberRows||[]; state.books=(cache.books||[]).map(normBook); state.assigns=cache.assigns||{}; }
 }catch(e){}
 render();
 loadAll()
   .then(function(){
     render();
-    if(!state.me){ if(!lsGet('yonda-guest')) openPick(); }
-    else if(state.members.indexOf(state.me)<0){ state.me=''; lsSet('yonda-me',''); openPick(); }
-    else{ checkMigrate(); }
+    return waInit();
+  })
+  .then(function(){
+    if(waConfigured()){
+      if(waUser){ waAfterLogin(); }
+      else{
+        /* AERU連携がオンのときは、ログインしていない人を「名前だけ」で本人扱いしない */
+        state.me=''; lsSet('yonda-me','');
+        render();
+        if(!lsGet('yonda-guest')) openPick();
+      }
+    }else{
+      if(!state.me){ if(!lsGet('yonda-guest')) openPick(); }
+      else if(state.members.indexOf(state.me)<0){ state.me=''; lsSet('yonda-me',''); openPick(); }
+      else{ checkMigrate(); }
+    }
   })
   .catch(function(){ netFail(); });
 })();
