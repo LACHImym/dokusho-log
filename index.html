@@ -101,9 +101,27 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 /* ドロワー内ナビ・フィルタ */
 .dnav{ display:flex; align-items:center; justify-content:space-between; width:100%; background:var(--muted); border:none; color:var(--ink); border-radius:10px; padding:13px 14px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; text-align:left; }
 .dnav:active{ transform:scale(.99); }
-#dfilter{ display:flex; flex-wrap:wrap; gap:6px; }
-.dfchip{ display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:7px 13px; font-size:12.5px; font-weight:500; font-family:var(--sans); cursor:pointer; }
-.dfchip.on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.dnav + .dnav{ margin-top:8px; }
+#dfilter{ display:flex; flex-direction:column; }
+.dfrow{ display:flex; align-items:center; justify-content:space-between; width:100%; background:none; border:none; color:var(--ink); border-radius:10px; padding:11px 8px; font-size:14px; font-family:var(--sans); cursor:pointer; text-align:left; border-bottom:1px solid var(--line-soft); }
+.dfrow:last-child{ border-bottom:none; }
+.dfrow:active{ background:var(--muted); }
+.dfrow.on{ color:var(--accent); font-weight:600; }
+.dfrow .dfname{ display:flex; align-items:center; gap:8px; min-width:0; }
+.dfrow .mc{ font-family:var(--mono); font-size:11px; color:var(--faint); flex:none; }
+/* マイページ */
+.mystat{ display:flex; align-items:baseline; gap:5px; padding:6px 2px 0; }
+.msbig{ font-size:36px; font-weight:700; letter-spacing:-0.02em; line-height:1; }
+.msunit{ font-size:15px; color:var(--sub); }
+.mslbl{ font-size:12.5px; color:var(--sub); margin-left:8px; }
+.mysub{ font-family:var(--mono); font-size:11px; color:var(--faint); padding:6px 2px 0; }
+.loglist{ display:flex; flex-direction:column; margin-top:4px; }
+.logyear{ font-family:var(--mono); font-size:11px; color:var(--accent); font-weight:600; margin:16px 2px 2px; }
+.logrow{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line-soft); }
+.logrow .lt{ font-size:13.5px; line-height:1.4; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.logrow .lmeta{ display:flex; align-items:center; gap:9px; flex:none; }
+.logrow .lstars{ color:var(--accent); font-size:11px; letter-spacing:1px; }
+.logrow .ld{ font-family:var(--mono); font-size:11px; color:var(--faint); }
 /* 人気図書ページ */
 .pagehead{ padding:2px 2px 4px; }
 .pback{ background:var(--muted); border:none; color:var(--ink); border-radius:8px; padding:7px 13px; font-size:12px; font-weight:600; font-family:var(--sans); cursor:pointer; }
@@ -405,20 +423,20 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <div class="mhead"><span>メニュー</span><button class="xbtn" id="dclose">✕</button></div>
     <button id="drec"><span class="plus">＋</span>記録する</button>
     <div class="dsect">
-      <div class="dlabel">みんなの記録</div>
+      <button class="dnav" id="dmypage"><span>👤 マイページ</span><span style="color:var(--faint)">›</span></button>
       <button class="dnav" id="dpopular"><span>★ 人気図書</span><span style="color:var(--faint)">›</span></button>
     </div>
     <div class="dsect">
-      <div class="dlabel">表示する人</div>
+      <div class="dlabel">みんなの本棚</div>
       <div id="dfilter"></div>
-    </div>
-    <div class="dsect">
-      <div class="dlabel">あなた</div>
-      <button id="dwho"></button>
     </div>
     <div class="dsect">
       <div class="dlabel">過去の月</div>
       <div id="dmonths"></div>
+    </div>
+    <div class="dsect">
+      <div class="dlabel">あなた</div>
+      <button id="dwho"></button>
     </div>
   </div>
 </div>
@@ -636,6 +654,7 @@ function setHome(show){ HOME_ELS.forEach(function(id){ var el=$(id); if(el) el.s
 
 function render(){
   if(state.view==='popular'){ setHome(false); $('monthback').classList.remove('on'); renderPopular(); return; }
+  if(state.view==='mypage'){ setHome(false); $('monthback').classList.remove('on'); renderMypage(); return; }
   setHome(true);
 
   var nowYm=today().slice(0,7), nowY=today().slice(0,4);
@@ -707,13 +726,19 @@ function fmtDrawer(){
   var who=state.me||'ゲスト（見るだけ）';
   var c=memCol(state.me);
   $('dwho').innerHTML=(state.me?'<span class="dot" style="background:'+c[0]+'"></span>':'')+esc(who)+'　<span style="color:var(--faint);margin-left:auto">切替 ▾</span>';
-  // 表示する人（フィルタ）
-  var isPop=state.view==='popular';
-  var ff='<button class="dfchip'+((!isPop&&state.filter==='*')?' on':'')+'" data-f="*">みんな（ALL）</button>';
-  ff+='<button class="dfchip'+((!isPop&&state.filter==='#tsundoku')?' on':'')+'" data-f="#tsundoku">積読</button>';
+  // みんなの本棚（フィルタ＝だれの本を見るか）。各メンバーの通算読了数つき
+  var noView=!state.view;
+  var readCnt={}, wantCnt=0, totalRead=0;
+  state.members.forEach(function(m){ readCnt[m]=0; });
+  state.books.forEach(function(b){
+    if(b.status==='want'){ wantCnt++; }
+    else { readCnt[b.member]=(readCnt[b.member]||0)+1; totalRead++; }
+  });
+  var ff='<button class="dfrow'+((noView&&state.filter==='*')?' on':'')+'" data-f="*"><span class="dfname">みんな（ALL）</span><span class="mc">'+totalRead+'冊</span></button>';
+  ff+='<button class="dfrow'+((noView&&state.filter==='#tsundoku')?' on':'')+'" data-f="#tsundoku"><span class="dfname">積読</span><span class="mc">'+wantCnt+'冊</span></button>';
   state.members.forEach(function(m){
     var mc=memCol(m);
-    ff+='<button class="dfchip'+((!isPop&&state.filter===m)?' on':'')+'" data-f="'+esc(m)+'"><span class="dot" style="background:'+mc[0]+'"></span>'+esc(m)+'</button>';
+    ff+='<button class="dfrow'+((noView&&state.filter===m)?' on':'')+'" data-f="'+esc(m)+'"><span class="dfname"><span class="dot" style="background:'+mc[0]+'"></span>'+esc(m)+'</span><span class="mc">'+(readCnt[m]||0)+'冊</span></button>';
   });
   $('dfilter').innerHTML=ff;
   var nowYm=today().slice(0,7);
@@ -733,7 +758,7 @@ $('dclose').addEventListener('click', function(){ $('drawer').classList.remove('
 $('drec').addEventListener('click', function(){ $('drawer').classList.remove('on'); openEntry(); });
 $('drawer').addEventListener('click', function(e){
   if(e.target===$('drawer')){ $('drawer').classList.remove('on'); return; }
-  var fc=e.target.closest('.dfchip');
+  var fc=e.target.closest('.dfrow');
   if(fc){
     state.filter=fc.getAttribute('data-f');
     state.view=null;
@@ -751,6 +776,10 @@ $('drawer').addEventListener('click', function(e){
     render();
     window.scrollTo(0,0);
     return;
+  }
+  if(e.target.closest('#dmypage')){
+    if(!state.me){ $('drawer').classList.remove('on'); openPick('マイページを見るには名前が必要です。選ぶか、下の欄で追加してください。'); return; }
+    state.view='mypage'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return;
   }
   if(e.target.closest('#dpopular')){ state.view='popular'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return; }
   if(e.target.closest('#dwho')){ $('drawer').classList.remove('on'); openPick(); }
@@ -785,7 +814,7 @@ function renderPopular(){
     return a.last<b.last?1:-1;
   }).slice(0,20);
 
-  var html='<div class="pagehead"><button class="pback" id="popback">← 戻る</button><h2 class="pagetitle">★ 人気図書</h2><span class="pagesub">みんなの評価が高い順・上位20冊</span></div>';
+  var html='<div class="pagehead"><button class="pback">← 戻る</button><h2 class="pagetitle">★ 人気図書</h2><span class="pagesub">みんなの評価が高い順・上位20冊</span></div>';
   if(list.length){
     html+='<div class="grid">';
     list.forEach(function(g){ html+=popularCardHtml(g); });
@@ -812,8 +841,37 @@ function popularCardHtml(g){
     '</div>';
 }
 document.getElementById('shelf').addEventListener('click', function(e){
-  if(e.target.closest('#popback')){ state.view=null; render(); window.scrollTo(0,0); }
+  if(e.target.closest('.pback')){ state.view=null; render(); window.scrollTo(0,0); }
 });
+
+/* マイページ（自分の年間冊数＋読書ログ・簡潔表示） */
+function renderMypage(){
+  var me=state.me;
+  var myReads=state.books.filter(function(b){ return b.member===me && b.status!=='want'; })
+    .sort(function(a,b){ return a.date<b.date?1:-1; });
+  var nowY=today().slice(0,4);
+  var yc=myReads.filter(function(b){ return b.date.slice(0,4)===nowY; }).length;
+  var wc=state.books.filter(function(b){ return b.member===me && b.status==='want'; }).length;
+  var c=memCol(me);
+  var html='<div class="pagehead"><button class="pback">← 戻る</button>'+
+    '<h2 class="pagetitle"><span class="dot" style="background:'+c[0]+';width:11px;height:11px;vertical-align:1px;margin-right:7px"></span>'+esc(me)+' のマイページ</h2></div>'+
+    '<div class="mystat"><span class="msbig">'+yc+'</span><span class="msunit">冊</span><span class="mslbl">'+nowY+'年に読んだ本</span></div>'+
+    '<div class="mysub">累計 '+myReads.length+'冊　／　積読 '+wc+'冊</div>';
+  if(myReads.length){
+    var curY=null;
+    html+='<div class="loglist">';
+    myReads.forEach(function(b){
+      var y=b.date.slice(0,4);
+      if(y!==curY){ curY=y; html+='<div class="logyear">'+y+'年</div>'; }
+      var st=b.rating?'<span class="lstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'';
+      html+='<div class="logrow"><span class="lt">'+esc(b.title)+'</span><span class="lmeta">'+st+'<span class="ld">'+md(b.date)+'</span></span></div>';
+    });
+    html+='</div>';
+  }else{
+    html+='<div class="empty"><div class="big">まだ記録がありません</div>「＋記録する」から最初の1冊をどうぞ。</div>';
+  }
+  $('shelf').innerHTML=html;
+}
 
 /* record modal */
 function openEntry(){
