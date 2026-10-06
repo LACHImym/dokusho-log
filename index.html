@@ -116,7 +116,11 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .mslbl{ font-size:12.5px; color:var(--sub); margin-left:8px; }
 .mysub{ font-family:var(--mono); font-size:11px; color:var(--faint); padding:6px 2px 0; }
 .loglist{ display:flex; flex-direction:column; margin-top:4px; }
-.logyear{ font-family:var(--mono); font-size:11px; color:var(--accent); font-weight:600; margin:16px 2px 2px; }
+.logmonth{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:20px 2px 4px; }
+.logmonth .lm-title{ font-size:14px; font-weight:700; }
+.logmonth .lm-right{ display:flex; align-items:center; gap:10px; }
+.logmonth .lm-count{ font-family:var(--mono); font-size:11px; color:var(--faint); }
+.lm-mk{ margin-left:0; }
 .logrow{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line-soft); }
 .logrow .lt{ font-size:13.5px; line-height:1.4; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .logrow .lmeta{ display:flex; align-items:center; gap:9px; flex:none; }
@@ -924,13 +928,19 @@ function renderMypage(){
     '<div class="mystat"><span class="msbig">'+yc+'</span><span class="msunit">冊</span><span class="mslbl">'+nowY+'年に読んだ本</span></div>'+
     '<div class="mysub">累計 '+myReads.length+'冊　／　積読 '+wc+'冊</div>';
   if(myReads.length){
-    var curY=null;
+    /* 月ごとにまとめる（各月に「まとめ画像」ボタン） */
+    var months=[], mmap={};
+    myReads.forEach(function(b){ var ym=b.date.slice(0,7); if(!mmap[ym]){ mmap[ym]=[]; months.push(ym); } mmap[ym].push(b); });
+    var mkSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l4-4 5 5"/><circle cx="9" cy="9" r="1.5"/></svg>';
     html+='<div class="loglist">';
-    myReads.forEach(function(b){
-      var y=b.date.slice(0,4);
-      if(y!==curY){ curY=y; html+='<div class="logyear">'+y+'年</div>'; }
-      var st=b.rating?'<span class="lstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'';
-      html+='<div class="logrow"><span class="lt">'+esc(b.title)+'</span><span class="lmeta">'+st+'<span class="ld">'+md(b.date)+'</span></span></div>';
+    months.forEach(function(ym){
+      html+='<div class="logmonth"><span class="lm-title">'+ymLabel(ym)+'</span>'+
+        '<span class="lm-right"><span class="lm-count">'+mmap[ym].length+'冊</span>'+
+        '<button class="mkimg lm-mk" data-ym="'+ym+'" data-member="'+esc(me)+'">'+mkSvg+'まとめ画像</button></span></div>';
+      mmap[ym].forEach(function(b){
+        var st=b.rating?'<span class="lstars">'+'★★★★★'.slice(0,b.rating)+'</span>':'';
+        html+='<div class="logrow"><span class="lt">'+esc(b.title)+'</span><span class="lmeta">'+st+'<span class="ld">'+md(b.date)+'</span></span></div>';
+      });
     });
     html+='</div>';
   }else{
@@ -1336,7 +1346,7 @@ function lookupIsbn(v){
 
 $('shelf').addEventListener('click', function(e){
   var mk=e.target.closest('.mkimg');
-  if(mk){ makeImage(mk.getAttribute('data-ym')); return; }
+  if(mk){ makeImage(mk.getAttribute('data-ym'), mk.getAttribute('data-member')||null); return; }
   var sb=e.target.closest('.sharebtn');
   if(sb){ makeBookImage(sb.closest('.gcard').getAttribute('data-id')); return; }
   if(e.target.closest('a')) return;
@@ -1660,13 +1670,15 @@ function drawShareIcon(ctx,x,y,s){
   ctx.restore();
 }
 
-function makeImage(ym){
+function makeImage(ym, member){
   var arr=state.books.filter(function(b){
-    return b.status!=='want'&&b.date.slice(0,7)===ym&&(state.filter==='*'||b.member===state.filter);
+    if(b.status==='want'||b.date.slice(0,7)!==ym) return false;
+    if(member) return b.member===member;
+    return state.filter==='*'||b.member===state.filter;
   }).sort(function(a,b){ return a.date<b.date?-1:1; });
   if(!arr.length){ toast('この月の記録がまだありません。'); return; }
-  var who=state.filter==='*'?CLUB:state.filter;
-  var mixed=state.filter==='*';
+  var who=member?member:(state.filter==='*'?CLUB:state.filter);
+  var mixed=member?false:(state.filter==='*');
   toast('まとめ画像を作成中…');
   Promise.all([loadCoverMap(arr), fontsReady()])
     .then(function(rs){ buildSlides(ym, arr, rs[0], who, mixed); })
