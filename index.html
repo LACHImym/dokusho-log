@@ -98,21 +98,26 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 .rrow .rstars{ color:var(--accent); font-size:12px; letter-spacing:1px; }
 .rrow .rnote{ font-size:13px; color:var(--sub); margin-top:5px; line-height:1.6; }
 #reviewsheet .rempty{ text-align:center; color:var(--sub); font-size:13px; padding:30px 10px; line-height:1.9; }
-/* 歴代の人気図書 */
+/* ドロワー内ナビ・フィルタ */
 .dnav{ display:flex; align-items:center; justify-content:space-between; width:100%; background:var(--muted); border:none; color:var(--ink); border-radius:10px; padding:13px 14px; font-size:14px; font-weight:600; font-family:var(--sans); cursor:pointer; text-align:left; }
 .dnav:active{ transform:scale(.99); }
-#poplist{ display:flex; flex-direction:column; }
-.poprow{ display:flex; align-items:center; gap:12px; padding:10px 2px; border-top:1px solid var(--line-soft); }
-.poprow:first-child{ border-top:none; }
-.poprank{ font-family:var(--mono); font-size:13px; font-weight:600; color:var(--faint); width:22px; flex:none; text-align:center; }
-.poprow.top1 .poprank, .poprow.top2 .poprank, .poprow.top3 .poprank{ color:var(--accent); }
-.popcv{ width:38px; height:54px; object-fit:cover; border-radius:4px; border:1px solid var(--line); flex:none; background:var(--muted); }
-.popno{ width:38px; height:54px; border-radius:4px; border:1px solid var(--line); flex:none; background:var(--muted); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:7px; color:var(--faint); }
-.popbody{ flex:1; min-width:0; }
-.popt{ font-size:13.5px; font-weight:600; line-height:1.4; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-.popmeta{ font-family:var(--mono); font-size:11px; color:var(--sub); margin-top:3px; }
-.popmeta .pstars{ color:var(--accent); letter-spacing:1px; }
-#popularsheet .rempty{ text-align:center; color:var(--sub); font-size:13px; padding:30px 10px; line-height:1.9; }
+#dfilter{ display:flex; flex-wrap:wrap; gap:6px; }
+.dfchip{ display:flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line); color:var(--sub); border-radius:999px; padding:7px 13px; font-size:12.5px; font-weight:500; font-family:var(--sans); cursor:pointer; }
+.dfchip.on{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+/* 人気図書ページ */
+.pagehead{ padding:2px 2px 4px; }
+.pback{ background:var(--muted); border:none; color:var(--ink); border-radius:8px; padding:7px 13px; font-size:12px; font-weight:600; font-family:var(--sans); cursor:pointer; }
+.pback:active{ transform:scale(.98); }
+.pagetitle{ font-size:18px; font-weight:700; letter-spacing:-0.02em; margin:12px 0 2px; }
+.pagesub{ font-family:var(--mono); font-size:11px; color:var(--sub); }
+.gcard.pop .cvwrap{ margin-bottom:8px; }
+.readck{ position:absolute; top:6px; left:6px; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,.25); }
+.gcard.pop .gm{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.rstars-wrap{ font-family:var(--mono); font-size:12px; color:var(--sub); }
+.rstars-wrap .rstars{ color:var(--accent); letter-spacing:1px; }
+.popnotes{ margin-top:7px; display:flex; flex-direction:column; gap:5px; }
+.popnotes .pn{ font-size:11.5px; color:var(--sub); line-height:1.5; }
+.popnotes .pill{ margin-right:5px; }
 #asheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
 #asheet input#a-title{ font-size:16px; font-weight:500; }
 #asheet .isbnrow{ display:block; }
@@ -121,8 +126,6 @@ header.app{ position:relative; text-align:center; padding:2px 0 8px; }
 #recbtn{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--muted); border:none; color:var(--ink); border-radius:16px; padding:16px; font-size:15px; font-weight:600; font-family:var(--sans); cursor:pointer; margin-bottom:4px; }
 #recbtn:active{ transform:scale(.99); }
 #recbtn .plus{ width:24px; height:24px; border-radius:50%; background:var(--ink); color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:16px; }
-#filterwrap{ margin-top:14px; }
-#filtersel{ width:100%; -webkit-appearance:none; appearance:none; background-color:var(--card); border:1px solid var(--line); color:var(--ink); border-radius:12px; padding:12px 38px 12px 14px; font-size:14px; font-weight:500; font-family:var(--sans); cursor:pointer; outline:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239a988f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 13px center; }
 .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; flex:none; }
 #monthback{ display:none; align-items:center; gap:8px; font-size:12px; color:var(--sub); margin-top:12px; }
 #monthback.on{ display:flex; }
@@ -178,8 +181,8 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 /* modals */
 .modal{ position:fixed; inset:0; background:rgba(19,19,17,.5); display:none; z-index:30; }
 .modal.on{ display:flex; }
-#overlay, #pick, #entrymodal, #editmodal, #assignmodal, #reviewmodal, #popularmodal{ align-items:center; justify-content:center; padding:20px; }
-#sheet, #picksheet, #esheet, #edsheet, #asheet, #reviewsheet, #popularsheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
+#overlay, #pick, #entrymodal, #editmodal, #assignmodal, #reviewmodal{ align-items:center; justify-content:center; padding:20px; }
+#sheet, #picksheet, #esheet, #edsheet, #asheet, #reviewsheet{ background:var(--card); border-radius:18px; padding:16px; max-width:440px; width:100%; max-height:92vh; overflow:auto; }
 #edsheet input[type="text"]{ width:100%; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); padding:9px 2px; font-family:var(--sans); font-size:14px; outline:none; border-radius:0; }
 #edsheet input[type="text"]:focus{ border-bottom-color:var(--accent); }
 #edsheet input#ed-title{ font-size:16px; font-weight:500; }
@@ -280,10 +283,6 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
 <div id="postbox"></div>
 <div id="migrate"></div>
 
-<div id="filterwrap">
-  <select id="filtersel" aria-label="表示する人"></select>
-</div>
-
 <div id="monthback"><button id="tonow">← 今月に戻る</button><span id="mbnow"></span></div>
 
 <section id="shelf"></section>
@@ -313,14 +312,6 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
       <button class="btn save" id="dl">画像を保存</button>
       <button class="btn" id="close">閉じる</button>
     </div>
-  </div>
-</div>
-
-<div id="popularmodal" class="modal">
-  <div id="popularsheet">
-    <div class="mhead"><span>歴代の人気図書</span><button class="xbtn" id="popclose">✕</button></div>
-    <p class="rsub" id="pop-sub">★の高い順・みんなが読んだ本のランキング</p>
-    <div id="poplist"></div>
   </div>
 </div>
 
@@ -415,7 +406,11 @@ footer.app button{ background:none; border:none; color:var(--faint); font-family
     <button id="drec"><span class="plus">＋</span>記録する</button>
     <div class="dsect">
       <div class="dlabel">みんなの記録</div>
-      <button class="dnav" id="dpopular"><span>★ 歴代の人気図書</span><span style="color:var(--faint)">›</span></button>
+      <button class="dnav" id="dpopular"><span>★ 人気図書</span><span style="color:var(--faint)">›</span></button>
+    </div>
+    <div class="dsect">
+      <div class="dlabel">表示する人</div>
+      <div id="dfilter"></div>
     </div>
     <div class="dsect">
       <div class="dlabel">あなた</div>
@@ -636,7 +631,13 @@ function openAssign(){
 }
 function closeAssign(){ $('assignmodal').classList.remove('on'); }
 
+var HOME_ELS=['tagline','bento','assignwrap','recbtn','postbox','migrate'];
+function setHome(show){ HOME_ELS.forEach(function(id){ var el=$(id); if(el) el.style.display=show?'':'none'; }); }
+
 function render(){
+  if(state.view==='popular'){ setHome(false); $('monthback').classList.remove('on'); renderPopular(); return; }
+  setHome(true);
+
   var nowYm=today().slice(0,7), nowY=today().slice(0,4);
   var clubM=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,7)===nowYm; }).length;
   var clubY=state.books.filter(function(b){ return b.status!=='want'&&b.date.slice(0,4)===nowY; }).length;
@@ -645,15 +646,6 @@ function render(){
     '<div class="bcard hot"><span class="blabel">今年<br><small>みんなで</small></span><span class="bnum"><span class="bbig">'+clubY+'</span><span class="bunit">冊</span></span></div>';
 
   renderAssign();
-
-  var f=$('filtersel');
-  if(state.members.length){
-    var opts='<option value="*">みんな（ALL）</option>';
-    opts+='<option value="#tsundoku">積読</option>';
-    state.members.forEach(function(m){ opts+='<option value="'+esc(m)+'">'+esc(m)+'</option>'; });
-    f.innerHTML=opts;
-    f.value=state.filter;
-  }else{ f.innerHTML=''; }
 
   var isTsundoku=state.filter==='#tsundoku';
   var viewingPast=!isTsundoku && !!state.viewMonth && state.viewMonth!==nowYm;
@@ -715,6 +707,15 @@ function fmtDrawer(){
   var who=state.me||'ゲスト（見るだけ）';
   var c=memCol(state.me);
   $('dwho').innerHTML=(state.me?'<span class="dot" style="background:'+c[0]+'"></span>':'')+esc(who)+'　<span style="color:var(--faint);margin-left:auto">切替 ▾</span>';
+  // 表示する人（フィルタ）
+  var isPop=state.view==='popular';
+  var ff='<button class="dfchip'+((!isPop&&state.filter==='*')?' on':'')+'" data-f="*">みんな（ALL）</button>';
+  ff+='<button class="dfchip'+((!isPop&&state.filter==='#tsundoku')?' on':'')+'" data-f="#tsundoku">積読</button>';
+  state.members.forEach(function(m){
+    var mc=memCol(m);
+    ff+='<button class="dfchip'+((!isPop&&state.filter===m)?' on':'')+'" data-f="'+esc(m)+'"><span class="dot" style="background:'+mc[0]+'"></span>'+esc(m)+'</button>';
+  });
+  $('dfilter').innerHTML=ff;
   var nowYm=today().slice(0,7);
   var groups={};
   state.books.forEach(function(b){ if(b.status!=='want'){ var ym=b.date.slice(0,7); groups[ym]=(groups[ym]||0)+1; } });
@@ -732,31 +733,45 @@ $('dclose').addEventListener('click', function(){ $('drawer').classList.remove('
 $('drec').addEventListener('click', function(){ $('drawer').classList.remove('on'); openEntry(); });
 $('drawer').addEventListener('click', function(e){
   if(e.target===$('drawer')){ $('drawer').classList.remove('on'); return; }
-  var mr=e.target.closest('.mrow');
-  if(mr){
-    var ym=mr.getAttribute('data-ym');
-    state.viewMonth=(ym==='__now')?null:ym;
+  var fc=e.target.closest('.dfchip');
+  if(fc){
+    state.filter=fc.getAttribute('data-f');
+    state.view=null;
     $('drawer').classList.remove('on');
     render();
     window.scrollTo(0,0);
     return;
   }
-  if(e.target.closest('#dpopular')){ $('drawer').classList.remove('on'); openPopular(); return; }
+  var mr=e.target.closest('.mrow');
+  if(mr){
+    var ym=mr.getAttribute('data-ym');
+    state.viewMonth=(ym==='__now')?null:ym;
+    state.view=null;
+    $('drawer').classList.remove('on');
+    render();
+    window.scrollTo(0,0);
+    return;
+  }
+  if(e.target.closest('#dpopular')){ state.view='popular'; $('drawer').classList.remove('on'); render(); window.scrollTo(0,0); return; }
   if(e.target.closest('#dwho')){ $('drawer').classList.remove('on'); openPick(); }
 });
-$('tonow').addEventListener('click', function(){ state.viewMonth=null; render(); });
+$('tonow').addEventListener('click', function(){ state.viewMonth=null; state.view=null; render(); });
 
-/* 歴代の人気図書（★順ランキング） */
-function openPopular(){
+/* 人気図書ページ（★の高い順・上位20冊） */
+function renderPopular(){
   var map={};
   state.books.forEach(function(b){
     if(b.status==='want') return;
     var key=(b.isbn&&b.isbn.length)?('i:'+b.isbn):('t:'+(b.title||''));
-    var g=map[key]||(map[key]={title:b.title||'', cover:'', readers:{}, ratings:[], last:''});
+    var g=map[key]||(map[key]={title:b.title||'', cover:'', genre:'', readers:{}, ratings:[], notes:[], link:'', mine:false, last:''});
     g.readers[b.member]=true;
     if(b.rating) g.ratings.push(b.rating);
     if(!g.cover && b.cover) g.cover=b.cover;
+    if(!g.genre && b.genre) g.genre=b.genre;
     if(!g.title && b.title) g.title=b.title;
+    if(!g.link && b.link) g.link=b.link;
+    if(b.note) g.notes.push({member:b.member, note:b.note, rating:b.rating});
+    if(state.me && b.member===state.me) g.mine=true;
     if(b.date>g.last) g.last=b.date;
   });
   var list=Object.keys(map).map(function(k){
@@ -768,27 +783,36 @@ function openPopular(){
     if(b.avg!==a.avg) return b.avg-a.avg;
     if(b.count!==a.count) return b.count-a.count;
     return a.last<b.last?1:-1;
-  });
-  if(list.length){
-    $('poplist').innerHTML=list.map(function(g,i){
-      var stars=g.avg?('<span class="pstars">'+'★★★★★'.slice(0,Math.round(g.avg))+'☆☆☆☆☆'.slice(0,5-Math.round(g.avg))+'</span> '+g.avg.toFixed(1)):'評価なし';
-      var cv=g.cover?'<img class="popcv" src="'+esc(g.cover)+'" alt="" loading="lazy">':'<span class="popno">NO<br>IMG</span>';
-      return '<div class="poprow'+(i<3?' top'+(i+1):'')+'"><span class="poprank">'+(i+1)+'</span>'+cv+
-        '<div class="popbody"><div class="popt">'+esc(g.title)+'</div>'+
-        '<div class="popmeta">'+stars+'　・　'+g.count+'人が読了</div></div></div>';
-    }).join('');
-  }else{
-    $('poplist').innerHTML='<div class="rempty">まだ記録がありません。<br>読了した本がたまるとランキングが出ます。</div>';
-  }
-  $('popularmodal').classList.add('on');
-}
-$('popclose').addEventListener('click', function(){ $('popularmodal').classList.remove('on'); });
-$('popularmodal').addEventListener('click', function(e){ if(e.target===$('popularmodal')) $('popularmodal').classList.remove('on'); });
+  }).slice(0,20);
 
-/* filter (pulldown) */
-$('filtersel').addEventListener('change', function(){
-  state.filter=this.value;
-  render();
+  var html='<div class="pagehead"><button class="pback" id="popback">← 戻る</button><h2 class="pagetitle">★ 人気図書</h2><span class="pagesub">みんなの評価が高い順・上位20冊</span></div>';
+  if(list.length){
+    html+='<div class="grid">';
+    list.forEach(function(g){ html+=popularCardHtml(g); });
+    html+='</div>';
+  }else{
+    html+='<div class="empty"><div class="big">まだ記録がありません</div>読了した本がたまると、人気順に並びます。</div>';
+  }
+  $('shelf').innerHTML=html;
+}
+function popularCardHtml(g){
+  var cv=g.cover?'<img class="cv" src="'+esc(g.cover)+'" alt="" loading="lazy">':'<span class="noimg">NO<br>IMAGE</span>';
+  var starN=Math.round(g.avg);
+  var stars=g.avg?('<span class="rstars">'+'★★★★★'.slice(0,starN)+'</span> '+g.avg.toFixed(1)):'<span class="d">評価なし</span>';
+  var notes=g.notes.length?('<div class="popnotes">'+g.notes.map(function(n){
+      var c=memCol(n.member);
+      return '<div class="pn"><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(n.member)+'</span>「'+esc(n.note)+'」</div>';
+    }).join('')+'</div>'):'';
+  return '<div class="gcard pop">'+
+    '<div class="cvwrap">'+cv+(g.mine?'<span class="readck" aria-label="読了済み">✓</span>':'')+'</div>'+
+    '<div class="gt">'+esc(g.title)+'</div>'+
+    '<div class="gm"><span class="rstars-wrap">'+stars+'</span><span class="d">'+g.count+'人が読了</span></div>'+
+    notes+
+    (g.link?'<a class="blink" href="'+esc(g.link)+'" target="_blank" rel="noopener">リンク↗</a>':'')+
+    '</div>';
+}
+document.getElementById('shelf').addEventListener('click', function(e){
+  if(e.target.closest('#popback')){ state.view=null; render(); window.scrollTo(0,0); }
 });
 
 /* record modal */
