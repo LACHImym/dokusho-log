@@ -1,0 +1,22 @@
+{
+  "name": "読書log",
+  "description": "#wa読書部 のみんなで読んだ本を記録して見せ合う読書ログです。WAアカウントでログインして本の記録を残し、読了をAERUのタイムラインに投稿できます。読書部配信の予定も表示します。",
+  "app_url": "https://lachimym.github.io/dokusho-log/",
+  "redirect_uris": [
+    "https://lachimym.github.io/dokusho-log/",
+    "http://localhost:4173/"
+  ],
+  "allowed_origins": [
+    "https://lachimym.github.io"
+  ],
+  "client_type": "public",
+  "icon_url": "https://lachimym.github.io/dokusho-log/icon-180.png",
+  "scopes": [
+    "profile:read",
+    "events:read",
+    "tv_schedules:read",
+    "streams:read",
+    "posts:write",
+    "notifications:write"
+  ]
+}
