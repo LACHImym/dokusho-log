@@ -2047,6 +2047,7 @@ function waMemberRow(){
 }
 function setMe(name){
   state.me=name; lsSet('yonda-me', name); lsSet('yonda-guest','');
+  lsSet('yonda-wa-me', name); /* このブラウザはログイン済み（故意のログアウトまで記憶） */
   $('pick').classList.remove('on'); $('linkmodal').classList.remove('on');
   render(); checkMigrate();
 }
@@ -2100,7 +2101,7 @@ $('walogin').addEventListener('click', function(){
 });
 $('dlogout').addEventListener('click', function(){
   if(wa) wa.auth.logout();
-  waUser=null; state.me=''; lsSet('yonda-me','');
+  waUser=null; state.me=''; lsSet('yonda-me',''); lsSet('yonda-wa-me',''); /* 記憶を消す＝次回はログイン画面 */
   $('drawer').classList.remove('on');
   render(); openPick();
 });
@@ -2120,10 +2121,17 @@ loadAll()
     if(waConfigured()){
       if(waUser){ waAfterLogin(); }
       else{
-        /* AERU連携がオンのときは、ログインしていない人を「名前だけ」で本人扱いしない */
-        state.me=''; lsSet('yonda-me','');
-        render();
-        if(!lsGet('yonda-guest')) openPick();
+        /* WAの有効なセッションが無いとき：このブラウザで一度ログイン済みなら、その本人のまま続行（ポップアップを出さない）。
+           ログイン履歴が無い場合だけログイン画面を出す。故意のログアウトで yonda-wa-me は消える。 */
+        var remembered=lsGet('yonda-wa-me');
+        if(remembered && state.members.indexOf(remembered)>=0){
+          state.me=remembered; lsSet('yonda-me', remembered);
+          render(); checkMigrate();
+        }else{
+          state.me=''; lsSet('yonda-me','');
+          render();
+          if(!lsGet('yonda-guest')) openPick();
+        }
       }
     }else{
       if(!state.me){ if(!lsGet('yonda-guest')) openPick(); }
